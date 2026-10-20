@@ -72,7 +72,7 @@ footer { font-size: 13px; color: var(--muted); }
   <div class="row">
     <div class="seg" role="group" aria-label="Чей расчёт">
       <button type="button" id="m-cleaner" aria-pressed="true">Для химчистки</button>
-      <button type="button" id="m-agent" aria-pressed="false">Для Посредника</button>
+      <button type="button" id="m-agent" aria-pressed="false">Для Посредника 🔒</button>
     </div>
   </div>
 
@@ -138,7 +138,9 @@ footer { font-size: 13px; color: var(--muted); }
     tax: { label: 'Налог с нашего дохода', unit: '%', value: 13 },
     hosting: { label: 'Хостинг бота', unit: 'BYN', value: 52 },
   };
-  const state = { mode: 'cleaner', per: 'month', selected: 'full' };
+  const state = { mode: 'cleaner', per: 'month', selected: 'full', unlocked: false };
+  // Режим «Для Посредника» — по паролю владельца. Хранится только хеш SHA-256.
+  const AGENT_HASH = '967206673847d5ecbb2438bc5cae776c805839af8bd9ef573156b7859d0fd48f';
   const $ = (id) => document.getElementById(id);
   const fmt = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { maximumFractionDigits: n !== 0 && Math.abs(n) < 100 ? 2 : 0 });
   const usd = (n) => '~' + (n < 0 ? '−' : '') + '$' + fmt(Math.abs(n / RATE));
@@ -278,7 +280,19 @@ footer { font-size: 13px; color: var(--muted); }
     render();
   }
   $('m-cleaner').addEventListener('click', () => setMode('cleaner'));
-  $('m-agent').addEventListener('click', () => setMode('agent'));
+  async function sha256(text) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+    return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+  }
+  $('m-agent').addEventListener('click', async () => {
+    if (state.unlocked) { setMode('agent'); return; }
+    const pw = window.prompt('Расчёт Посредника — введите пароль');
+    if (pw === null) return;
+    try {
+      if ((await sha256(pw)) === AGENT_HASH) { state.unlocked = true; setMode('agent'); }
+      else window.alert('Неверный пароль');
+    } catch (e) { window.alert('Браузер не может проверить пароль. Откройте файл в Chrome или Safari.'); }
+  });
   $('per-month').addEventListener('click', () => setPer('month'));
   $('per-item').addEventListener('click', () => setPer('item'));
   ['items', 'check', 'combo', 'single', 'self'].forEach((id) => $(id).addEventListener('input', render));
@@ -305,7 +319,7 @@ footer { font-size: 13px; color: var(--muted); }
     const again = $('body').querySelector(key);
     if (again) { again.value = text; again.focus(); }
   });
-  if (location.hash === '#posrednik') setMode('agent'); else render();
+  render();
 })();
 </script>
 </body>
