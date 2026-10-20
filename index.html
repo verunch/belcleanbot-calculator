@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Калькулятор районного пункта</title>
+<meta name="description" content="BelCleanBot: доходы и расходы районного пункта приёма химчистки по тарифам «Минимальный», «Средний», «Полный».">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;600;700&family=Unbounded:wght@600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f7f8; --card: #ffffff; --text: #14232b; --muted: #5b6b73; --line: #d9e1e4;
+  --accent: #0e6e86; --accent-soft: #e2f0f3; --ok: #1f7a4d; --bad: #b3261e; --sel: #fff7df;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1a20; --card: #16252d; --text: #e6eef1; --muted: #9db0b8; --line: #2a3d47;
+    --accent: #4fb6cf; --accent-soft: #1d3039; --ok: #5cc28e; --bad: #f2867d; --sel: #2c2a1c;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1a20; --card: #16252d; --text: #e6eef1; --muted: #9db0b8; --line: #2a3d47;
+  --accent: #4fb6cf; --accent-soft: #1d3039; --ok: #5cc28e; --bad: #f2867d; --sel: #2c2a1c;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.45 'Golos Text', Arial, sans-serif; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 32px 16px 48px; display: flex; flex-direction: column; gap: 20px; }
+h1 { font-family: 'Unbounded', Arial, sans-serif; font-size: clamp(22px, 4vw, 32px); line-height: 1.2; margin: 0; }
+.lead { margin: 0; color: var(--muted); max-width: 720px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; background: var(--card); }
+.seg button { border: 0; background: transparent; color: var(--text); font: inherit; font-weight: 600; padding: 8px 18px; border-radius: 999px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+.row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 180px; flex: 1; }
+.field label { font-size: 14px; color: var(--muted); font-weight: 600; }
+input[type="number"] { font: inherit; font-size: 20px; font-weight: 600; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--text); width: 100%; }
+input[type="number"]:focus-visible, button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.result { flex: 1.4; min-width: 240px; background: var(--accent-soft); border-radius: 12px; padding: 12px 14px; }
+.result .big { font-family: 'Unbounded', Arial, sans-serif; font-size: 26px; color: var(--accent); }
+.result .small { font-size: 14px; color: var(--muted); }
+.checks { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 15px; }
+.checks label { display: inline-flex; gap: 8px; align-items: center; cursor: pointer; }
+.frame { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--card); }
+table { border-collapse: collapse; width: 100%; min-width: 680px; }
+th, td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: right; vertical-align: top; }
+th:first-child, td:first-child { text-align: left; }
+thead th { font-size: 13px; color: var(--muted); font-weight: 600; background: var(--bg); }
+thead th.tariff { cursor: pointer; color: var(--text); font-size: 15px; }
+thead th.tariff small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; }
+th.sel, td.sel { background: var(--sel); }
+td .usd { display: block; font-size: 12px; color: var(--muted); }
+td.param { width: 120px; }
+td.param input + .usd + input { margin-top: 6px; }
+td.param input { font-size: 15px; padding: 6px 8px; }
+tr.total td { font-weight: 700; }
+tr.income td { font-weight: 700; font-size: 18px; }
+.pos { color: var(--ok); } .neg { color: var(--bad); }
+.na { color: var(--muted); }
+.note { font-size: 13px; color: var(--muted); margin: 0; }
+.hint { font-size: 13px; color: var(--muted); }
+footer { font-size: 13px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header style="display:flex;flex-direction:column;gap:10px">
+    <h1>Районный пункт приёма химчистки: доходы и расходы</h1>
+    <p class="lead">BelCleanBot — чат-бот приёма заказов и пункты в райцентрах. Введите, сколько вещей в месяц принимает пункт и средний чек, — таблица посчитает расходы и доход по каждому тарифу.</p>
+  </header>
+
+  <div class="row">
+    <div class="seg" role="group" aria-label="Чей расчёт">
+      <button type="button" id="m-cleaner" aria-pressed="true">Для химчистки</button>
+      <button type="button" id="m-agent" aria-pressed="false">Для Посредника</button>
+    </div>
+  </div>
+
+  <section class="card row" aria-label="Ввод и результат">
+    <div class="field">
+      <label for="items">Вещей в месяц в пункте</label>
+      <input id="items" type="number" min="0" step="1" value="50" inputmode="numeric">
+    </div>
+    <div class="field">
+      <label for="check">Средняя стоимость чистки одной вещи, BYN</label>
+      <input id="check" type="number" min="0" step="1" value="75" inputmode="decimal">
+    </div>
+    <div class="result" aria-live="polite">
+      <div class="row" style="gap:10px;align-items:center;justify-content:space-between">
+        <span class="small" id="out-label">Доход химчистки</span>
+        <div class="seg" role="group" aria-label="Как показать доход">
+          <button type="button" id="per-month" aria-pressed="true">за месяц</button>
+          <button type="button" id="per-item" aria-pressed="false">с одной вещи</button>
+        </div>
+      </div>
+      <div class="big" id="out">—</div>
+      <div class="small" id="out-sub"></div>
+    </div>
+  </section>
+
+  <div class="checks">
+    <label><input type="checkbox" id="combo"> «Комбо» — у химчистки ещё и бот минимум в 2 городских пунктах</label>
+    <label><input type="checkbox" id="single"> У химчистки всего один пункт</label>
+    <label id="self-wrap" hidden><input type="checkbox" id="self"> Приёмщик — я сама (без зарплаты)</label>
+  </div>
+
+  <div class="frame">
+    <table>
+      <thead><tr id="head"></tr></thead>
+      <tbody id="body"></tbody>
+    </table>
+  </div>
+  <p class="hint">Нажмите на название тарифа — доход по нему появится в поле сверху. Все числа в полях таблицы — наши значения по умолчанию, их можно менять: расчёт обновится сразу. Обновите страницу, чтобы вернуть значения по умолчанию.</p>
+  <p class="note" id="note"></p>
+
+  <footer>
+    Суммы — в BYN, ниже — в долларах по курсу 3,01 BYN за $1. Тарифы BelCleanBot на 20.10.2026. Расчёт — пример: себестоимость чистки и стоимость рейса у каждой химчистки свои.<br>
+    Вера Бакерова · +375 29 574 58 70 · Telegram: @verabakea · verbapho@gmail.com
+  </footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  const RATE = 3.01; // BYN за $1
+  // Тарифы (D-34): бот в каждом пункте + уровень района сверх бота; «Комбо» — −1,5% и −$65 минимума
+  const BOT = { multi: { pct: 0.043, min: 60, max: 253 }, single: { pct: 0.05, min: 70, max: 280 } };
+  const TARIFFS = [
+    { id: 'min', name: 'Минимальный', what: 'бот + продвижение', pct: 0.03, min: 90, ourStaff: false, ourRent: false },
+    { id: 'mid', name: 'Средний', what: '+ наш приёмщик', pct: 0.06, min: 210, ourStaff: true, ourRent: false },
+    { id: 'full', name: 'Полный', what: '+ наше помещение', pct: 0.10, min: 435, ourStaff: true, ourRent: true },
+  ];
+  const params = {
+    rent: { label: 'Аренда помещения с коммунальными', unit: 'BYN', value: 237 },
+    staff: { label: 'Зарплата приёмщика (12 ч в неделю)', unit: 'BYN', value: 355 },
+    cost: { label: 'Чистка: химия, работа мастера', unit: '% выручки', value: 30 },
+    trip: { label: 'Рейс в райцентр и обратно', unit: 'BYN', value: 616 },
+    tax: { label: 'Налог с нашего дохода', unit: '%', value: 13 },
+    hosting: { label: 'Хостинг бота', unit: 'BYN', value: 52 },
+  };
+  const state = { mode: 'cleaner', per: 'month', selected: 'full' };
+  const $ = (id) => document.getElementById(id);
+  const fmt = (n) => (Math.round(n * 100) / 100).toLocaleString('ru-RU', { maximumFractionDigits: n !== 0 && Math.abs(n) < 100 ? 2 : 0 });
+  const usd = (n) => '~' + (n < 0 ? '−' : '') + '$' + fmt(Math.abs(n / RATE));
+  const money = (n) => '<span class="' + (n < 0 ? 'neg' : '') + '">' + (n < 0 ? '−' : '') + fmt(Math.abs(n)) + ' BYN</span><span class="usd">' + usd(n) + '</span>';
+  const num = (id) => { const v = Number($(id).value); return Number.isFinite(v) && v > 0 ? v : 0; };
+  const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
+
+  function fees(t, revenue) {
+    const b = $('single').checked ? BOT.single : BOT.multi;
+    const combo = $('combo').checked;
+    const pct = Math.max(combo ? t.pct - 0.015 : t.pct, 0);
+    const min = Math.max(combo ? t.min - 65 : t.min, 0);
+    return {
+      bot: clamp(revenue * b.pct, b.min * RATE, b.max * RATE),
+      level: Math.max(revenue * pct, min * RATE),
+      levelText: (pct * 100).toLocaleString('ru-RU', { maximumFractionDigits: 2 }) + '%, не менее $' + min,
+      botText: (b.pct * 100).toLocaleString('ru-RU', { maximumFractionDigits: 2 }) + '%, не менее $' + b.min,
+    };
+  }
+
+  function rowsFor(revenue) {
+    const P = (k) => params[k].value;
+    const self = $('self').checked;
+    return TARIFFS.map((t) => {
+      const f = fees(t, revenue);
+      if (state.mode === 'cleaner') {
+        const lines = {
+          revenue,
+          bot: -f.bot,
+          level: -f.level,
+          rent: t.ourRent ? null : -P('rent'),
+          staff: t.ourStaff ? null : -P('staff'),
+          cost: -revenue * P('cost') / 100,
+          trip: -P('trip'),
+        };
+        const expenses = f.bot + f.level + (t.ourRent ? 0 : P('rent')) + (t.ourStaff ? 0 : P('staff')) + revenue * P('cost') / 100 + P('trip');
+        return { t, f, lines, expenses, income: revenue - expenses };
+      }
+      const got = f.bot + f.level;
+      const lines = {
+        bot: f.bot,
+        level: f.level,
+        got,
+        tax: -got * P('tax') / 100,
+        hosting: -P('hosting'),
+        staff: t.ourStaff ? (self ? 0 : -P('staff')) : null,
+        rent: t.ourRent ? -P('rent') : null,
+      };
+      const expenses = got * P('tax') / 100 + P('hosting') + (t.ourStaff && !self ? P('staff') : 0) + (t.ourRent ? P('rent') : 0);
+      return { t, f, lines, expenses, income: got - expenses };
+    });
+  }
+
+  const LAYOUT = {
+    cleaner: [
+      ['revenue', 'Выручка пункта (вещей × средняя стоимость)', null],
+      ['bot', 'Платите Посреднику: бот в пункте', null],
+      ['level', 'Платите Посреднику: тариф района', null],
+      ['rent', 'Ваша аренда с коммунальными', 'rent'],
+      ['staff', 'Зарплата вашему приёмщику', 'staff'],
+      ['cost', 'Себестоимость чистки', 'cost'],
+      ['trip', 'Рейс в райцентр и обратно (ваш транспорт)', 'trip'],
+    ],
+    agent: [
+      ['bot', 'Получаем от химчистки: бот в пункте', null],
+      ['level', 'Получаем от химчистки: тариф района', null],
+      ['got', 'Итого получаем', null],
+      ['tax', 'Налог', 'tax'],
+      ['hosting', 'Хостинг бота', 'hosting'],
+      ['staff', 'Зарплата приёмщика (если приёмщик наш)', 'staff'],
+      ['rent', 'Аренда с коммунальными (если помещение наше)', 'rent'],
+    ],
+  };
+
+  function render() {
+    const items = num('items');
+    const revenue = items * num('check');
+    const data = rowsFor(revenue);
+    const sel = (id) => (id === state.selected ? ' sel' : '');
+
+    $('head').innerHTML = '<th scope="col">Строка</th><th scope="col">Значение</th>' + data.map((d) =>
+      '<th scope="col" class="tariff' + sel(d.t.id) + '" data-id="' + d.t.id + '" tabindex="0" aria-pressed="' + (d.t.id === state.selected) + '">' +
+      d.t.name + '<small>' + d.t.what + ' · ' + d.f.levelText + '</small></th>').join('');
+
+    const b = $('single').checked ? BOT.single : BOT.multi;
+    const tin = (attr, i, v, lbl) => '<input type="number" min="0" step="any" ' + attr + '="' + i + '" value="' + v + '" aria-label="' + lbl + '">';
+    const tariffRows = [
+      '<tr><td>Тариф района, % от выручки пункта</td><td class="param"></td>' + data.map((d, i) =>
+        '<td class="param' + sel(d.t.id) + '">' + tin('data-tpct', i, +(TARIFFS[i].pct * 100).toFixed(2), d.t.name + ': процент') + '<span class="usd">%' + ($('combo').checked ? ' (в «Комбо» −1,5)' : '') + '</span></td>').join('') + '</tr>',
+      '<tr><td>Минимум тарифа района в месяц</td><td class="param"></td>' + data.map((d, i) =>
+        '<td class="param' + sel(d.t.id) + '">' + tin('data-tmin', i, TARIFFS[i].min, d.t.name + ': минимум, $') + '<span class="usd">$' + ($('combo').checked ? ' (в «Комбо» −65)' : '') + '</span></td>').join('') + '</tr>',
+      '<tr><td>Бот в пункте: % от выручки и минимум</td><td class="param">' + tin('data-bpct', 0, +(b.pct * 100).toFixed(2), 'Бот: процент') + '<span class="usd">%</span>' + tin('data-bmin', 0, b.min, 'Бот: минимум, $') + '<span class="usd">$</span></td>' +
+        data.map((d) => '<td class="na' + sel(d.t.id) + '">одинаково</td>').join('') + '</tr>',
+    ];
+    const body = tariffRows.concat(LAYOUT[state.mode].map(([key, label, param]) => {
+      const p = param ? params[param] : null;
+      const input = p ? '<input type="number" min="0" step="any" data-param="' + param + '" value="' + p.value + '" aria-label="' + p.label + ', ' + p.unit + '"><span class="usd">' + p.unit + '</span>' : '';
+      const cells = data.map((d) => {
+        const v = d.lines[key];
+        if (v === null || v === undefined) {
+          const who = state.mode === 'cleaner' ? 'нет — даёт Посредник' : 'нет — у химчистки';
+          return '<td class="na' + sel(d.t.id) + '">' + who + '</td>';
+        }
+        return '<td class="' + sel(d.t.id).trim() + '">' + money(v) + '</td>';
+      }).join('');
+      const strong = key === 'got' || key === 'revenue';
+      return '<tr' + (strong ? ' class="total"' : '') + '><td>' + label + '</td><td class="param">' + input + '</td>' + cells + '</tr>';
+    }));
+    body.push('<tr class="total"><td>Итого расходов</td><td></td>' + data.map((d) => '<td class="' + sel(d.t.id).trim() + '">' + money(-d.expenses) + '</td>').join('') + '</tr>');
+    body.push('<tr class="income"><td>' + (state.mode === 'cleaner' ? 'Доход химчистки' : 'Доход Посредника') + '</td><td></td>' + data.map((d) =>
+      '<td class="' + sel(d.t.id).trim() + '"><span class="' + (d.income >= 0 ? 'pos' : 'neg') + '">' + fmt(d.income) + ' BYN</span><span class="usd">' + usd(d.income) +
+      (items ? ' · ' + fmt(d.income / items) + ' BYN с вещи' : '') + '</span></td>').join('') + '</tr>');
+    $('body').innerHTML = body.join('');
+
+    const chosen = data.find((d) => d.t.id === state.selected);
+    const value = state.per === 'item' ? (items ? chosen.income / items : 0) : chosen.income;
+    $('out-label').textContent = (state.mode === 'cleaner' ? 'Доход химчистки' : 'Доход Посредника') + ' · тариф «' + chosen.t.name + '»' + ($('combo').checked ? ' в «Комбо»' : '');
+    $('out').innerHTML = '<span class="' + (value < 0 ? 'neg' : '') + '">' + fmt(value) + ' BYN</span>';
+    $('out-sub').textContent = usd(value) + (state.per === 'item' ? ' с одной вещи' : ' в месяц') + ' · выручка пункта ' + fmt(revenue) + ' BYN';
+
+    $('note').textContent = state.mode === 'cleaner'
+      ? 'Бот в пункте: ' + data[0].f.botText + ' от выручки. В «Комбо» бот в городских пунктах оплачивается отдельно — его покрывает скидка на район. Транспорт и инвентарь (касса, стойки) — всегда химчистка.'
+      : 'Хостинг — на весь бот: если пунктов несколько, он делится между ними. В «Полном» аренда и приёмщик — наши; в «Среднем» — только приёмщик.';
+  }
+
+  function setMode(m) {
+    state.mode = m;
+    $('m-cleaner').setAttribute('aria-pressed', m === 'cleaner');
+    $('m-agent').setAttribute('aria-pressed', m === 'agent');
+    $('self-wrap').hidden = m !== 'agent';
+    render();
+  }
+  function setPer(p) {
+    state.per = p;
+    $('per-month').setAttribute('aria-pressed', p === 'month');
+    $('per-item').setAttribute('aria-pressed', p === 'item');
+    render();
+  }
+  $('m-cleaner').addEventListener('click', () => setMode('cleaner'));
+  $('m-agent').addEventListener('click', () => setMode('agent'));
+  $('per-month').addEventListener('click', () => setPer('month'));
+  $('per-item').addEventListener('click', () => setPer('item'));
+  ['items', 'check', 'combo', 'single', 'self'].forEach((id) => $(id).addEventListener('input', render));
+  $('head').addEventListener('click', (e) => {
+    const th = e.target.closest('th.tariff'); if (!th) return;
+    state.selected = th.dataset.id; render();
+  });
+  $('head').addEventListener('keydown', (e) => {
+    const th = e.target.closest('th.tariff');
+    if (th && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); state.selected = th.dataset.id; render(); $('head').querySelector('[data-id="' + state.selected + '"]').focus(); }
+  });
+  $('body').addEventListener('input', (e) => {
+    const el = e.target; const ds = el.dataset || {};
+    const raw = Number(el.value); const v = Number.isFinite(raw) && raw >= 0 ? raw : 0;
+    let key;
+    if (ds.param) { params[ds.param].value = v; key = '[data-param="' + ds.param + '"]'; }
+    else if (ds.tpct) { TARIFFS[ds.tpct].pct = v / 100; key = '[data-tpct="' + ds.tpct + '"]'; }
+    else if (ds.tmin) { TARIFFS[ds.tmin].min = v; key = '[data-tmin="' + ds.tmin + '"]'; }
+    else if (ds.bpct) { ($('single').checked ? BOT.single : BOT.multi).pct = v / 100; key = '[data-bpct]'; }
+    else if (ds.bmin) { ($('single').checked ? BOT.single : BOT.multi).min = v; key = '[data-bmin]'; }
+    else return;
+    const text = el.value;
+    render();
+    const again = $('body').querySelector(key);
+    if (again) { again.value = text; again.focus(); }
+  });
+  if (location.hash === '#posrednik') setMode('agent'); else render();
+})();
+</script>
+</body>
+</html>
