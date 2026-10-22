@@ -71,6 +71,7 @@ footer { font-size: 13px; color: var(--muted); }
 .rc-big { font-family: 'Unbounded', Arial, sans-serif; font-size: 22px; }
 .rc-sub { font-size: 13px; color: var(--muted); }
 .sumh { margin: 0 0 10px; font-size: 18px; }
+.costnote { margin: 0; padding: 10px 14px; border-radius: 10px; background: var(--accent-soft); font-size: 15px; }
 .calc-row { margin-top: 16px; }
 .calc-btn { font: inherit; font-weight: 700; font-size: 17px; padding: 12px 28px; border: 0; border-radius: 999px; background: var(--accent); color: #fff; cursor: pointer; }
 .calc-btn:hover { filter: brightness(1.08); }
@@ -157,13 +158,14 @@ details summary { cursor: pointer; font-weight: 700; }
     <div class="cards" id="cards" aria-live="polite"></div>
   </section>
 
+  <p class="costnote">Выгода считается <b>до вычета себестоимости чистки</b> (химия, работа мастера). Если хотите её учесть — впишите процент в строку «Себестоимость чистки» и нажмите «Рассчитать».</p>
   <div class="frame">
     <table>
       <thead><tr id="head0"></tr><tr id="head"></tr></thead>
       <tbody id="body"></tbody>
     </table>
   </div>
-  <p class="hint">Измените числа в полях и нажмите «Рассчитать» (или Enter). Серые поля в таблице — ваши расходы. Там стоят примерные значения: аренда и зарплата приёмщика — по ценам райцентров на нашем маршруте с запасом, рейс — на вашей машине (≈1 210 км в месяц, 9 л на 100 км, водитель 5 часов за рейс). Себестоимость чистки — 30% выручки, поставьте свою. Подставьте свои — расчёт обновится сразу.</p>
+  <p class="hint">Измените числа в полях и нажмите «Рассчитать» (или Enter). Серые поля в таблице — ваши расходы. Там стоят примерные значения: аренда и зарплата приёмщика — по ценам райцентров на нашем маршруте с запасом, рейс — на вашей машине (≈1 210 км в месяц, 9 л на 100 км, водитель 5 часов за рейс). Подставьте свои — расчёт обновится сразу.</p>
 
   <details class="card agent-only" id="settings" hidden>
     <summary>Цены BelCleanBot (для расчёта)</summary>
@@ -208,7 +210,8 @@ details summary { cursor: pointer; font-weight: 700; }
   const params = {
     rent: { label: 'Аренда помещения с коммунальными', unit: 'BYN в месяц', value: 272 },
     staff: { label: 'Зарплата приёмщика', unit: 'BYN в месяц', value: 408 },
-    cost: { label: 'Себестоимость чистки (химия, работа)', unit: '% от выручки', value: 30 },
+    // Себестоимость чистки по умолчанию не вычитаем — химчистка вписывает сама, если хочет (решение владельца 22.10.2026)
+    cost: { label: 'Себестоимость чистки (химия, работа)', unit: '% от выручки', value: null, optional: true },
     trip: { label: 'Рейс за месяц — весь маршрут', unit: 'BYN в месяц, весь маршрут', value: 435 },
     tax: { label: 'Налог', unit: '% от того, что платит химчистка', value: 13 },
     hosting: { label: 'Хостинг бота', unit: 'BYN в месяц', value: 52 },
@@ -356,14 +359,16 @@ details summary { cursor: pointer; font-weight: 700; }
     const data = COLS.map((c) => ({ c, r: calc(c, items, check), be: breakeven(c, check) }));
     const show = (d) => (state.per === 'item' ? (items ? d.r.income / items : 0) : d.r.income);
     const unit = state.per === 'item' ? 'с одной вещи' : 'в месяц';
-    // Выгода химчистки — после себестоимости чистки, транспорта, приёмщика, аренды и услуг BelCleanBot (решение владельца 22.10.2026)
+    // Выгода химчистки — после транспорта, приёмщика, аренды и услуг BelCleanBot; себестоимость чистки — только если вписана
+    const costOn = params.cost.value !== null;
+    const after = 'после ' + (costOn ? 'себестоимости чистки, ' : '') + 'транспорта, приёмщика, аренды и услуг BelCleanBot' + (costOn ? '' : ' — до вычета себестоимости чистки');
     const who = state.mode === 'cleaner' ? 'Выгода химчистки' : 'Остаётся BelCleanBot';
     const missText = missing.map((k) => ({ rent: 'аренды', staff: 'зарплаты приёмщика', trip: 'рейса' }[k])).join(', ');
     const without = ready ? '' : 'без ' + missText;
 
     $('warn').hidden = true;
     $('sum').hidden = false;
-    $('sum-h').textContent = (state.mode === 'cleaner' ? 'Ваша выгода' : 'Сколько остаётся BelCleanBot') + (state.per === 'item' ? ' с одной вещи' : ' в месяц') + ' — с одного районного пункта' + (state.mode === 'cleaner' ? ', после себестоимости чистки, транспорта, приёмщика, аренды и услуг BelCleanBot' : '');
+    $('sum-h').textContent = (state.mode === 'cleaner' ? 'Ваша выгода' : 'Сколько остаётся BelCleanBot') + (state.per === 'item' ? ' с одной вещи' : ' в месяц') + ' — с одного районного пункта' + (state.mode === 'cleaner' ? ', ' + after : '');
 
     $('cards').innerHTML = data.map((d) => {
       const head = '<div class="rc"><div class="rc-name">' + nameOf(d.c) + '</div>';
@@ -379,19 +384,19 @@ details summary { cursor: pointer; font-weight: 700; }
 
     const rows = LAYOUT[state.mode].filter(([key]) => data.some((d) => d.r && d.r.lines[key] !== null && d.r.lines[key] !== undefined)).map(([key, label, param]) => {
       const p = param ? params[param] : null;
-      const input = p ? '<input type="text" inputmode="decimal" autocomplete="off" data-param="' + param + '" value="' + (param in pending ? pending[param] : p.value === null ? '' : p.value) + '"' + (p.value === null ? ' placeholder="впишите"' : '') + ' aria-label="' + p.label + ', ' + p.unit + '"><span class="usd">' + p.unit + '</span>' : '';
+      const input = p ? '<input type="text" inputmode="decimal" autocomplete="off" data-param="' + param + '" value="' + (param in pending ? pending[param] : p.value === null ? '' : p.value) + '"' + (p.value === null ? ' placeholder="' + (p.optional ? 'если нужно' : 'впишите') + '"' : '') + ' aria-label="' + p.label + ', ' + p.unit + '"><span class="usd">' + p.unit + '</span>' : '';
       const cells = data.map((d) => {
         if (!d.r) return '<td class="na">—</td>';
         const v = d.r.lines[key];
         if (v === null || v === undefined) return '<td class="na">' + (state.mode === 'cleaner' && (key === 'rent' || key === 'staff') ? 'даёт BelCleanBot' : '—') + '</td>';
-        if (state.mode === 'cleaner' && param && params[param].value === null) return '<td class="na">впишите</td>';
+        if (state.mode === 'cleaner' && param && params[param].value === null) return '<td class="na">' + (params[param].optional ? 'не учтена' : 'впишите') + '</td>';
         return '<td>' + money(v) + '</td>';
       }).join('');
       const strong = key === 'got' || key === 'revenue';
       return '<tr' + (strong ? ' class="total"' : '') + '><td>' + label + '</td><td class="param">' + input + '</td>' + cells + '</tr>';
     });
     rows.push('<tr class="total"><td>Все расходы</td><td></td>' + data.map((d) => !d.r ? '<td class="na">—</td>' : '<td>' + money(-d.r.expenses) + (ready ? '' : '<span class="usd miss">' + without + '</span>') + '</td>').join('') + '</tr>');
-    rows.push('<tr class="income"><td>' + who + (state.mode === 'cleaner' ? '<span class="usd" style="text-align:left">после себестоимости чистки, транспорта, приёмщика, аренды и услуг BelCleanBot</span>' : '') + '</td><td></td>' + data.map((d) => !d.r ? '<td class="na">—</td>' :
+    rows.push('<tr class="income"><td>' + who + (state.mode === 'cleaner' ? '<span class="usd" style="text-align:left">' + after + '</span>' : '') + '</td><td></td>' + data.map((d) => !d.r ? '<td class="na">—</td>' :
       '<td><span class="' + (d.r.income >= 0 ? 'pos' : 'neg') + '">' + byn(d.r.income) + '</span><span class="usd">' + usd(d.r.income) +
       (items ? ' · ' + byn(d.r.income / items) + ' с вещи' : '') + '</span>' + (ready ? '' : '<span class="usd miss">' + without + '</span>') + '</td>').join('') + '</tr>');
     rows.push('<tr><td>В плюсе с какого числа вещей</td><td></td>' + data.map((d) => '<td>' + (!d.r ? '—' : d.be === undefined ? '—' : d.be === null ? 'не окупается' : d.be === 0 ? 'с любого' : 'с ' + d.be) + '</td>').join('') + '</tr>');
