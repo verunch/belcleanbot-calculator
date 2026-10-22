@@ -34,8 +34,8 @@ h1 { font-family: 'Unbounded', Arial, sans-serif; font-size: clamp(22px, 4vw, 32
 .row { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end; }
 .field { display: flex; flex-direction: column; gap: 6px; min-width: 180px; flex: 1; }
 .field label { font-size: 14px; color: var(--muted); font-weight: 600; }
-input[type="number"] { font: inherit; font-size: 20px; font-weight: 600; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--text); width: 100%; }
-input[type="number"]:focus-visible, button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+input[type="number"], input[type="text"] { font: inherit; font-size: 20px; font-weight: 600; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--text); width: 100%; }
+input:focus-visible, button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .result { flex: 1.4; min-width: 240px; background: var(--accent-soft); border-radius: 12px; padding: 12px 14px; }
 .result .big { font-family: 'Unbounded', Arial, sans-serif; font-size: 26px; color: var(--accent); }
 .result .small { font-size: 14px; color: var(--muted); }
@@ -113,11 +113,11 @@ details summary { cursor: pointer; font-weight: 700; }
     <div class="row inputs">
       <div class="field">
         <label for="items">Вещей в месяц в районном пункте</label>
-        <input id="items" type="number" min="0" step="1" value="50" inputmode="numeric">
+        <input id="items" type="text" value="50" inputmode="numeric" autocomplete="off">
       </div>
       <div class="field">
         <label for="check">Средняя цена чистки одной вещи, BYN</label>
-        <input id="check" type="number" min="0" step="1" value="75" inputmode="decimal">
+        <input id="check" type="text" value="75" inputmode="decimal" autocomplete="off">
       </div>
       <div class="field">
         <span class="flabel">Показать доход</span>
@@ -137,7 +137,7 @@ details summary { cursor: pointer; font-weight: 700; }
       </div>
       <div class="field">
         <label for="crev">Выручка через бот в одном городском пункте, BYN в месяц</label>
-        <input id="crev" type="number" min="0" step="1" placeholder="не знаю — минимум" inputmode="decimal">
+        <input id="crev" type="text" placeholder="не знаю — минимум" inputmode="decimal" autocomplete="off">
       </div>
     </div>
     <div class="checks agent-only" hidden>
@@ -218,7 +218,9 @@ details summary { cursor: pointer; font-weight: 700; }
   const byn = (n) => sign(n) + fmt(Math.abs(n)) + ' BYN';
   const usd = (n) => sign(n) + '$' + fmt(Math.abs(n / RATE));
   const money = (n) => '<span class="' + (n < 0 ? 'neg' : '') + '">' + byn(n) + '</span><span class="usd">' + usd(n) + '</span>';
-  const num = (id) => { const v = Number($(id).value); return Number.isFinite(v) && v > 0 ? v : 0; };
+  // Число из поля: понимает запятую и пробелы («4,81», «1 200»)
+  const parse = (t) => Number(String(t).replace(/\s/g, '').replace(',', '.'));
+  const num = (id) => { const v = parse($(id).value); return Number.isFinite(v) && v > 0 ? v : 0; };
   const P = (k) => params[k].value || 0;
   const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
 
@@ -372,7 +374,7 @@ details summary { cursor: pointer; font-weight: 700; }
 
     const rows = LAYOUT[state.mode].filter(([key]) => data.some((d) => d.r && d.r.lines[key] !== null && d.r.lines[key] !== undefined)).map(([key, label, param]) => {
       const p = param ? params[param] : null;
-      const input = p ? '<input type="number" min="0" step="any" data-param="' + param + '" value="' + (p.value === null ? '' : p.value) + '"' + (p.value === null ? ' placeholder="впишите"' : '') + ' aria-label="' + p.label + ', ' + p.unit + '"><span class="usd">' + p.unit + '</span>' : '';
+      const input = p ? '<input type="text" inputmode="decimal" autocomplete="off" data-param="' + param + '" value="' + (p.value === null ? '' : p.value) + '"' + (p.value === null ? ' placeholder="впишите"' : '') + ' aria-label="' + p.label + ', ' + p.unit + '"><span class="usd">' + p.unit + '</span>' : '';
       const cells = data.map((d) => {
         if (!d.r) return '<td class="na">—</td>';
         const v = d.r.lines[key];
@@ -400,7 +402,7 @@ details summary { cursor: pointer; font-weight: 700; }
   }
 
   function renderSettings() {
-    const inp = (key, v, lbl) => '<label class="set"><span>' + lbl + '</span><input type="number" min="0" step="any" data-set="' + key + '" value="' + v + '"></label>';
+    const inp = (key, v, lbl) => '<label class="set"><span>' + lbl + '</span><input type="text" inputmode="decimal" autocomplete="off" data-set="' + key + '" value="' + v + '"></label>';
     const levels = Object.entries(LEVELS).map(([id, l]) =>
       inp(id + '.pct', l.pct, l.name + ': % от оборота') + inp(id + '.min', l.min, l.name + ': минимум, $')).join('');
     $('settings-body').innerHTML = '<div class="sets">' +
@@ -454,20 +456,20 @@ details summary { cursor: pointer; font-weight: 700; }
   ['items', 'check', 'crev', 'self'].forEach((id) => $(id).addEventListener('input', render));
   $('body').addEventListener('input', (e) => {
     const el = e.target; const key = el.dataset && el.dataset.param; if (!key) return;
-    const raw = Number(el.value); params[key].value = el.value === '' ? null : Number.isFinite(raw) && raw >= 0 ? raw : 0;
-    const text = el.value;
+    const raw = parse(el.value); params[key].value = el.value.trim() === '' ? null : Number.isFinite(raw) && raw >= 0 ? raw : 0;
+    const text = el.value; const pos = el.selectionStart;
     render();
     const again = $('body').querySelector('[data-param="' + key + '"]');
-    if (again) { again.value = text; again.focus(); }
+    if (again) { again.value = text; again.focus(); again.setSelectionRange(pos, pos); }
   });
   $('settings-body').addEventListener('input', (e) => {
     const k = e.target.dataset && e.target.dataset.set; if (!k) return;
-    const raw = Number(e.target.value); const v = Number.isFinite(raw) && raw >= 0 ? raw : 0;
+    const raw = parse(e.target.value); const v = Number.isFinite(raw) && raw >= 0 ? raw : 0;
     if (k.includes('.')) { const [id, f] = k.split('.'); LEVELS[id][f] = v; } else PRICE[k] = v;
-    const text = e.target.value;
+    const text = e.target.value; const pos = e.target.selectionStart;
     render();
     const again = $('settings-body').querySelector('[data-set="' + k + '"]');
-    if (again) { again.value = text; again.focus(); }
+    if (again) { again.value = text; again.focus(); again.setSelectionRange(pos, pos); }
   });
   render();
 })();
