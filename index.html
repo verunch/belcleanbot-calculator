@@ -71,6 +71,7 @@ footer { font-size: 13px; color: var(--muted); }
 .rc-big { font-family: 'Unbounded', Arial, sans-serif; font-size: 22px; }
 .rc-sub { font-size: 13px; color: var(--muted); }
 .sumh { margin: 0 0 10px; font-size: 18px; }
+.miss { color: var(--bad) !important; font-weight: 600; }
 .warn { margin: 0; padding: 10px 14px; border-radius: 10px; background: var(--sel); font-weight: 600; }
 thead th { vertical-align: top; }
 thead th small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; margin-top: 10px; line-height: 1.35; }
@@ -349,23 +350,24 @@ details summary { cursor: pointer; font-weight: 700; }
     const check = num('check');
     const missing = state.mode === 'cleaner' ? NEED.filter((k) => params[k].value === null) : [];
     const ready = missing.length === 0;
-    const data = COLS.map((c) => ({ c, r: calc(c, items, check), be: ready ? breakeven(c, check) : undefined }));
+    // Пустые поля считаем как 0 и пишем, чего не хватает
+    const data = COLS.map((c) => ({ c, r: calc(c, items, check), be: breakeven(c, check) }));
     const show = (d) => (state.per === 'item' ? (items ? d.r.income / items : 0) : d.r.income);
     const unit = state.per === 'item' ? 'с одной вещи' : 'в месяц';
     const who = state.mode === 'cleaner' ? 'Остаётся химчистке' : 'Остаётся BelCleanBot';
-    const missText = missing.map((k) => ({ rent: 'аренду', staff: 'зарплату приёмщика', trip: 'рейс' }[k])).join(', ');
+    const missText = missing.map((k) => ({ rent: 'аренды', staff: 'зарплаты приёмщика', trip: 'рейса' }[k])).join(', ');
+    const without = ready ? '' : 'без ' + missText;
 
     $('warn').hidden = true;
-    $('sum').hidden = !ready;
+    $('sum').hidden = false;
     $('sum-h').textContent = (state.mode === 'cleaner' ? 'Сколько остаётся вам' : 'Сколько остаётся BelCleanBot') + (state.per === 'item' ? ' с одной вещи' : ' в месяц') + ' — с одного районного пункта';
 
     $('cards').innerHTML = data.map((d) => {
       const head = '<div class="rc"><div class="rc-name">' + nameOf(d.c) + '</div>';
       if (!d.r) return head + '<div class="rc-big na">—</div><div class="rc-sub">нужен бот минимум в ' + PRICE.comboCities + ' городских пунктах</div></div>';
-      if (!ready) return head + '<div class="rc-big na">—</div></div>';
       const v = show(d);
       return head + '<div class="rc-big ' + (v < 0 ? 'neg' : 'pos') + '">' + byn(v) + '</div>' +
-        '<div class="rc-sub">' + usd(v) + ' ' + unit + '</div>' +
+        '<div class="rc-sub">' + usd(v) + ' ' + unit + '</div>' + (ready ? '' : '<div class="rc-sub miss">' + without + '</div>') +
         '<div class="rc-sub">' + (d.be === null ? 'не окупается до 2 000 вещей' : d.be === 0 ? 'в плюсе при любом числе вещей' : 'в плюсе с ' + d.be + ' вещей в месяц') + '</div></div>';
     }).join('');
 
@@ -385,10 +387,10 @@ details summary { cursor: pointer; font-weight: 700; }
       const strong = key === 'got' || key === 'revenue';
       return '<tr' + (strong ? ' class="total"' : '') + '><td>' + label + '</td><td class="param">' + input + '</td>' + cells + '</tr>';
     });
-    rows.push('<tr class="total"><td>Все расходы</td><td></td>' + data.map((d) => (!d.r || !ready) ? '<td class="na">—</td>' : '<td>' + money(-d.r.expenses) + '</td>').join('') + '</tr>');
-    rows.push('<tr class="income"><td>' + who + '</td><td></td>' + data.map((d) => !d.r ? '<td class="na">—</td>' : !ready ? '<td class="na">—</td>' :
+    rows.push('<tr class="total"><td>Все расходы</td><td></td>' + data.map((d) => !d.r ? '<td class="na">—</td>' : '<td>' + money(-d.r.expenses) + (ready ? '' : '<span class="usd miss">' + without + '</span>') + '</td>').join('') + '</tr>');
+    rows.push('<tr class="income"><td>' + who + '</td><td></td>' + data.map((d) => !d.r ? '<td class="na">—</td>' :
       '<td><span class="' + (d.r.income >= 0 ? 'pos' : 'neg') + '">' + byn(d.r.income) + '</span><span class="usd">' + usd(d.r.income) +
-      (items ? ' · ' + byn(d.r.income / items) + ' с вещи' : '') + '</span></td>').join('') + '</tr>');
+      (items ? ' · ' + byn(d.r.income / items) + ' с вещи' : '') + '</span>' + (ready ? '' : '<span class="usd miss">' + without + '</span>') + '</td>').join('') + '</tr>');
     rows.push('<tr><td>В плюсе с какого числа вещей</td><td></td>' + data.map((d) => '<td>' + (!d.r ? '—' : d.be === undefined ? '—' : d.be === null ? 'не окупается' : d.be === 0 ? 'с любого' : 'с ' + d.be) + '</td>').join('') + '</tr>');
     $('body').innerHTML = rows.join('');
 
