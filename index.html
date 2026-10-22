@@ -582,15 +582,17 @@ table.btable { min-width: 0; }
   function renderTariffCards() {
     const yes = (t) => '<li class="y">' + t + '</li>';
     const no = (t) => '<li class="n">' + t + ' — ваш' + (t === 'приёмщик' ? '' : 'е') + '</li>';
+    // Во всех тарифах за химчисткой — транспорт и инвентарь
+    const always = '<li class="n">транспорт (рейс) — ваш</li><li class="n">вешала, стойка, терминал (при необходимости) — ваши</li>';
     const card = (name, items, price, combo, cls) => '<div class="tc ' + cls + '"><div class="tc-name">' + name + '</div><ul>' + items.join('') + '</ul><div class="tc-price">' + price + '</div>' + (combo ? '<div class="tc-combo">в «Комбо»: ' + combo + '</div>' : '') + '</div>';
     const bot = 'бот ' + fmt2(PRICE.botPct) + '%, не менее $' + PRICE.botMin;
     const lv = (id) => LEVELS[id];
     const pack = (id, d) => 'пакет ' + fmt2(lv(id).pct - (d ? PRICE.comboPct : 0)) + '% от оборота, не менее $' + (lv(id).min - (d ? PRICE.comboMin : 0));
     $('tcards').innerHTML =
-      card('Только бот', [yes('чат-бот'), no('помещение'), no('приёмщик')], 'бот ' + fmt2(PRICE.botPct) + '%, не менее $' + PRICE.botOnlyMin + ', без максимума', '', 't-bot') +
-      card('Минимальный', [yes('чат-бот'), yes('продвижение в местных каналах'), no('помещение'), no('приёмщик')], bot + '<br>+ ' + pack('min'), pack('min', true), 't-min') +
-      card('Средний', [yes('чат-бот'), yes('продвижение'), yes('наш приёмщик'), no('помещение')], bot + '<br>+ ' + pack('mid'), pack('mid', true), 't-mid') +
-      card('Полный', [yes('чат-бот'), yes('продвижение'), yes('наш приёмщик'), yes('наше помещение, аренда и коммунальные')], bot + '<br>+ ' + pack('full'), pack('full', true), 't-full');
+      card('Только бот', [yes('чат-бот'), no('помещение'), no('приёмщик'), always], 'бот ' + fmt2(PRICE.botPct) + '%, не менее $' + PRICE.botOnlyMin + ', без максимума', '', 't-bot') +
+      card('Минимальный', [yes('чат-бот'), yes('продвижение в местных каналах'), no('помещение'), no('приёмщик'), always], bot + '<br>+ ' + pack('min'), pack('min', true), 't-min') +
+      card('Средний', [yes('чат-бот'), yes('продвижение'), yes('наш приёмщик'), no('помещение'), always], bot + '<br>+ ' + pack('mid'), pack('mid', true), 't-mid') +
+      card('Полный', [yes('чат-бот'), yes('продвижение'), yes('наш приёмщик'), yes('наше помещение, аренда и коммунальные'), always], bot + '<br>+ ' + pack('full'), pack('full', true), 't-full');
   }
 
   function setMode(m) {
