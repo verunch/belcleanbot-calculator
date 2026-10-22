@@ -137,6 +137,10 @@ details summary { cursor: pointer; font-weight: 700; }
         </div>
       </div>
       <div class="field">
+        <label for="citems">Вещей в месяц через бот в одном городском пункте</label>
+        <input id="citems" type="text" value="100" inputmode="numeric" autocomplete="off">
+      </div>
+      <div class="field">
         <label for="crev">Выручка через бот в одном городском пункте, BYN в месяц</label>
         <input id="crev" type="text" placeholder="" inputmode="decimal" autocomplete="off">
       </div>
@@ -238,7 +242,7 @@ details summary { cursor: pointer; font-weight: 700; }
 
   // Бот в городских пунктах — вся сумма в месяц (1-й и 2-й — 4,3%, с 3-го — 3,8%)
   // Выручка через бот в городском пункте: вписанная или, по умолчанию, как в районном (вещи × цена)
-  const cityRev = () => num('crev') || num('items') * num('check');
+  const cityRev = () => num('crev') || num('citems') * num('check'); // по умолчанию: вещи в городском пункте × цена
   function cityBotTotal() {
     const rev = cityRev();
     let total = 0;
@@ -352,7 +356,7 @@ details summary { cursor: pointer; font-weight: 700; }
   function render() {
     const items = num('items');
     const check = num('check');
-    $('crev').placeholder = fmt(num('items') * num('check')) + ' — как в районном';
+    $('crev').placeholder = fmt(num('citems') * num('check')) + ' = ' + fmt(num('citems')) + ' × ' + fmt2(num('check'));
     const missing = state.mode === 'cleaner' ? NEED.filter((k) => params[k].value === null) : [];
     const ready = missing.length === 0;
     // Пустые поля считаем как 0 и пишем, чего не хватает
@@ -400,7 +404,7 @@ details summary { cursor: pointer; font-weight: 700; }
     $('body').innerHTML = rows.join('');
 
     const cityNote = 'В «Комбо» плата за бот в ' + (cities() >= 3 ? '3' : cities()) + ' городск' + (cities() === 1 ? 'ом пункте' : 'их пунктах') + ' делится между районными пунктами (' + state.nd + '); ' +
-      (num('crev') ? 'выручка через бот в городском пункте — ваша: ' + fmt(cityRev()) + ' BYN.' : 'выручка через бот в городском пункте — как в районном: ' + fmt(cityRev()) + ' BYN (вещи × цена); бот 4,3%, не менее $60 за пункт, с 3-го — 3,8%, не менее $50.') +
+      (num('crev') ? 'выручка через бот в городском пункте — ваша: ' + fmt(cityRev()) + ' BYN.' : 'выручка через бот в городском пункте — ' + fmt(cityRev()) + ' BYN (' + fmt(num('citems')) + ' вещей × ' + fmt2(num('check')) + ' BYN); бот 4,3%, не менее $60 за пункт, с 3-го — 3,8%, не менее $50.') +
       ' Новые заказы, которые бот даёт городским пунктам, здесь не учтены.';
     $('note').textContent = state.mode === 'cleaner'
       ? 'Расчёт — на один районный пункт. ' + cityNote + ' Транспорт и инвентарь (стойка, вешала, платёжный терминал, касса) — во всех вариантах ваши.'
@@ -460,7 +464,7 @@ details summary { cursor: pointer; font-weight: 700; }
     if (e.target.id !== 'cl') return;
     state.cl = e.target.value; render();
   });
-  ['items', 'check', 'crev', 'self'].forEach((id) => $(id).addEventListener('input', render));
+  ['items', 'check', 'citems', 'crev', 'self'].forEach((id) => $(id).addEventListener('input', render));
   $('body').addEventListener('input', (e) => {
     const el = e.target; const key = el.dataset && el.dataset.param; if (!key) return;
     const raw = parse(el.value); params[key].value = el.value.trim() === '' ? null : Number.isFinite(raw) && raw >= 0 ? raw : 0;
