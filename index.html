@@ -138,7 +138,7 @@ details summary { cursor: pointer; font-weight: 700; }
       </div>
       <div class="field">
         <label for="crev">Выручка через бот в одном городском пункте, BYN в месяц</label>
-        <input id="crev" type="text" placeholder="не знаю — минимум" inputmode="decimal" autocomplete="off">
+        <input id="crev" type="text" placeholder="" inputmode="decimal" autocomplete="off">
       </div>
     </div>
     <div class="checks agent-only" hidden>
@@ -237,8 +237,10 @@ details summary { cursor: pointer; font-weight: 700; }
   const ownOf = (c) => (c.fee === 'bot' ? c.own : levelOf(c).own);
 
   // Бот в городских пунктах — вся сумма в месяц (1-й и 2-й — 4,3%, с 3-го — 3,8%)
+  // Выручка через бот в городском пункте: вписанная или, по умолчанию, как в районном (вещи × цена)
+  const cityRev = () => num('crev') || num('items') * num('check');
   function cityBotTotal() {
-    const rev = num('crev');
+    const rev = cityRev();
     let total = 0;
     for (let i = 0; i < cities(); i++) {
       const t = i >= 2 ? PRICE.city3 : PRICE.city;
@@ -350,6 +352,7 @@ details summary { cursor: pointer; font-weight: 700; }
   function render() {
     const items = num('items');
     const check = num('check');
+    $('crev').placeholder = fmt(num('items') * num('check')) + ' — как в районном';
     const missing = state.mode === 'cleaner' ? NEED.filter((k) => params[k].value === null) : [];
     const ready = missing.length === 0;
     // Пустые поля считаем как 0 и пишем, чего не хватает
@@ -397,7 +400,7 @@ details summary { cursor: pointer; font-weight: 700; }
     $('body').innerHTML = rows.join('');
 
     const cityNote = 'В «Комбо» плата за бот в ' + (cities() >= 3 ? '3' : cities()) + ' городск' + (cities() === 1 ? 'ом пункте' : 'их пунктах') + ' делится между районными пунктами (' + state.nd + '); ' +
-      (num('crev') ? 'считаем по вашей выручке через бот.' : 'считаем по минимуму ($60 за пункт, с 3-го — $50).') +
+      (num('crev') ? 'выручка через бот в городском пункте — ваша: ' + fmt(cityRev()) + ' BYN.' : 'выручка через бот в городском пункте — как в районном: ' + fmt(cityRev()) + ' BYN (вещи × цена); бот 4,3%, не менее $60 за пункт, с 3-го — 3,8%, не менее $50.') +
       ' Новые заказы, которые бот даёт городским пунктам, здесь не учтены.';
     $('note').textContent = state.mode === 'cleaner'
       ? 'Расчёт — на один районный пункт. ' + cityNote + ' Транспорт и инвентарь (стойка, вешала, платёжный терминал, касса) — во всех вариантах ваши.'
