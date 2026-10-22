@@ -133,7 +133,7 @@ section.card .frame { margin-top: 14px; }
 .fc-t { font-weight: 700; margin-top: 6px; font-size: 17px; }
 .fc p { margin: 0; font-size: 15px; color: var(--muted); line-height: 1.55; }
 .pgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
-@media (min-width: 900px) { .pgrid { grid-template-columns: repeat(5, 1fr); } .pc-top { min-height: 166px; } }
+@media (min-width: 900px) { .pgrid { grid-template-columns: repeat(5, 1fr); } }
 .pc { border-radius: 14px; overflow: hidden; border: 1px solid var(--line); display: flex; flex-direction: column; }
 /* верх — «Было» на тёмном фоне, низ — «Стало» на светлом */
 .pc-top { background: #1d2b33; padding: 14px 14px; display: flex; flex-direction: column; gap: 8px; }
@@ -193,6 +193,9 @@ thead th.ext-g { color: #1f7a4d; border-bottom-color: #1f7a4d; }
 /* заголовки внутри разделов — легче: 600 у разделов, 500 у подзаголовков */
 section.card h2, .intro h2 { font-weight: 600; letter-spacing: -0.005em; }
 .intro h3, h3.sub { font-weight: 500; }
+/* «Было / Стало»: все карточки одной высоты, верх и низ — одной высоты во всём ряду (subgrid) */
+.pc { display: grid; grid-template-rows: subgrid; grid-row: span 2; gap: 0; }
+.pc-top, .pc-bot { justify-content: flex-start; }
 </style>
 </head>
 <body>
@@ -717,6 +720,18 @@ section.card h2, .intro h2 { font-weight: 600; letter-spacing: -0.005em; }
   $('b-calc').addEventListener('click', botCalc);
   ['b-points', 'b-orders', 'b-check'].forEach((id) => $(id).addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); botCalc(); } }));
   botCalc();
+  // «Было / Стало»: верх и низ у всех карточек одной высоты — по самой высокой
+  function equalizeCards() {
+    ['.pc-top', '.pc-bot'].forEach((sel) => {
+      const els = [...document.querySelectorAll(sel)];
+      els.forEach((e) => { e.style.minHeight = ''; });
+      const h = Math.max(...els.map((e) => e.getBoundingClientRect().height));
+      els.forEach((e) => { e.style.minHeight = h + 'px'; });
+    });
+  }
+  window.addEventListener('resize', equalizeCards);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(equalizeCards);
+  equalizeCards();
   render();
 })();
 </script>
