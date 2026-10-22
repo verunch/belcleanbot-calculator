@@ -123,6 +123,20 @@ h2.part { font-family: 'Unbounded', Arial, sans-serif; font-size: clamp(20px, 3v
 .bcombo { display: inline-flex; gap: 8px; align-items: center; margin-top: 12px; font-size: 15px; cursor: pointer; }
 table.btable { min-width: 560px; }
 section.card .frame { margin-top: 14px; }
+.intro h3 { margin: 18px 0 10px; font-size: 16px; }
+.intro h3:first-of-type { margin-top: 0; }
+.fgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; }
+@media (max-width: 520px) { .fgrid, .pgrid { grid-template-columns: 1fr 1fr; } .fc, .pc { padding: 10px; } .fc p { font-size: 13px; } }
+.fc { background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
+.fc-ic { font-size: 22px; line-height: 1; }
+.fc-t { font-weight: 700; margin-top: 4px; }
+.fc p { margin: 0; font-size: 14px; color: var(--muted); line-height: 1.4; }
+.pgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+.pc { border-radius: 12px; padding: 12px 14px; background: var(--bg); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 2px; }
+.pc-l { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--bad); }
+.pc-l.ok { color: var(--ok); margin-top: 6px; }
+.pc-p { font-size: 14px; color: var(--text); }
+.pc-s { font-weight: 700; color: var(--ok); line-height: 1.3; }
 </style>
 </head>
 <body>
@@ -140,29 +154,23 @@ section.card .frame { margin-top: 14px; }
 
   <section class="card intro" aria-label="Чат-бот">
     <h2>Чат-бот: зачем он нужен</h2>
-    <div class="cols2">
-      <div>
-        <h3>Что умеет</h3>
-        <ul>
-          <li>Клиент сам оформляет заказ с фото и видит предварительную цену.</li>
-          <li>Оплата заранее — через ЕРИП или в пункте (наличные, терминал).</li>
-          <li>Клиент выбирает день, когда принесёт вещь, и получает статусы: принята, у мастера, готова.</li>
-          <li>Сдать и забрать вещь может родственник или курьер — по коду.</li>
-          <li>Приёмщик сверяет вещь, фотографирует дефекты, печатает квитанцию и бирку с QR — или всё делается только в боте, с полной интеграцией в вашу систему учёта.</li>
-          <li>Мастер называет итоговую цену — не выше цены после приёмки +20%, клиент согласен заранее.</li>
-          <li>Статистика по пунктам, выгрузка в Excel или обмен с вашей программой учёта.</li>
-        </ul>
-      </div>
-      <div>
-        <h3>Какие проблемы решает</h3>
-        <ul>
-          <li>Бланки от руки и очереди на приёмке.</li>
-          <li>Споры о дефектах при выдаче — всё сфотографировано и подтверждено клиентом.</li>
-          <li>Звонки «готово ли?» — клиент видит статус в боте.</li>
-          <li>Клиент без смартфона — приёмщик оформляет заказ за него.</li>
-          <li>Нет приёма в райцентрах — бот работает в районном пункте и собирает заказы к рейсу.</li>
-        </ul>
-      </div>
+    <h3>Что умеет</h3>
+    <div class="fgrid">
+      <div class="fc"><div class="fc-ic" aria-hidden="true">📸</div><div class="fc-t">Заказ с фото</div><p>Клиент сам оформляет заказ и сразу видит предварительную цену.</p></div>
+      <div class="fc"><div class="fc-ic" aria-hidden="true">💳</div><div class="fc-t">Оплата заранее</div><p>Через ЕРИП или в пункте — наличными или картой через терминал.</p></div>
+      <div class="fc"><div class="fc-ic" aria-hidden="true">📅</div><div class="fc-t">День и статусы</div><p>Клиент выбирает день сдачи и видит: принята, у мастера, готова.</p></div>
+      <div class="fc"><div class="fc-ic" aria-hidden="true">🔑</div><div class="fc-t">Передача по коду</div><p>Сдать и забрать вещь может родственник или курьер.</p></div>
+      <div class="fc"><div class="fc-ic" aria-hidden="true">🏷️</div><div class="fc-t">Приёмка</div><p>Сверка, фото дефектов, квитанция и бирка с QR. Или всё только в боте — с полной интеграцией в вашу систему учёта.</p></div>
+      <div class="fc"><div class="fc-ic" aria-hidden="true">🧾</div><div class="fc-t">Цена мастера</div><p>Итог не выше цены после приёмки +20% — клиент согласен заранее.</p></div>
+      <div class="fc"><div class="fc-ic" aria-hidden="true">📊</div><div class="fc-t">Статистика</div><p>По каждому пункту; выгрузка в Excel или обмен с программой учёта.</p></div>
+    </div>
+    <h3>Какие проблемы решает</h3>
+    <div class="pgrid">
+      <div class="pc"><div class="pc-l">Было</div><div class="pc-p">Бланки от руки и очереди</div><div class="pc-l ok">Стало</div><div class="pc-s">Заказ оформлен до прихода в пункт</div></div>
+      <div class="pc"><div class="pc-l">Было</div><div class="pc-p">Споры о дефектах при выдаче</div><div class="pc-l ok">Стало</div><div class="pc-s">Дефекты на фото, клиент подтвердил</div></div>
+      <div class="pc"><div class="pc-l">Было</div><div class="pc-p">Звонки «готово ли?»</div><div class="pc-l ok">Стало</div><div class="pc-s">Статус и уведомление в боте</div></div>
+      <div class="pc"><div class="pc-l">Было</div><div class="pc-p">Клиент без смартфона</div><div class="pc-l ok">Стало</div><div class="pc-s">Приёмщик оформляет заказ за него</div></div>
+      <div class="pc"><div class="pc-l">Было</div><div class="pc-p">Нет приёма в райцентре</div><div class="pc-l ok">Стало</div><div class="pc-s">Районный пункт и еженедельный рейс</div></div>
     </div>
   </section>
 
