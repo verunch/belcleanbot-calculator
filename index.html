@@ -71,6 +71,14 @@ footer { font-size: 13px; color: var(--muted); }
 .rc-big { font-family: 'Unbounded', Arial, sans-serif; font-size: 22px; }
 .rc-sub { font-size: 13px; color: var(--muted); }
 .sumh { margin: 0 0 10px; font-size: 18px; }
+.calc-row { margin-top: 16px; }
+.calc-btn { font: inherit; font-weight: 700; font-size: 17px; padding: 12px 28px; border: 0; border-radius: 999px; background: var(--accent); color: #fff; cursor: pointer; }
+.calc-btn:hover { filter: brightness(1.08); }
+.calc-btn.dirty { box-shadow: 0 0 0 4px var(--sel), 0 0 0 6px var(--accent); }
+.calc-hint { margin-left: 12px; font-size: 14px; font-weight: 600; color: var(--bad); }
+.calc-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.flash { animation: flash 0.9s ease-out; }
+@keyframes flash { from { box-shadow: 0 0 0 4px var(--accent); } to { box-shadow: 0 0 0 0 transparent; } }
 .miss { color: var(--bad) !important; font-weight: 600; }
 .warn { margin: 0; padding: 10px 14px; border-radius: 10px; background: var(--sel); font-weight: 600; }
 thead th { vertical-align: top; }
@@ -137,6 +145,7 @@ details summary { cursor: pointer; font-weight: 700; }
         </div>
       </div>
     </div>
+    <div class="calc-row"><button type="button" id="calc" class="calc-btn">Рассчитать</button> <span class="calc-hint" id="calc-hint" hidden>Есть изменения — нажмите «Рассчитать»</span></div>
     <div class="checks agent-only" hidden>
       <label><input type="checkbox" id="self"> Приёмщик — я сама (без зарплаты)</label>
     </div>
@@ -154,7 +163,7 @@ details summary { cursor: pointer; font-weight: 700; }
       <tbody id="body"></tbody>
     </table>
   </div>
-  <p class="hint">Серые поля в таблице — ваши расходы. Там стоят примерные значения: аренда и зарплата приёмщика — по ценам райцентров на нашем маршруте с запасом, рейс — на вашей машине (≈1 210 км в месяц, 9 л на 100 км, водитель 5 часов за рейс), себестоимость чистки — 30% выручки. Подставьте свои — расчёт обновится сразу.</p>
+  <p class="hint">Измените числа в полях и нажмите «Рассчитать» (или Enter). Серые поля в таблице — ваши расходы. Там стоят примерные значения: аренда и зарплата приёмщика — по ценам райцентров на нашем маршруте с запасом, рейс — на вашей машине (≈1 210 км в месяц, 9 л на 100 км, водитель 5 часов за рейс), себестоимость чистки — 30% выручки. Подставьте свои — расчёт обновится сразу.</p>
 
   <details class="card agent-only" id="settings" hidden>
     <summary>Цены BelCleanBot (для расчёта)</summary>
@@ -207,7 +216,9 @@ details summary { cursor: pointer; font-weight: 700; }
     ourRent: { label: 'Аренда нашего помещения', unit: 'BYN в месяц', value: 236.58 },
   };
   const NEED = ['rent', 'staff', 'trip'];
-  const state = { mode: 'cleaner', per: 'month', nd: 1, nc: 2, cl: 'min', unlocked: false };
+  const state = { mode: 'cleaner', per: 'month', nd: 1, nc: 2, cl: 'min', unlocked: false, items: 50, check: 75 };
+  // Введённые, но ещё не посчитанные значения полей таблицы — применяются по кнопке «Рассчитать»
+  const pending = {};
   // Режим «Для BelCleanBot» — по паролю владельца. Хранится только хеш SHA-256.
   const AGENT_HASH = '967206673847d5ecbb2438bc5cae776c805839af8bd9ef573156b7859d0fd48f';
   const $ = (id) => document.getElementById(id);
@@ -337,8 +348,8 @@ details summary { cursor: pointer; font-weight: 700; }
   }
 
   function render() {
-    const items = num('items');
-    const check = num('check');
+    const items = state.items;
+    const check = state.check;
     const missing = state.mode === 'cleaner' ? NEED.filter((k) => params[k].value === null) : [];
     const ready = missing.length === 0;
     // Пустые поля считаем как 0 и пишем, чего не хватает
@@ -367,7 +378,7 @@ details summary { cursor: pointer; font-weight: 700; }
 
     const rows = LAYOUT[state.mode].filter(([key]) => data.some((d) => d.r && d.r.lines[key] !== null && d.r.lines[key] !== undefined)).map(([key, label, param]) => {
       const p = param ? params[param] : null;
-      const input = p ? '<input type="text" inputmode="decimal" autocomplete="off" data-param="' + param + '" value="' + (p.value === null ? '' : p.value) + '"' + (p.value === null ? ' placeholder="впишите"' : '') + ' aria-label="' + p.label + ', ' + p.unit + '"><span class="usd">' + p.unit + '</span>' : '';
+      const input = p ? '<input type="text" inputmode="decimal" autocomplete="off" data-param="' + param + '" value="' + (param in pending ? pending[param] : p.value === null ? '' : p.value) + '"' + (p.value === null ? ' placeholder="впишите"' : '') + ' aria-label="' + p.label + ', ' + p.unit + '"><span class="usd">' + p.unit + '</span>' : '';
       const cells = data.map((d) => {
         if (!d.r) return '<td class="na">—</td>';
         const v = d.r.lines[key];
@@ -429,6 +440,28 @@ details summary { cursor: pointer; font-weight: 700; }
       else window.alert('Неверный пароль');
     } catch (e) { window.alert('Браузер не может проверить пароль. Откройте файл в Chrome или Safari.'); }
   });
+  // «Рассчитать»: пересчёт и переход к итогам (таблица считается и сразу при вводе)
+  function setDirty(on) {
+    $('calc').classList.toggle('dirty', on);
+    $('calc-hint').hidden = !on;
+  }
+  // Применить введённое и посчитать
+  function calculate() {
+    state.items = num('items');
+    state.check = num('check');
+    Object.keys(pending).forEach((k) => {
+      const t = String(pending[k]); const raw = parse(t);
+      params[k].value = t.trim() === '' ? null : Number.isFinite(raw) && raw >= 0 ? raw : 0;
+      delete pending[k];
+    });
+    setDirty(false);
+    render();
+  }
+  $('calc').addEventListener('click', () => {
+    calculate();
+    $('sum').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    $('cards').querySelectorAll('.rc').forEach((el) => { el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); });
+  });
   $('per-month').addEventListener('click', () => setPer('month'));
   $('per-item').addEventListener('click', () => setPer('item'));
   document.querySelectorAll('[data-nd]').forEach((b) => b.addEventListener('click', () => {
@@ -444,14 +477,13 @@ details summary { cursor: pointer; font-weight: 700; }
     if (e.target.id !== 'cl') return;
     state.cl = e.target.value; render();
   });
-  ['items', 'check', 'self'].forEach((id) => $(id).addEventListener('input', render));
+  ['items', 'check'].forEach((id) => $(id).addEventListener('input', () => setDirty(true)));
+  $('self').addEventListener('input', render);
+  // Enter в любом поле — тоже «Рассчитать»
+  document.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.matches('#items, #check, [data-param]')) { e.preventDefault(); calculate(); } });
   $('body').addEventListener('input', (e) => {
     const el = e.target; const key = el.dataset && el.dataset.param; if (!key) return;
-    const raw = parse(el.value); params[key].value = el.value.trim() === '' ? null : Number.isFinite(raw) && raw >= 0 ? raw : 0;
-    const text = el.value; const pos = el.selectionStart;
-    render();
-    const again = $('body').querySelector('[data-param="' + key + '"]');
-    if (again) { again.value = text; again.focus(); again.setSelectionRange(pos, pos); }
+    pending[key] = el.value; setDirty(true);
   });
   $('settings-body').addEventListener('input', (e) => {
     const k = e.target.dataset && e.target.dataset.set; if (!k) return;
