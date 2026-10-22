@@ -147,6 +147,15 @@ h3.sub { margin: 20px 0 10px; font-size: 16px; }
 table.btable { min-width: 0; }
 .intro-p { margin: 14px 0 0; font-size: 17px; line-height: 1.5; max-width: 860px; }
 .pkg { display: inline-block; vertical-align: middle; margin-left: 10px; font-family: 'Golos Text', Arial, sans-serif; font-size: 13px; font-weight: 700; color: #fff; background: var(--accent); padding: 4px 12px; border-radius: 999px; letter-spacing: .02em; }
+.tcards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 16px; }
+.tc { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+.tc-name { font-family: 'Unbounded', Arial, sans-serif; font-size: 17px; color: var(--accent); }
+.tc ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 14px; flex: 1; }
+.tc li.y::before { content: '✓'; color: var(--ok); font-weight: 700; margin-right: 8px; }
+.tc li.n { color: var(--muted); }
+.tc li.n::before { content: '—'; margin-right: 8px; }
+.tc-price { font-weight: 700; font-size: 15px; padding-top: 10px; border-top: 1px solid var(--line); }
+.tc-combo { font-size: 13px; color: var(--accent); font-weight: 600; }
 </style>
 </head>
 <body>
@@ -218,6 +227,7 @@ table.btable { min-width: 0; }
 
   <h2 class="part">Районный пункт приёма: доходы и расходы <span class="pkg">пакеты «Расширение» и «Комбо»</span></h2>
   <p class="intro-p">Мы открываем пункт приёма под вашим брендом в райцентре, где у вас сейчас нет приёма. В пункте всегда работает чат-бот, а дальше — на ваш выбор: <b>«Минимальный»</b> — продвигаем пункт в местных каналах, <b>«Средний»</b> — ещё и даём своего приёмщика, <b>«Полный»</b> — пункт под ключ, с нашим помещением. Вам остаются чистка и еженедельный рейс. Если в ваших городских пунктах работает и наш бот, районный пункт обходится дешевле — это «Комбо».</p>
+  <section class="tcards" id="tcards" aria-label="Тарифы пакета «Расширение»"></section>
   <p class="lead">Введите, сколько вещей в месяц принимает пункт и среднюю цену чистки. Калькулятор покажет вашу выгоду при каждом варианте. В таблице — примерные расходы: подставьте свои аренду, зарплату приёмщика и стоимость рейса.</p>
 
   <div class="row">
@@ -516,6 +526,7 @@ table.btable { min-width: 0; }
     $('note').textContent = state.mode === 'cleaner'
       ? 'Суммы — на районный пункт; если пунктов два, рейс делится между ними. ' + cityNote + ' Транспорт и инвентарь (стойка, вешала, платёжный терминал, касса) — во всех вариантах ваши.'
       : 'Суммы — на районный пункт; хостинг — на весь бот, если пунктов несколько, он делится между ними. ' + cityNote;
+    renderTariffCards();
     if (state.mode === 'agent') renderSettings();
   }
 
@@ -527,6 +538,21 @@ table.btable { min-width: 0; }
       inp('botPct', PRICE.botPct, 'Бот: %') + inp('botMin', PRICE.botMin, 'Бот в районном пакете: минимум, $') + inp('botMax', PRICE.botMax, 'Бот в районном пакете: максимум, $') +
       inp('botOnlyMin', PRICE.botOnlyMin, '«Только бот»: минимум, $') + levels +
       inp('comboPct', PRICE.comboPct, '«Комбо»: скидка, п.п.') + inp('comboMin', PRICE.comboMin, '«Комбо»: скидка минимума, $') + '</div>';
+  }
+
+  // Карточки тарифов пакета «Расширение» — из тех же цен, что и таблица
+  function renderTariffCards() {
+    const yes = (t) => '<li class="y">' + t + '</li>';
+    const no = (t) => '<li class="n">' + t + ' — ваш' + (t === 'приёмщик' ? '' : 'е') + '</li>';
+    const card = (name, items, price, combo) => '<div class="tc"><div class="tc-name">' + name + '</div><ul>' + items.join('') + '</ul><div class="tc-price">' + price + '</div>' + (combo ? '<div class="tc-combo">в «Комбо»: ' + combo + '</div>' : '') + '</div>';
+    const bot = 'бот ' + fmt2(PRICE.botPct) + '%, не менее $' + PRICE.botMin;
+    const lv = (id) => LEVELS[id];
+    const pack = (id, d) => 'пакет ' + fmt2(lv(id).pct - (d ? PRICE.comboPct : 0)) + '% от оборота, не менее $' + (lv(id).min - (d ? PRICE.comboMin : 0));
+    $('tcards').innerHTML =
+      card('Только бот', [yes('чат-бот'), no('помещение'), no('приёмщик')], 'бот ' + fmt2(PRICE.botPct) + '%, не менее $' + PRICE.botOnlyMin + ', без максимума') +
+      card('Минимальный', [yes('чат-бот'), yes('продвижение в местных каналах'), no('помещение'), no('приёмщик')], bot + '<br>+ ' + pack('min'), pack('min', true)) +
+      card('Средний', [yes('чат-бот'), yes('продвижение'), yes('наш приёмщик'), no('помещение')], bot + '<br>+ ' + pack('mid'), pack('mid', true)) +
+      card('Полный', [yes('чат-бот'), yes('продвижение'), yes('наш приёмщик'), yes('наше помещение, аренда и коммунальные')], bot + '<br>+ ' + pack('full'), pack('full', true));
   }
 
   function setMode(m) {
