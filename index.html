@@ -205,6 +205,7 @@ table.ptable tr.combo-row td.calc-col { background: var(--sel); }
 table.ptable .cv { font-size: 20px; font-weight: 700; }
 /* тёмная тема — яркие варианты цветов тарифов */
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tc.t-min .tc-name { color: #6cb8e6; } :root:not([data-theme="light"]) .tc.t-mid .tc-name { color: #5cc28e; } :root:not([data-theme="light"]) .tc.t-full .tc-name { color: #c792ea; } :root:not([data-theme="light"]) .tc.t-bot .tc-name { color: #ffffff; } }
+thead th.bot-g { color: var(--muted); border-bottom-color: var(--line); font-size: 13px; }
 </style>
 </head>
 <body>
@@ -263,7 +264,7 @@ table.ptable .cv { font-size: 20px; font-weight: 700; }
       <thead><tr><th>Количество пунктов</th><th>Ваша абонентская плата за бот в месяц — за каждый пункт</th><th class="calc-col">Расчёт для ваших цифр</th></tr></thead>
       <tbody id="b-body"></tbody>
     </table></div>
-    <p class="note">Поддержка бота входит в плату. Разово — простое внедрение на всю сеть: $350 (в «Комбо» — $170). Подключение оплаты на ваш счёт, кассы и принтера, интеграция с программой учёта — отдельно, по обследованию.</p>
+    <p class="note"><b>Районный пункт только с ботом, без пакета «Расширение»:</b> 4,3% от заказов через бот, но не менее $120 в месяц, без максимума; к «Комбо» не относится. Поддержка бота входит в плату. Разово — простое внедрение на всю сеть: $350 (в «Комбо» — $170). Подключение оплаты на ваш счёт, кассы и принтера, интеграция с программой учёта — отдельно, по обследованию.</p>
   </section>
 
   <h2 class="part">Районный пункт приёма <span class="pkg pkg-ext">пакет «Расширение»</span></h2>
@@ -558,7 +559,7 @@ table.ptable .cv { font-size: 20px; font-weight: 700; }
     }).join('');
 
     // Шапка: над четырьмя колонками — пакет районного пункта, над «Комбо» — пусто
-    $('head0').innerHTML = '<th colspan="2" class="blank"></th><th colspan="' + (COLS.length - 1) + '" scope="colgroup" class="tarifs ext-g">Пакет «Расширение» — районный пункт</th><th scope="col" class="tarifs combo-g">Пакет «Комбо»</th>';
+    $('head0').innerHTML = '<th colspan="2" class="blank"></th><th scope="col" class="tarifs bot-g">Без пакета</th><th colspan="' + (COLS.length - 2) + '" scope="colgroup" class="tarifs ext-g">Пакет «Расширение» — районный пункт</th><th scope="col" class="tarifs combo-g">Пакет «Комбо»</th>';
     $('head').innerHTML = '<th scope="col" class="lbl">' + who + ' на районный пункт · ' + items + ' вещей × ' + fmt(check) + ' BYN</th><th scope="col">Ваше значение</th>' + COLS.map(header).join('');
 
     const rows = LAYOUT[state.mode].filter(([key]) => data.some((d) => d.r && d.r.lines[key] !== null && d.r.lines[key] !== undefined)).map(([key, label, param]) => {
@@ -610,7 +611,6 @@ table.ptable .cv { font-size: 20px; font-weight: 700; }
     const lv = (id) => LEVELS[id];
     const pack = (id, d) => 'пакет ' + fmt2(lv(id).pct - (d ? PRICE.comboPct : 0)) + '% от оборота, не менее $' + (lv(id).min - (d ? PRICE.comboMin : 0));
     $('tcards').innerHTML =
-      card('Только бот', [yes('чат-бот'), no('помещение'), no('приёмщик'), always], 'бот ' + fmt2(PRICE.botPct) + '%, не менее $' + PRICE.botOnlyMin + ', без максимума', '', 't-bot') +
       card('Минимальный', [yes('чат-бот'), yes('продвижение в местных каналах'), no('помещение'), no('приёмщик'), always], bot + '<br>+ ' + pack('min'), pack('min', true), 't-min') +
       card('Средний', [yes('чат-бот'), yes('продвижение'), yes('наш приёмщик'), no('помещение'), always], bot + '<br>+ ' + pack('mid'), pack('mid', true), 't-mid') +
       card('Полный', [yes('чат-бот'), yes('продвижение'), yes('наш приёмщик'), yes('наше помещение, аренда и коммунальные'), always], bot + '<br>+ ' + pack('full'), pack('full', true), 't-full');
