@@ -70,6 +70,7 @@ footer { font-size: 13px; color: var(--muted); }
 .rc-name { font-weight: 700; }
 .rc-big { font-family: 'Unbounded', Arial, sans-serif; font-size: 22px; }
 .rc-sub { font-size: 13px; color: var(--muted); }
+.sumh { margin: 0 0 10px; font-size: 18px; }
 .warn { margin: 0; padding: 10px 14px; border-radius: 10px; background: var(--sel); font-weight: 600; }
 thead th { vertical-align: top; }
 thead th small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; margin-top: 10px; line-height: 1.35; }
@@ -145,7 +146,10 @@ details summary { cursor: pointer; font-weight: 700; }
   </section>
 
   <p class="warn" id="warn" hidden></p>
-  <section aria-label="Итог" class="cards" id="cards" aria-live="polite"></section>
+  <section aria-label="Итог" id="sum" hidden>
+    <h2 class="sumh" id="sum-h"></h2>
+    <div class="cards" id="cards" aria-live="polite"></div>
+  </section>
 
   <div class="frame">
     <table>
@@ -350,6 +354,8 @@ details summary { cursor: pointer; font-weight: 700; }
     const missText = missing.map((k) => ({ rent: 'аренду', staff: 'зарплату приёмщика', trip: 'рейс' }[k])).join(', ');
 
     $('warn').hidden = true;
+    $('sum').hidden = !ready;
+    $('sum-h').textContent = (state.mode === 'cleaner' ? 'Сколько остаётся вам' : 'Сколько остаётся BelCleanBot') + (state.per === 'item' ? ' с одной вещи' : ' в месяц') + ' — с одного районного пункта';
 
     $('cards').innerHTML = data.map((d) => {
       const head = '<div class="rc"><div class="rc-name">' + nameOf(d.c) + '</div>';
