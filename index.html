@@ -148,6 +148,7 @@ table.ptable td, table.ptable th { text-align: left; }
 table.ptable td.pn { font-size: 20px; font-weight: 700; width: 34%; }
 table.ptable .pv { font-size: 20px; font-weight: 700; color: var(--accent); }
 table.ptable tr.combo-row td { background: var(--accent-soft); }
+table.ptable .pfix { display: block; margin-top: 4px; font-size: 15px; color: var(--text); }
 .pnote { display: block; font-size: 12px; font-weight: 400; color: var(--muted); margin-top: 4px; }
 h3.sub { margin: 20px 0 10px; font-size: 16px; }
 table.btable { min-width: 0; }
@@ -212,10 +213,10 @@ table.btable { min-width: 0; }
     <div class="frame"><table class="ptable">
       <thead><tr><th>Количество пунктов</th><th>Плата за бот в месяц — за каждый пункт</th></tr></thead>
       <tbody>
-        <tr><td class="pn">1</td><td><span class="pv">5%</span> от заказов через бот<span class="pnote">не менее $70 (≈211 BYN), не более $280 (≈843 BYN)</span></td></tr>
-        <tr><td class="pn">2</td><td><span class="pv">4,3%</span> от заказов через бот<span class="pnote">не менее $60 (≈181 BYN), не более $253 (≈762 BYN)</span></td></tr>
-        <tr><td class="pn">3+</td><td><span class="pv">4,0%</span> от заказов через бот<span class="pnote">не менее $60 (≈181 BYN), не более $253 (≈762 BYN)</span></td></tr>
-        <tr class="combo-row"><td class="pn">3+ в «Комбо»<span class="pnote">бот в 3 и больше городских пунктах + наш районный пункт</span></td><td><span class="pv">3,7%</span> от заказов через бот<span class="pnote">не менее $50 (≈151 BYN), не более $230 (≈692 BYN)</span></td></tr>
+        <tr><td class="pn">1</td><td><span class="pv">5%</span> от заказов через бот<span class="pfix">но не менее <b>$70 (≈211 BYN)</b> и не более <b>$280 (≈843 BYN)</b> в месяц</span></td></tr>
+        <tr><td class="pn">2</td><td><span class="pv">4,3%</span> от заказов через бот<span class="pfix">но не менее <b>$60 (≈181 BYN)</b> и не более <b>$253 (≈762 BYN)</b> в месяц</span></td></tr>
+        <tr><td class="pn">3+</td><td><span class="pv">4,0%</span> от заказов через бот<span class="pfix">но не менее <b>$60 (≈181 BYN)</b> и не более <b>$253 (≈762 BYN)</b> в месяц</span></td></tr>
+        <tr class="combo-row"><td class="pn">3+ в «Комбо»<span class="pnote">бот в 3 и больше городских пунктах + наш районный пункт</span></td><td><span class="pv">3,7%</span> от заказов через бот<span class="pfix">но не менее <b>$50 (≈151 BYN)</b> и не более <b>$230 (≈692 BYN)</b> в месяц</span></td></tr>
       </tbody>
     </table></div>
     <h3 class="sub">Посчитать плату за бот</h3>
