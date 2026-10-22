@@ -163,7 +163,7 @@ details summary { cursor: pointer; font-weight: 700; }
       <tbody id="body"></tbody>
     </table>
   </div>
-  <p class="hint">Измените числа в полях и нажмите «Рассчитать» (или Enter). Серые поля в таблице — ваши расходы. Там стоят примерные значения: аренда и зарплата приёмщика — по ценам райцентров на нашем маршруте с запасом, рейс — на вашей машине (≈1 210 км в месяц, 9 л на 100 км, водитель 5 часов за рейс), себестоимость чистки — 30% выручки. Подставьте свои — расчёт обновится сразу.</p>
+  <p class="hint">Измените числа в полях и нажмите «Рассчитать» (или Enter). Серые поля в таблице — ваши расходы. Там стоят примерные значения: аренда и зарплата приёмщика — по ценам райцентров на нашем маршруте с запасом, рейс — на вашей машине (≈1 210 км в месяц, 9 л на 100 км, водитель 5 часов за рейс). Затраты на саму чистку (химия, работа мастера) в расчёт не входят — вы знаете их сами. Подставьте свои — расчёт обновится сразу.</p>
 
   <details class="card agent-only" id="settings" hidden>
     <summary>Цены BelCleanBot (для расчёта)</summary>
@@ -173,7 +173,7 @@ details summary { cursor: pointer; font-weight: 700; }
   <p class="note" id="note"></p>
 
   <footer>
-    Суммы — в BYN, под ними — в долларах по курсу 3,01 BYN за $1. Цены BelCleanBot на 22.10.2026. Расчёт — пример: себестоимость чистки и стоимость рейса у каждой химчистки свои.<br>
+    Суммы — в BYN, под ними — в долларах по курсу 3,01 BYN за $1. Цены BelCleanBot на 22.10.2026. Расчёт — пример: аренда, зарплата и стоимость рейса у каждой химчистки свои; затраты на саму чистку не учтены.<br>
     Вера Бакерова · +375 29 574 58 70 · Telegram: @verabakea · verbapho@gmail.com
   </footer>
 </div>
@@ -208,7 +208,6 @@ details summary { cursor: pointer; font-weight: 700; }
   const params = {
     rent: { label: 'Аренда помещения с коммунальными', unit: 'BYN в месяц', value: 272 },
     staff: { label: 'Зарплата приёмщика', unit: 'BYN в месяц', value: 408 },
-    cost: { label: 'Себестоимость чистки (химия, работа)', unit: '% от выручки', value: 30 },
     trip: { label: 'Рейс за месяц — весь маршрут', unit: 'BYN в месяц, весь маршрут', value: 435 },
     tax: { label: 'Налог', unit: '% от того, что платит химчистка', value: 13 },
     hosting: { label: 'Хостинг бота', unit: 'BYN в месяц', value: 52 },
@@ -270,7 +269,6 @@ details summary { cursor: pointer; font-weight: 700; }
         city: f.city === null ? null : -f.city,
         rent: own.rent ? -P('rent') : null,
         staff: own.staff ? -P('staff') : null,
-        cost: -revenue * P('cost') / 100,
         trip: -P('trip') / state.nd, // рейс один на все районные пункты маршрута
       };
       const income = Object.values(lines).reduce((s, v) => s + (v || 0), 0);
@@ -305,7 +303,6 @@ details summary { cursor: pointer; font-weight: 700; }
       ['pack', 'Платите BelCleanBot за пакет (что входит — в заголовке)', null],
       ['rent', 'Аренда помещения — платите сами', 'rent'],
       ['staff', 'Зарплата приёмщику — платите сами', 'staff'],
-      ['cost', 'Себестоимость чистки', 'cost'],
       ['trip', 'Рейс — ваша машина (весь маршрут делится между районными пунктами)', 'trip'],
     ],
     agent: [
@@ -356,13 +353,14 @@ details summary { cursor: pointer; font-weight: 700; }
     const data = COLS.map((c) => ({ c, r: calc(c, items, check), be: breakeven(c, check) }));
     const show = (d) => (state.per === 'item' ? (items ? d.r.income / items : 0) : d.r.income);
     const unit = state.per === 'item' ? 'с одной вещи' : 'в месяц';
-    const who = state.mode === 'cleaner' ? 'Остаётся химчистке' : 'Остаётся BelCleanBot';
+    // Выгода химчистки — после транспорта, приёмщика, аренды и услуг BelCleanBot (до затрат на саму чистку) — решение владельца 22.10.2026
+    const who = state.mode === 'cleaner' ? 'Выгода химчистки' : 'Остаётся BelCleanBot';
     const missText = missing.map((k) => ({ rent: 'аренды', staff: 'зарплаты приёмщика', trip: 'рейса' }[k])).join(', ');
     const without = ready ? '' : 'без ' + missText;
 
     $('warn').hidden = true;
     $('sum').hidden = false;
-    $('sum-h').textContent = (state.mode === 'cleaner' ? 'Сколько остаётся вам' : 'Сколько остаётся BelCleanBot') + (state.per === 'item' ? ' с одной вещи' : ' в месяц') + ' — с одного районного пункта';
+    $('sum-h').textContent = (state.mode === 'cleaner' ? 'Ваша выгода' : 'Сколько остаётся BelCleanBot') + (state.per === 'item' ? ' с одной вещи' : ' в месяц') + ' — с одного районного пункта' + (state.mode === 'cleaner' ? ', после транспорта, приёмщика, аренды и услуг BelCleanBot' : '');
 
     $('cards').innerHTML = data.map((d) => {
       const head = '<div class="rc"><div class="rc-name">' + nameOf(d.c) + '</div>';
@@ -390,7 +388,7 @@ details summary { cursor: pointer; font-weight: 700; }
       return '<tr' + (strong ? ' class="total"' : '') + '><td>' + label + '</td><td class="param">' + input + '</td>' + cells + '</tr>';
     });
     rows.push('<tr class="total"><td>Все расходы</td><td></td>' + data.map((d) => !d.r ? '<td class="na">—</td>' : '<td>' + money(-d.r.expenses) + (ready ? '' : '<span class="usd miss">' + without + '</span>') + '</td>').join('') + '</tr>');
-    rows.push('<tr class="income"><td>' + who + '</td><td></td>' + data.map((d) => !d.r ? '<td class="na">—</td>' :
+    rows.push('<tr class="income"><td>' + who + (state.mode === 'cleaner' ? '<span class="usd" style="text-align:left">после транспорта, приёмщика, аренды и услуг BelCleanBot — до затрат на саму чистку</span>' : '') + '</td><td></td>' + data.map((d) => !d.r ? '<td class="na">—</td>' :
       '<td><span class="' + (d.r.income >= 0 ? 'pos' : 'neg') + '">' + byn(d.r.income) + '</span><span class="usd">' + usd(d.r.income) +
       (items ? ' · ' + byn(d.r.income / items) + ' с вещи' : '') + '</span>' + (ready ? '' : '<span class="usd miss">' + without + '</span>') + '</td>').join('') + '</tr>');
     rows.push('<tr><td>В плюсе с какого числа вещей</td><td></td>' + data.map((d) => '<td>' + (!d.r ? '—' : d.be === undefined ? '—' : d.be === null ? 'не окупается' : d.be === 0 ? 'с любого' : 'с ' + d.be) + '</td>').join('') + '</tr>');
