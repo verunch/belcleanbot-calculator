@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Калькулятор районного пункта</title>
-<meta name="description" content="BelCleanBot: доходы и расходы районного пункта приёма химчистки — только бот и пакеты «Минимальный», «Средний», «Полный».">
+<meta name="description" content="BelCleanBot: доходы и расходы районного пункта приёма химчистки — только бот, пакеты «Минимальный», «Средний», «Полный» и «Комбо».">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;600;700&family=Unbounded:wght@600&display=swap" rel="stylesheet">
 <style>
@@ -75,7 +75,10 @@ thead th { vertical-align: bottom; }
 thead th small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; margin-top: 2px; }
 thead th small.price { color: var(--accent); font-weight: 600; }
 thead th.lbl { color: var(--text); font-size: 14px; }
-table { min-width: 860px; }
+table { min-width: 980px; }
+select { font: inherit; font-size: 18px; font-weight: 600; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--text); width: 100%; }
+.counts { margin-top: 14px; }
+.counts .seg button { padding: 8px 22px; }
 details summary { cursor: pointer; font-weight: 700; }
 .sets { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 12px; }
 .set { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
@@ -86,7 +89,7 @@ details summary { cursor: pointer; font-weight: 700; }
 <div class="wrap">
   <header style="display:flex;flex-direction:column;gap:10px">
     <h1>Районный пункт приёма химчистки: доходы и расходы</h1>
-    <p class="lead">Введите, сколько вещей в месяц принимает пункт и среднюю цену чистки. Калькулятор покажет, сколько остаётся вам при каждом варианте работы с BelCleanBot. Аренду помещения и стоимость рейса впишите свои.</p>
+    <p class="lead">Введите, сколько вещей в месяц принимает пункт и среднюю цену чистки. Калькулятор покажет, сколько остаётся вам при каждом варианте работы с BelCleanBot. Аренду, зарплату приёмщика и стоимость рейса впишите свои.</p>
   </header>
 
   <div class="row">
@@ -99,7 +102,7 @@ details summary { cursor: pointer; font-weight: 700; }
   <section class="card" aria-label="Ввод">
     <div class="row inputs">
       <div class="field">
-        <label for="items">Вещей в месяц в пункте</label>
+        <label for="items">Вещей в месяц в районном пункте</label>
         <input id="items" type="number" min="0" step="1" value="50" inputmode="numeric">
       </div>
       <div class="field">
@@ -114,14 +117,37 @@ details summary { cursor: pointer; font-weight: 700; }
         </div>
       </div>
     </div>
-    <div class="checks">
-      <label><input type="checkbox" id="combo"> «Комбо» — у химчистки ещё и бот минимум в 2 городских пунктах</label>
-      <label><input type="checkbox" id="single"> У химчистки всего один пункт</label>
-      <label class="agent-only" hidden><input type="checkbox" id="self"> Приёмщик — я сама (без зарплаты)</label>
+    <div class="row inputs counts">
+      <div class="field">
+        <span class="flabel">Районных пунктов</span>
+        <div class="seg" role="group" aria-label="Районных пунктов">
+          <button type="button" data-nd="1" aria-pressed="true">1</button>
+          <button type="button" data-nd="2" aria-pressed="false">2</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="nc">Ваших городских пунктов с ботом</label>
+        <input id="nc" type="number" min="0" step="1" value="0" inputmode="numeric">
+      </div>
+      <div class="field">
+        <label for="cl">Пакет в «Комбо»</label>
+        <select id="cl">
+          <option value="min">Минимальный</option>
+          <option value="mid">Средний</option>
+          <option value="full">Полный</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="crev">Выручка через бот в одном городском пункте, BYN в месяц</label>
+        <input id="crev" type="number" min="0" step="1" placeholder="не знаю — минимум" inputmode="decimal">
+      </div>
+    </div>
+    <div class="checks agent-only" hidden>
+      <label><input type="checkbox" id="self"> Приёмщик — я сама (без зарплаты)</label>
     </div>
   </section>
 
-  <p class="warn" id="rent-warn">Впишите в таблице стоимость аренды помещения в райцентре — без неё доход в вариантах, где помещение ваше, завышен.</p>
+  <p class="warn" id="warn" hidden></p>
   <section aria-label="Итог" class="cards" id="cards" aria-live="polite"></section>
 
   <div class="frame">
@@ -130,7 +156,7 @@ details summary { cursor: pointer; font-weight: 700; }
       <tbody id="body"></tbody>
     </table>
   </div>
-  <p class="hint">Серые поля в таблице — ваши расходы: аренду и рейс впишите сами, зарплата и себестоимость — наши значения по умолчанию. Подставьте свои — расчёт обновится сразу. Обновите страницу, чтобы вернуть значения по умолчанию.</p>
+  <p class="hint">Серые поля в таблице — ваши расходы: аренду, зарплату приёмщика и рейс впишите сами, себестоимость чистки — наше значение по умолчанию, его можно поменять. Расчёт обновится сразу. Обновите страницу, чтобы начать заново.</p>
 
   <details class="card agent-only" id="settings" hidden>
     <summary>Цены BelCleanBot (для расчёта)</summary>
@@ -150,30 +176,38 @@ details summary { cursor: pointer; font-weight: 700; }
   'use strict';
   const RATE = 3.01; // BYN за $1
   // Цены: бот в каждом пункте (D-34); в районном пункте бот не менее $80, «только бот» — не менее $120 без потолка (D-40).
-  // Пакет района — сверх бота; «Комбо» — −1,5% и −$65 к пакету (D-34).
+  // Пакет района — сверх бота; «Комбо» (бот минимум в 2 городских пунктах) — −1,5% и −$65 к пакету (D-34).
   const PRICE = {
     botPct: 4.3, botPctSingle: 5, botMin: 80, botMax: 253, botMaxSingle: 280, botOnlyMin: 120,
-    comboPct: 1.5, comboMin: 65, cityBotMin: 60,
+    comboPct: 1.5, comboMin: 65, comboCities: 2,
+    city: { pct: 4.3, min: 60, max: 253 }, city3: { pct: 3.8, min: 50, max: 230 },
   };
   // own — что даёт химчистка сама: rent — помещение, staff — приёмщик. fee — что платит нам.
+  const LEVELS = {
+    min: { name: 'Минимальный', what: 'бот + продвижение; приёмщик и помещение ваши', pct: 3, min: 90, own: { rent: true, staff: true } },
+    mid: { name: 'Средний', what: 'бот + продвижение + наш приёмщик; помещение ваше', pct: 6, min: 210, own: { rent: true, staff: false } },
+    full: { name: 'Полный', what: 'бот + продвижение + наш приёмщик + наше помещение', pct: 10, min: 435, own: { rent: false, staff: false } },
+  };
   const COLS = [
     { id: 'bot', name: 'Только бот', what: 'бот; приёмщик и помещение ваши', fee: 'bot', own: { rent: true, staff: true } },
-    { id: 'min', name: 'Минимальный', what: 'бот + продвижение; приёмщик и помещение ваши', fee: 'pack', pct: 3, min: 90, own: { rent: true, staff: true } },
-    { id: 'mid', name: 'Средний', what: 'бот + продвижение + наш приёмщик; помещение ваше', fee: 'pack', pct: 6, min: 210, own: { rent: true, staff: false } },
-    { id: 'full', name: 'Полный', what: 'бот + продвижение + наш приёмщик + наше помещение', fee: 'pack', pct: 10, min: 435, own: { rent: false, staff: false } },
+    { id: 'min', fee: 'pack', level: 'min' },
+    { id: 'mid', fee: 'pack', level: 'mid' },
+    { id: 'full', fee: 'pack', level: 'full' },
+    { id: 'combo', fee: 'combo' },
   ];
+  // Расходы химчистки: аренду, зарплату и рейс она вписывает сама (решение владельца 22.10.2026)
   const params = {
-    // Аренду химчистка ищет сама — по умолчанию пусто (решение владельца 22.10.2026)
-    rent: { label: 'Аренда помещения с коммунальными', unit: 'BYN в месяц', value: null, placeholder: 'впишите' },
-    ourRent: { label: 'Аренда нашего помещения', unit: 'BYN в месяц', value: 236.58 },
-    staff: { label: 'Зарплата приёмщика (12 ч в неделю)', unit: 'BYN в месяц', value: 355 },
+    rent: { label: 'Аренда помещения с коммунальными', unit: 'BYN в месяц', value: null },
+    staff: { label: 'Зарплата приёмщика', unit: 'BYN в месяц', value: null },
     cost: { label: 'Себестоимость чистки (химия, работа)', unit: '% от выручки', value: 30 },
-    // Транспорт химчистка считает сама — по умолчанию пусто (решение владельца 22.10.2026)
-    trip: { label: 'Рейс в райцентр и обратно', unit: 'BYN в месяц', value: null, placeholder: 'впишите' },
+    trip: { label: 'Рейс в райцентр и обратно', unit: 'BYN в месяц', value: null },
     tax: { label: 'Налог', unit: '% от того, что платит химчистка', value: 13 },
     hosting: { label: 'Хостинг бота', unit: 'BYN в месяц', value: 52 },
+    ourStaff: { label: 'Зарплата нашего приёмщика', unit: 'BYN в месяц', value: 355 },
+    ourRent: { label: 'Аренда нашего помещения', unit: 'BYN в месяц', value: 236.58 },
   };
-  const state = { mode: 'cleaner', per: 'month', unlocked: false };
+  const NEED = ['rent', 'staff', 'trip'];
+  const state = { mode: 'cleaner', per: 'month', nd: 1, unlocked: false };
   // Режим «Для BelCleanBot» — по паролю владельца. Хранится только хеш SHA-256.
   const AGENT_HASH = '967206673847d5ecbb2438bc5cae776c805839af8bd9ef573156b7859d0fd48f';
   const $ = (id) => document.getElementById(id);
@@ -185,56 +219,70 @@ details summary { cursor: pointer; font-weight: 700; }
   const money = (n) => '<span class="' + (n < 0 ? 'neg' : '') + '">' + byn(n) + '</span><span class="usd">' + usd(n) + '</span>';
   const num = (id) => { const v = Number($(id).value); return Number.isFinite(v) && v > 0 ? v : 0; };
   const P = (k) => params[k].value || 0;
+  const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
 
-  function cols() { return COLS.filter((c) => state.mode === 'cleaner' || !c.cleanerOnly); }
+  const cities = () => Math.floor(num('nc'));
+  const comboOk = () => cities() >= PRICE.comboCities;
+  const single = () => state.nd + cities() === 1;
+  const levelOf = (c) => LEVELS[c.fee === 'combo' ? $('cl').value : c.level];
+  const nameOf = (c) => (c.fee === 'combo' ? '«Комбо»' : c.fee === 'pack' ? levelOf(c).name : c.name);
+  const ownOf = (c) => (c.fee === 'bot' ? c.own : levelOf(c).own);
 
-  // Сколько платит химчистка нам за пункт в месяц
-  function fees(c, revenue) {
-    const single = $('single').checked;
-    const combo = $('combo').checked && c.fee === 'pack';
-    if (c.fee === 'none') return { bot: 0, pack: 0, combo: false };
-    const pct = (single ? PRICE.botPctSingle : PRICE.botPct) / 100;
-    const raw = revenue * pct;
-    let bot;
-    if (c.fee === 'bot') bot = Math.max(raw, PRICE.botOnlyMin * RATE); // только бот: минимум $120, без потолка
-    else bot = Math.min(Math.max(raw, PRICE.botMin * RATE), (single ? PRICE.botMaxSingle : PRICE.botMax) * RATE);
-    let pack = 0;
-    if (c.fee === 'pack') {
-      const p = Math.max(c.pct - (combo ? PRICE.comboPct : 0), 0) / 100;
-      const m = Math.max(c.min - (combo ? PRICE.comboMin : 0), 0);
-      pack = Math.max(revenue * p, m * RATE);
+  // Бот в городских пунктах — вся сумма в месяц (1-й и 2-й — 4,3%, с 3-го — 3,8%)
+  function cityBotTotal() {
+    const rev = num('crev');
+    let total = 0;
+    for (let i = 0; i < cities(); i++) {
+      const t = i >= 2 ? PRICE.city3 : PRICE.city;
+      total += clamp(rev * t.pct / 100, t.min * RATE, t.max * RATE);
     }
-    return { bot, pack, combo };
+    return total;
+  }
+
+  // Сколько платит химчистка нам за один районный пункт в месяц
+  function fees(c, revenue) {
+    const pct = (single() ? PRICE.botPctSingle : PRICE.botPct) / 100;
+    const raw = revenue * pct;
+    if (c.fee === 'bot') return { bot: Math.max(raw, PRICE.botOnlyMin * RATE), pack: 0, city: null };
+    const bot = Math.min(Math.max(raw, PRICE.botMin * RATE), (single() ? PRICE.botMaxSingle : PRICE.botMax) * RATE);
+    const l = levelOf(c);
+    const combo = c.fee === 'combo';
+    const p = Math.max(l.pct - (combo ? PRICE.comboPct : 0), 0) / 100;
+    const m = Math.max(l.min - (combo ? PRICE.comboMin : 0), 0);
+    // В «Комбо» плата за бот в городских пунктах делится между районными пунктами
+    return { bot, pack: Math.max(revenue * p, m * RATE), city: combo ? cityBotTotal() / state.nd : null };
   }
 
   function calc(c, items, check) {
+    if (c.fee === 'combo' && !comboOk()) return null;
     const revenue = items * check;
     const f = fees(c, revenue);
+    const own = ownOf(c);
     if (state.mode === 'cleaner') {
       const lines = {
         revenue,
-        bot: c.fee === 'none' ? null : -f.bot,
-        pack: c.fee === 'pack' ? -f.pack : null,
-        rent: c.own.rent ? -P('rent') : null,
-        staff: c.own.staff ? -P('staff') : null,
+        bot: -f.bot,
+        pack: c.fee === 'bot' ? null : -f.pack,
+        city: f.city === null ? null : -f.city,
+        rent: own.rent ? -P('rent') : null,
+        staff: own.staff ? -P('staff') : null,
         cost: -revenue * P('cost') / 100,
         trip: -P('trip'),
       };
       const income = Object.values(lines).reduce((s, v) => s + (v || 0), 0);
       return { lines, income, expenses: revenue - income };
     }
-    const cityBot = f.combo ? 2 * PRICE.cityBotMin * RATE : null; // «Комбо»: бот в 2 городских пунктах, на минимуме
-    const got = f.bot + f.pack + (cityBot || 0);
+    const got = f.bot + f.pack + (f.city || 0);
     const self = $('self').checked;
     const lines = {
       bot: f.bot,
-      pack: c.fee === 'pack' ? f.pack : null,
-      city: cityBot,
+      pack: c.fee === 'bot' ? null : f.pack,
+      city: f.city,
       got,
       tax: -got * P('tax') / 100,
       hosting: -P('hosting'),
-      staff: c.own.staff ? null : (self ? 0 : -P('staff')),
-      rent: c.own.rent ? null : -P('ourRent'),
+      staff: own.staff ? null : (self ? 0 : -P('ourStaff')),
+      rent: own.rent ? null : -P('ourRent'),
     };
     const expenses = -(lines.tax + lines.hosting + (lines.staff || 0) + (lines.rent || 0));
     return { lines, income: got - expenses, expenses };
@@ -242,70 +290,80 @@ details summary { cursor: pointer; font-weight: 700; }
 
   // С какого числа вещей доход не меньше нуля
   function breakeven(c, check) {
-    for (let n = 0; n <= 2000; n++) if (calc(c, n, check).income >= 0) return n;
+    for (let n = 0; n <= 2000; n++) { const r = calc(c, n, check); if (r && r.income >= 0) return n; }
     return null;
   }
 
   const LAYOUT = {
     cleaner: [
-      ['revenue', 'Выручка пункта (вещей × цена)', null],
-      ['bot', 'Платите BelCleanBot за бот', null],
-      ['pack', 'Платите BelCleanBot за пакет (продвижение, приёмщик, помещение — что входит, см. заголовок)', null],
+      ['revenue', 'Выручка районного пункта (вещей × цена)', null],
+      ['bot', 'Платите BelCleanBot за бот в районном пункте', null],
+      ['pack', 'Платите BelCleanBot за пакет (что входит — в заголовке)', null],
+      ['city', 'Платите BelCleanBot за бот в городских пунктах (доля на этот районный пункт)', null],
       ['rent', 'Аренда помещения — платите сами', 'rent'],
       ['staff', 'Зарплата приёмщику — платите сами', 'staff'],
       ['cost', 'Себестоимость чистки', 'cost'],
       ['trip', 'Рейс в райцентр и обратно (ваш транспорт)', 'trip'],
     ],
     agent: [
-      ['bot', 'Химчистка платит за бот в этом пункте', null],
+      ['bot', 'Химчистка платит за бот в районном пункте', null],
       ['pack', 'Химчистка платит за пакет', null],
-      ['city', 'Химчистка платит за бот в 2 городских пунктах («Комбо», на минимуме)', null],
+      ['city', 'Химчистка платит за бот в городских пунктах (доля на этот районный пункт)', null],
       ['got', 'Всего получаем', null],
       ['tax', 'Налог', 'tax'],
       ['hosting', 'Хостинг бота', 'hosting'],
-      ['staff', 'Зарплата нашему приёмщику', 'staff'],
+      ['staff', 'Зарплата нашему приёмщику', 'ourStaff'],
       ['rent', 'Аренда нашего помещения', 'ourRent'],
     ],
   };
 
   function header(c) {
-    let price = '';
-    const combo = $('combo').checked;
-    const single = $('single').checked;
-    const bp = single ? PRICE.botPctSingle : PRICE.botPct;
-    if (c.fee === 'bot') price = 'бот ' + fmt2(bp) + '%, не менее $' + PRICE.botOnlyMin;
-    if (c.fee === 'pack') {
-      const p = c.pct - (combo ? PRICE.comboPct : 0);
-      const m = c.min - (combo ? PRICE.comboMin : 0);
-      price = 'бот ' + fmt2(bp) + '%, не менее $' + PRICE.botMin + ' + пакет ' + fmt2(p) + '%, не менее $' + m;
+    const bp = fmt2(single() ? PRICE.botPctSingle : PRICE.botPct);
+    let what = '', price = '';
+    if (c.fee === 'bot') { what = c.what; price = 'бот ' + bp + '%, не менее $' + PRICE.botOnlyMin; }
+    else {
+      const l = levelOf(c);
+      const combo = c.fee === 'combo';
+      const p = l.pct - (combo ? PRICE.comboPct : 0);
+      const m = l.min - (combo ? PRICE.comboMin : 0);
+      what = combo ? 'пакет «' + l.name + '» со скидкой + бот в ' + cities() + ' городских пунктах' : l.what;
+      price = 'бот ' + bp + '%, не менее $' + PRICE.botMin + ' + пакет ' + fmt2(p) + '%, не менее $' + m;
+      if (combo && !comboOk()) price = 'нужен бот минимум в ' + PRICE.comboCities + ' городских пунктах';
     }
-    return '<th scope="col">' + c.name + '<small>' + c.what + '</small>' + (price ? '<small class="price">' + price + '</small>' : '') + '</th>';
+    return '<th scope="col">' + nameOf(c) + '<small>' + what + '</small><small class="price">' + price + '</small></th>';
   }
 
   function render() {
     const items = num('items');
     const check = num('check');
-    const list = cols();
-    const ready = state.mode !== 'cleaner' || (params.rent.value !== null && params.trip.value !== null);
-    const data = list.map((c) => ({ c, r: calc(c, items, check), be: ready ? breakeven(c, check) : undefined }));
+    const missing = state.mode === 'cleaner' ? NEED.filter((k) => params[k].value === null) : [];
+    const ready = missing.length === 0;
+    const data = COLS.map((c) => ({ c, r: calc(c, items, check), be: ready ? breakeven(c, check) : undefined }));
     const show = (d) => (state.per === 'item' ? (items ? d.r.income / items : 0) : d.r.income);
     const unit = state.per === 'item' ? 'с одной вещи' : 'в месяц';
     const who = state.mode === 'cleaner' ? 'Остаётся химчистке' : 'Остаётся BelCleanBot';
+    const missText = missing.map((k) => ({ rent: 'аренду', staff: 'зарплату приёмщика', trip: 'рейс' }[k])).join(', ');
+
+    $('warn').hidden = ready;
+    $('warn').textContent = 'Впишите в таблице ' + missText + ' — без этого доход химчистки не посчитать.';
 
     $('cards').innerHTML = data.map((d) => {
-      if (!ready) return '<div class="rc"><div class="rc-name">' + d.c.name + '</div><div class="rc-big na">—</div><div class="rc-sub">впишите аренду и рейс в таблице</div></div>';
+      const head = '<div class="rc"><div class="rc-name">' + nameOf(d.c) + '</div>';
+      if (!d.r) return head + '<div class="rc-big na">—</div><div class="rc-sub">нужен бот минимум в ' + PRICE.comboCities + ' городских пунктах</div></div>';
+      if (!ready) return head + '<div class="rc-big na">—</div><div class="rc-sub">впишите ' + missText + '</div></div>';
       const v = show(d);
-      return '<div class="rc"><div class="rc-name">' + d.c.name + '</div><div class="rc-big ' + (v < 0 ? 'neg' : 'pos') + '">' + byn(v) + '</div>' +
+      return head + '<div class="rc-big ' + (v < 0 ? 'neg' : 'pos') + '">' + byn(v) + '</div>' +
         '<div class="rc-sub">' + usd(v) + ' ' + unit + '</div>' +
-        '<div class="rc-sub">' + (d.be === undefined ? 'без аренды и рейса' : d.be === null ? 'не окупается до 2 000 вещей' : d.be === 0 ? 'в плюсе при любом числе вещей' : 'в плюсе с ' + d.be + ' вещей в месяц') + '</div></div>';
+        '<div class="rc-sub">' + (d.be === null ? 'не окупается до 2 000 вещей' : d.be === 0 ? 'в плюсе при любом числе вещей' : 'в плюсе с ' + d.be + ' вещей в месяц') + '</div></div>';
     }).join('');
 
-    $('head').innerHTML = '<th scope="col" class="lbl">' + who + ' · ' + items + ' вещей × ' + fmt(check) + ' BYN</th><th scope="col">Ваше значение</th>' + list.map(header).join('');
+    $('head').innerHTML = '<th scope="col" class="lbl">' + who + ' с одного районного пункта · ' + items + ' вещей × ' + fmt(check) + ' BYN</th><th scope="col">Ваше значение</th>' + COLS.map(header).join('');
 
-    const rows = LAYOUT[state.mode].filter(([key]) => data.some((d) => d.r.lines[key] !== null && d.r.lines[key] !== undefined)).map(([key, label, param]) => {
+    const rows = LAYOUT[state.mode].filter(([key]) => data.some((d) => d.r && d.r.lines[key] !== null && d.r.lines[key] !== undefined)).map(([key, label, param]) => {
       const p = param ? params[param] : null;
-      const input = p ? '<input type="number" min="0" step="any" data-param="' + param + '" value="' + (p.value === null ? '' : p.value) + '"' + (p.placeholder ? ' placeholder="' + p.placeholder + '"' : '') + ' aria-label="' + p.label + ', ' + p.unit + '"><span class="usd">' + p.unit + '</span>' : '';
+      const input = p ? '<input type="number" min="0" step="any" data-param="' + param + '" value="' + (p.value === null ? '' : p.value) + '"' + (p.value === null ? ' placeholder="впишите"' : '') + ' aria-label="' + p.label + ', ' + p.unit + '"><span class="usd">' + p.unit + '</span>' : '';
       const cells = data.map((d) => {
+        if (!d.r) return '<td class="na">—</td>';
         const v = d.r.lines[key];
         if (v === null || v === undefined) return '<td class="na">' + (state.mode === 'cleaner' && (key === 'rent' || key === 'staff') ? 'даёт BelCleanBot' : '—') + '</td>';
         if (state.mode === 'cleaner' && param && params[param].value === null) return '<td class="na">впишите</td>';
@@ -314,28 +372,28 @@ details summary { cursor: pointer; font-weight: 700; }
       const strong = key === 'got' || key === 'revenue';
       return '<tr' + (strong ? ' class="total"' : '') + '><td>' + label + '</td><td class="param">' + input + '</td>' + cells + '</tr>';
     });
-    rows.push('<tr class="total"><td>Все расходы</td><td></td>' + data.map((d) => !ready ? '<td class="na">—</td>' : '<td>' + money(-d.r.expenses) + '</td>').join('') + '</tr>');
-    rows.push('<tr class="income"><td>' + who + '</td><td></td>' + data.map((d) => !ready ? '<td class="na">впишите аренду и рейс</td>' :
+    rows.push('<tr class="total"><td>Все расходы</td><td></td>' + data.map((d) => (!d.r || !ready) ? '<td class="na">—</td>' : '<td>' + money(-d.r.expenses) + '</td>').join('') + '</tr>');
+    rows.push('<tr class="income"><td>' + who + '</td><td></td>' + data.map((d) => !d.r ? '<td class="na">—</td>' : !ready ? '<td class="na">впишите ' + missText + '</td>' :
       '<td><span class="' + (d.r.income >= 0 ? 'pos' : 'neg') + '">' + byn(d.r.income) + '</span><span class="usd">' + usd(d.r.income) +
       (items ? ' · ' + byn(d.r.income / items) + ' с вещи' : '') + '</span></td>').join('') + '</tr>');
-    rows.push('<tr><td>В плюсе с какого числа вещей</td><td></td>' + data.map((d) => '<td>' + (d.be === undefined ? 'впишите аренду и рейс' : d.be === null ? '—' : d.be === 0 ? 'с любого' : 'с ' + d.be) + '</td>').join('') + '</tr>');
+    rows.push('<tr><td>В плюсе с какого числа вещей</td><td></td>' + data.map((d) => '<td>' + (!d.r ? '—' : d.be === undefined ? '—' : d.be === null ? 'не окупается' : d.be === 0 ? 'с любого' : 'с ' + d.be) + '</td>').join('') + '</tr>');
     $('body').innerHTML = rows.join('');
 
-    const missing = [params.rent.value === null ? 'аренду помещения' : '', params.trip.value === null ? 'стоимость рейса в райцентр и обратно за месяц' : ''].filter(Boolean);
-    $('rent-warn').hidden = !(state.mode === 'cleaner' && missing.length);
-    $('rent-warn').textContent = 'Впишите в таблице ' + missing.join(' и ') + ' — без этого доход химчистки завышен.';
+    const cityNote = 'В «Комбо» плата за бот в ' + (cities() || 'N') + ' городских пунктах делится между районными пунктами (' + state.nd + '); ' +
+      (num('crev') ? 'считаем по вашей выручке через бот.' : 'считаем по минимуму ($60 за пункт, с 3-го — $50).') +
+      ' Новые заказы, которые бот даёт городским пунктам, здесь не учтены.';
     $('note').textContent = state.mode === 'cleaner'
-      ? 'Транспорт и инвентарь (стойка, вешала, платёжный терминал, касса) — во всех вариантах ваши. В «Комбо» бот в ваших городских пунктах оплачивается отдельно — его покрывает скидка на пакет.'
-      : 'Хостинг — на весь бот: если пунктов несколько, он делится между ними. «Средний» — наш приёмщик; «Полный» — наш приёмщик и помещение. В «Комбо» — плюс бот в 2 городских пунктах на минимуме ($60 за пункт).';
+      ? 'Расчёт — на один районный пункт. ' + cityNote + ' Транспорт и инвентарь (стойка, вешала, платёжный терминал, касса) — во всех вариантах ваши.'
+      : 'Расчёт — на один районный пункт; хостинг — на весь бот, если пунктов несколько, он делится между ними. ' + cityNote;
     if (state.mode === 'agent') renderSettings();
   }
 
   function renderSettings() {
     const inp = (key, v, lbl) => '<label class="set"><span>' + lbl + '</span><input type="number" min="0" step="any" data-set="' + key + '" value="' + v + '"></label>';
-    const levels = COLS.filter((c) => c.fee === 'pack').map((c) =>
-      inp(c.id + '.pct', c.pct, c.name + ': % от оборота') + inp(c.id + '.min', c.min, c.name + ': минимум, $')).join('');
+    const levels = Object.entries(LEVELS).map(([id, l]) =>
+      inp(id + '.pct', l.pct, l.name + ': % от оборота') + inp(id + '.min', l.min, l.name + ': минимум, $')).join('');
     $('settings-body').innerHTML = '<div class="sets">' +
-      inp('botPct', PRICE.botPct, 'Бот: %') + inp('botMin', PRICE.botMin, 'Бот в пакете: минимум, $') + inp('botMax', PRICE.botMax, 'Бот в пакете: максимум, $') +
+      inp('botPct', PRICE.botPct, 'Бот: %') + inp('botMin', PRICE.botMin, 'Бот в районном пакете: минимум, $') + inp('botMax', PRICE.botMax, 'Бот в районном пакете: максимум, $') +
       inp('botOnlyMin', PRICE.botOnlyMin, '«Только бот»: минимум, $') + levels +
       inp('comboPct', PRICE.comboPct, '«Комбо»: скидка, п.п.') + inp('comboMin', PRICE.comboMin, '«Комбо»: скидка минимума, $') + '</div>';
   }
@@ -369,7 +427,12 @@ details summary { cursor: pointer; font-weight: 700; }
   });
   $('per-month').addEventListener('click', () => setPer('month'));
   $('per-item').addEventListener('click', () => setPer('item'));
-  ['items', 'check', 'combo', 'single', 'self'].forEach((id) => $(id).addEventListener('input', render));
+  document.querySelectorAll('[data-nd]').forEach((b) => b.addEventListener('click', () => {
+    state.nd = Number(b.dataset.nd);
+    document.querySelectorAll('[data-nd]').forEach((x) => x.setAttribute('aria-pressed', x === b));
+    render();
+  }));
+  ['items', 'check', 'nc', 'cl', 'crev', 'self'].forEach((id) => $(id).addEventListener('input', render));
   $('body').addEventListener('input', (e) => {
     const el = e.target; const key = el.dataset && el.dataset.param; if (!key) return;
     const raw = Number(el.value); params[key].value = el.value === '' ? null : Number.isFinite(raw) && raw >= 0 ? raw : 0;
@@ -381,7 +444,7 @@ details summary { cursor: pointer; font-weight: 700; }
   $('settings-body').addEventListener('input', (e) => {
     const k = e.target.dataset && e.target.dataset.set; if (!k) return;
     const raw = Number(e.target.value); const v = Number.isFinite(raw) && raw >= 0 ? raw : 0;
-    if (k.includes('.')) { const [id, f] = k.split('.'); COLS.find((c) => c.id === id)[f] = v; } else PRICE[k] = v;
+    if (k.includes('.')) { const [id, f] = k.split('.'); LEVELS[id][f] = v; } else PRICE[k] = v;
     const text = e.target.value;
     render();
     const again = $('settings-body').querySelector('[data-set="' + k + '"]');
