@@ -113,7 +113,7 @@ details summary { cursor: pointer; font-weight: 700; }
   <section class="card" aria-label="Ввод">
     <div class="row inputs">
       <div class="field">
-        <label for="items">Вещей в месяц в районном пункте</label>
+        <label for="items">Районный пункт: вещей в месяц, принятых через бот</label>
         <input id="items" type="text" value="50" inputmode="numeric" autocomplete="off">
       </div>
       <div class="field">
@@ -137,11 +137,11 @@ details summary { cursor: pointer; font-weight: 700; }
         </div>
       </div>
       <div class="field">
-        <label for="citems">Вещей в месяц через бот в одном городском пункте</label>
+        <label for="citems">Городской пункт: вещей в месяц, принятых через бот</label>
         <input id="citems" type="text" value="100" inputmode="numeric" autocomplete="off">
       </div>
       <div class="field">
-        <label for="crev">Выручка через бот в одном городском пункте, BYN в месяц</label>
+        <label for="crev">Городской пункт: выручка за вещи, принятые через бот, BYN в месяц</label>
         <input id="crev" type="text" placeholder="" inputmode="decimal" autocomplete="off">
       </div>
     </div>
@@ -312,7 +312,7 @@ details summary { cursor: pointer; font-weight: 700; }
       ['revenue', 'Выручка районного пункта (вещей × цена)', null],
       ['bot', 'Платите BelCleanBot за бот в районном пункте', null],
       ['pack', 'Платите BelCleanBot за пакет (что входит — в заголовке)', null],
-      ['city', 'Платите BelCleanBot за бот в городских пунктах (доля на этот районный пункт)', null],
+      ['city', 'Платите BelCleanBot за бот в городских пунктах — % от вещей, принятых через бот (доля на этот районный пункт)', null],
       ['rent', 'Аренда помещения — платите сами', 'rent'],
       ['staff', 'Зарплата приёмщику — платите сами', 'staff'],
       ['cost', 'Себестоимость чистки', 'cost'],
@@ -404,7 +404,7 @@ details summary { cursor: pointer; font-weight: 700; }
     $('body').innerHTML = rows.join('');
 
     const cityNote = 'В «Комбо» плата за бот в ' + (cities() >= 3 ? '3' : cities()) + ' городск' + (cities() === 1 ? 'ом пункте' : 'их пунктах') + ' делится между районными пунктами (' + state.nd + '); ' +
-      (num('crev') ? 'выручка через бот в городском пункте — ваша: ' + fmt(cityRev()) + ' BYN.' : 'выручка через бот в городском пункте — ' + fmt(cityRev()) + ' BYN (' + fmt(num('citems')) + ' вещей × ' + fmt2(num('check')) + ' BYN); бот 4,3%, не менее $60 за пункт, с 3-го — 3,8%, не менее $50.') +
+      (num('crev') ? 'выручка через бот в городском пункте — ваша: ' + fmt(cityRev()) + ' BYN.' : 'выручка городского пункта за вещи, принятые через бот, — ' + fmt(cityRev()) + ' BYN (' + fmt(num('citems')) + ' вещей × ' + fmt2(num('check')) + ' BYN); бот 4,3%, не менее $60 за пункт, с 3-го — 3,8%, не менее $50.') +
       ' Новые заказы, которые бот даёт городским пунктам, здесь не учтены.';
     $('note').textContent = state.mode === 'cleaner'
       ? 'Расчёт — на один районный пункт. ' + cityNote + ' Транспорт и инвентарь (стойка, вешала, платёжный терминал, касса) — во всех вариантах ваши.'
