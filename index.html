@@ -160,6 +160,11 @@ table.btable { min-width: 0; }
 .tc-combo { font-size: 13px; color: var(--accent); font-weight: 600; }
 .tc-text { margin: 0; font-size: 14px; color: var(--muted); }
 .combo-cards .tc { background: var(--accent-soft); border-color: transparent; }
+.pk-opt { background: #eef6fb; border-color: #cfe3ef; }
+.pk-ext { background: #eaf6ef; border-color: #cbe6d6; }
+.pk-combo { background: #fdf3e6; border-color: #f1dcbc; }
+.pk-opt .pk-name { color: #1b6fa0; } .pk-ext .pk-name { color: #1f7a4d; } .pk-combo .pk-name { color: #b5650d; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .pk-opt { background: #17303d; border-color: #24485a; } :root:not([data-theme="light"]) .pk-ext { background: #173326; border-color: #24503a; } :root:not([data-theme="light"]) .pk-combo { background: #3a2c17; border-color: #5a4424; } }
 </style>
 </head>
 <body>
@@ -170,9 +175,9 @@ table.btable { min-width: 0; }
   </header>
 
   <section class="packs3" aria-label="Пакеты">
-    <div class="pk"><div class="pk-name">«Оптимизация» — для города</div><p>Только чат-бот в ваших городских пунктах. Приём заказов, оплата и статусы — в Telegram. Один пункт — 5% от выручки через бот; со 2-го пункта бот дешевле — 4,3% за каждый.</p></div>
-    <div class="pk"><div class="pk-name">«Расширение» — районные пункты</div><p>Пункт приёма под вашим брендом в райцентре, где у вас нет приёма. Бот обязателен, к нему — продвижение, а на выбор — наш приёмщик и помещение.</p></div>
-    <div class="pk"><div class="pk-name">«Комбо» — город + район</div><p>Бот в ваших городских пунктах и районный пункт. Районный пункт дешевле, а бот с 3-го городского пункта — ещё дешевле: 3,8% вместо 4,3%.</p></div>
+    <div class="pk pk-opt"><div class="pk-name">«Оптимизация» — для города</div><p>Только чат-бот в ваших городских пунктах. Приём заказов, оплата и статусы — в Telegram. Один пункт — 5% от заказов через бот; 2 пункта — 4,3% за каждый; 3 и больше — 4,0% за каждый.</p></div>
+    <div class="pk pk-ext"><div class="pk-name">«Расширение» — районные пункты</div><p>Пункт приёма под вашим брендом в райцентре, где у вас нет приёма. Бот обязателен, к нему — продвижение, а на выбор — наш приёмщик и помещение.</p></div>
+    <div class="pk pk-combo"><div class="pk-name">«Комбо» — город + район</div><p>Бот в ваших городских пунктах и районный пункт. Районный пункт дешевле, а при боте в 3+ городских пунктах бот ещё дешевле: 3,7% вместо 4,0%.</p></div>
   </section>
 
   <section class="card intro" aria-label="Чат-бот">
@@ -192,7 +197,7 @@ table.btable { min-width: 0; }
       <div class="pc"><div class="pc-top"><div class="pc-l">Было</div><div class="pc-p">Бланки от руки и очереди</div></div><div class="pc-bot"><div class="pc-l ok">Стало</div><div class="pc-s">Заказ оформлен до прихода в пункт</div></div></div>
       <div class="pc"><div class="pc-top"><div class="pc-l">Было</div><div class="pc-p">Споры о дефектах при выдаче</div></div><div class="pc-bot"><div class="pc-l ok">Стало</div><div class="pc-s">Дефекты на фото, клиент подтвердил</div></div></div>
       <div class="pc"><div class="pc-top"><div class="pc-l">Было</div><div class="pc-p">Звонки «готово ли?»</div></div><div class="pc-bot"><div class="pc-l ok">Стало</div><div class="pc-s">Статус и уведомление в боте</div></div></div>
-      <div class="pc"><div class="pc-top"><div class="pc-l">Было</div><div class="pc-p">Клиент без смартфона</div></div><div class="pc-bot"><div class="pc-l ok">Стало</div><div class="pc-s">Приёмщик оформляет заказ за него</div></div></div>
+      <div class="pc"><div class="pc-top"><div class="pc-l">Было</div><div class="pc-p">Клиент без возможности оплаты через смартфон</div></div><div class="pc-bot"><div class="pc-l ok">Стало</div><div class="pc-s">Приёмщик оформляет заказ за него в ЕРИП и сразу вносит в систему</div></div></div>
       <div class="pc"><div class="pc-top"><div class="pc-l">Было</div><div class="pc-p">Нет приёма в райцентре</div></div><div class="pc-bot"><div class="pc-l ok">Стало</div><div class="pc-s">Районный пункт и еженедельный рейс</div></div></div>
     </div>
   </section>
@@ -201,11 +206,11 @@ table.btable { min-width: 0; }
     <h2>Сколько стоит бот в ваших городских пунктах <span class="pkg">пакет «Оптимизация»</span></h2>
     <p class="big-note">Процент считается только с заказов, ОФОРМЛЕННЫХ ЧЕРЕЗ БОТ — не со всей выручки пункта.</p>
     <div class="frame"><table class="ptable">
-      <thead><tr><th>Плата за бот в месяц, за каждый пункт</th><th>1 пункт</th><th>2 пункта</th><th>3 пункта и больше</th></tr></thead>
+      <thead><tr><th>Плата за бот в месяц, за каждый пункт</th><th>1 пункт</th><th>2 пункта</th><th>3 пункта и больше — каждый</th></tr></thead>
       <tbody>
-        <tr><td>Процент от заказов через бот</td><td class="pv">5%</td><td class="pv">4,3%</td><td class="pv">4,3%<span class="pnote">в «Комбо» с 3-го пункта — <b>3,8%</b></span></td></tr>
-        <tr><td>Минимум</td><td class="pv">$70 <span class="usd">≈211 BYN</span></td><td class="pv">$60 <span class="usd">≈181 BYN</span></td><td class="pv">$60 <span class="usd">≈181 BYN</span><span class="pnote">в «Комбо» с 3-го — <b>$50</b></span></td></tr>
-        <tr><td>Максимум</td><td class="pv">$280 <span class="usd">≈843 BYN</span></td><td class="pv">$253 <span class="usd">≈762 BYN</span></td><td class="pv">$253 <span class="usd">≈762 BYN</span><span class="pnote">в «Комбо» с 3-го — <b>$230</b></span></td></tr>
+        <tr><td>Процент от заказов через бот</td><td class="pv">5%</td><td class="pv">4,3%</td><td class="pv">4,0%<span class="pnote">в «Комбо» — <b>3,7%</b></span></td></tr>
+        <tr><td>Минимум</td><td class="pv">$70 <span class="usd">≈211 BYN</span></td><td class="pv">$60 <span class="usd">≈181 BYN</span></td><td class="pv">$60 <span class="usd">≈181 BYN</span><span class="pnote">в «Комбо» — <b>$50</b></span></td></tr>
+        <tr><td>Максимум</td><td class="pv">$280 <span class="usd">≈843 BYN</span></td><td class="pv">$253 <span class="usd">≈762 BYN</span></td><td class="pv">$253 <span class="usd">≈762 BYN</span><span class="pnote">в «Комбо» — <b>$230</b></span></td></tr>
       </tbody>
     </table></div>
     <h3 class="sub">Посчитать плату за бот</h3>
@@ -237,7 +242,7 @@ table.btable { min-width: 0; }
   <p class="intro-p">«Комбо» — это наш бот в ваших городских пунктах и районный пункт («Расширение») вместе. Условие — бот минимум в 2 городских пунктах. Все заказы, из города и из района, — в одном боте и одной статистике.</p>
   <section class="tcards combo-cards" aria-label="Условия «Комбо»">
     <div class="tc"><div class="tc-name">Районный пункт дешевле</div><p class="tc-text">Пакет района — на 1,5% ниже и минимум на $65 меньше.</p><ul><li class="y">Минимальный: 1,5%, не менее $25</li><li class="y">Средний: 4,5%, не менее $145</li><li class="y">Полный: 8,5%, не менее $370</li></ul></div>
-    <div class="tc"><div class="tc-name">Бот в городе</div><p class="tc-text">За каждый городской пункт, процент — только с заказов через бот.</p><ul><li class="y">1-й и 2-й пункт: 4,3%, $60–253</li><li class="y">с 3-го пункта: <b>3,8%, $50–230</b></li></ul></div>
+    <div class="tc"><div class="tc-name">Бот в городе</div><p class="tc-text">За каждый городской пункт, процент — только с заказов через бот.</p><ul><li class="y">2 пункта: 4,3%, $60–253 каждый</li><li class="y">3 и больше: <b>3,7%, $50–230 каждый</b></li></ul></div>
     <div class="tc"><div class="tc-name">Внедрение дешевле</div><p class="tc-text">Простое внедрение на всю сеть — разово.</p><ul><li class="y"><b>$170</b> вместо $350</li></ul></div>
   </section>
 
@@ -321,7 +326,9 @@ table.btable { min-width: 0; }
   const PRICE = {
     botPct: 4.3, botPctSingle: 5, botMin: 80, botMax: 253, botMaxSingle: 280, botOnlyMin: 120,
     comboPct: 1.5, comboMin: 65, comboCities: 2,
-    city: { pct: 4.3, min: 60, max: 253 }, city3: { pct: 3.8, min: 50, max: 230 },
+    // Бот по числу пунктов (D-41): 1 — 5%, $70–280; 2 — 4,3%, $60–253; 3+ — 4,0%, $60–253 каждый;
+    // «Комбо» при 3+ городских пунктах — 3,7%, $50–230 каждый городской
+    single: { pct: 5, min: 70, max: 280 }, city: { pct: 4.3, min: 60, max: 253 }, many: { pct: 4, min: 60, max: 253 }, comboMany: { pct: 3.7, min: 50, max: 230 },
   };
   // own — что даёт химчистка сама: rent — помещение, staff — приёмщик. fee — что платит нам.
   const LEVELS = {
@@ -373,19 +380,26 @@ table.btable { min-width: 0; }
   // Скидка «Комбо» — при боте минимум в 2 городских пунктах (D-34); с 1 городским пунктом — без скидки
   const comboOk = () => cities() >= PRICE.comboCities;
   // Бот 5% — только если у химчистки всего один пункт (столбцы без «Комбо» — один районный пункт без городских)
-  const single = (c) => state.nd === 1 && c.fee !== 'combo';
+  // Сколько всего пунктов с ботом: районные + городские (в «Комбо»)
+  const totalPts = (c) => state.nd + (c.fee === 'combo' ? cities() : 0);
+  const single = (c) => totalPts(c) === 1;
+  // Ставка бота для районного пункта (D-41)
+  const botTier = (c) => (totalPts(c) === 1 ? PRICE.single : totalPts(c) >= 3 ? PRICE.many : PRICE.city);
+  // Ставка бота для городского пункта: n — городских пунктов, districts — районных, combo — скидка «Комбо» действует
+  const cityTierCalc = (n, districts, combo) => { const total = n + districts; return total === 1 ? PRICE.single : combo && n >= 3 ? PRICE.comboMany : total >= 3 ? PRICE.many : PRICE.city; };
+  // Процент бота — с одним знаком после запятой: 4,0%, 4,3%, 3,7%
+  const fmtPct = (n) => (n < 5 ? n.toLocaleString('ru-RU', { minimumFractionDigits: 1, maximumFractionDigits: 2 }) : fmt2(n));
   const levelOf = (c) => LEVELS[c.fee === 'combo' ? state.cl : c.level];
   const nameOf = (c) => (c.fee === 'combo' ? '«Комбо»' : c.fee === 'pack' ? levelOf(c).name : c.name);
   const headName = (c) => (c.fee === 'combo' ? 'Город + район' : nameOf(c));
   const ownOf = (c) => (c.fee === 'bot' ? c.own : levelOf(c).own);
 
-  // Бот в городских пунктах — вся сумма в месяц (1-й и 2-й — 4,3%, с 3-го — 3,8%)
   // Сколько платит химчистка нам за один районный пункт в месяц
   function fees(c, revenue) {
-    const pct = (single(c) ? PRICE.botPctSingle : PRICE.botPct) / 100;
+    const pct = botTier(c).pct / 100;
     const raw = revenue * pct;
     if (c.fee === 'bot') return { bot: Math.max(raw, PRICE.botOnlyMin * RATE), pack: 0, city: null };
-    const bot = Math.min(Math.max(raw, PRICE.botMin * RATE), (single(c) ? PRICE.botMaxSingle : PRICE.botMax) * RATE);
+    const bot = Math.min(Math.max(raw, PRICE.botMin * RATE), botTier(c).max * RATE);
     const l = levelOf(c);
     const combo = c.fee === 'combo' && comboOk(); // скидка — только при боте минимум в 2 городских пунктах
     const p = Math.max(l.pct - (combo ? PRICE.comboPct : 0), 0) / 100;
@@ -456,7 +470,7 @@ table.btable { min-width: 0; }
   };
 
   function header(c) {
-    const bp = fmt2(single(c) ? PRICE.botPctSingle : PRICE.botPct);
+    const bp = fmtPct(botTier(c).pct);
     let what = '', price = '';
     if (c.fee === 'bot') { what = c.what; price = 'бот ' + bp + '%, не менее $' + PRICE.botOnlyMin; }
     else {
@@ -467,9 +481,8 @@ table.btable { min-width: 0; }
       what = c.fee === 'combo' ? 'пакет «' + l.name + '»' + (combo ? ' со скидкой' : '') + ' + бот в ' + (cities() >= 3 ? '3 и больше' : cities()) + ' городск' + (cities() === 1 ? 'ом пункте' : 'их пунктах') : l.what;
       price = 'бот ' + bp + '%, не менее $' + PRICE.botMin + ' + пакет ' + fmt2(p) + '%, не менее $' + m;
       if (c.fee === 'combo') {
-        const t = cities() >= 3 ? PRICE.city3 : PRICE.city;
-        price += '<br><br>Бот в ваших городских пунктах: ' + fmt2(PRICE.city.pct) + '%, $' + PRICE.city.min + '–' + PRICE.city.max + ' за пункт (уже со 2-го пункта, вместо 5%)' +
-          (cities() >= 3 ? '; с 3-го — <b>' + fmt2(PRICE.city3.pct) + '%, $' + PRICE.city3.min + '–' + PRICE.city3.max + '</b>' : '') +
+        const t = cityTierCalc(cities(), state.nd, comboOk());
+        price += '<br><br>Бот в ваших городских пунктах: <b>' + fmtPct(t.pct) + '%, $' + t.min + '–' + t.max + '</b> за каждый' +
           '<br>' + (comboOk() ? 'Скидка «Комбо» на пакет района: −' + fmt2(PRICE.comboPct) + '% и −$' + PRICE.comboMin + ' к минимуму' : 'Скидка «Комбо» — от ' + PRICE.comboCities + ' городских пунктов с ботом');
       }
     }
@@ -650,7 +663,7 @@ table.btable { min-width: 0; }
     const again = $('settings-body').querySelector('[data-set="' + k + '"]');
     if (again) { again.value = text; again.focus(); again.setSelectionRange(pos, pos); }
   });
-  // ---------- Стоимость бота в городских пунктах («Оптимизация», D-33/D-34) ----------
+  // ---------- Стоимость бота в городских пунктах («Оптимизация», D-41) ----------
   function botCalc() {
     const n = Math.max(1, Math.floor(num('b-points')));
     const rev = num('b-orders') * num('b-check');
@@ -658,11 +671,11 @@ table.btable { min-width: 0; }
     const rows = [];
     let total = 0;
     for (let i = 0; i < n; i++) {
-      // Один пункт у химчистки — 5%, $70–280; 2+ — 4,3%, $60–253; в «Комбо» с 3-го — 3,8%, $50–230
-      const t = n === 1 && !combo ? { pct: 5, min: 70, max: 280 } : combo && i >= 2 ? PRICE.city3 : PRICE.city;
+      // D-41: 1 пункт — 5%; 2 — 4,3%; 3+ — 4,0% каждый; «Комбо» при 3+ городских — 3,7% каждый
+      const t = cityTierCalc(n, combo ? 1 : 0, combo && n >= 2);
       const fee = clamp(rev * t.pct / 100, t.min * RATE, t.max * RATE);
       total += fee;
-      rows.push('<tr><td>Пункт ' + (i + 1) + ' <span class="usd" style="display:inline">· ' + fmt2(t.pct) + '%, $' + t.min + '–' + t.max + '</span></td><td>' + money(fee) + '</td></tr>');
+      rows.push('<tr><td>Пункт ' + (i + 1) + ' <span class="usd" style="display:inline">· ' + fmtPct(t.pct) + '%, $' + t.min + '–' + t.max + '</span></td><td>' + money(fee) + '</td></tr>');
     }
     rows.push('<tr class="income"><td>Всего в месяц</td><td>' + money(total) + '</td></tr>');
     $('b-body').innerHTML = rows.join('');
