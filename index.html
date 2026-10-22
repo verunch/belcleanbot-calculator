@@ -133,9 +133,9 @@ section.card .frame { margin-top: 14px; }
   </header>
 
   <section class="packs3" aria-label="Пакеты">
-    <div class="pk"><div class="pk-name">«Оптимизация» — для города</div><p>Только чат-бот в ваших городских пунктах. Приём заказов, оплата и статусы — в Telegram.</p></div>
+    <div class="pk"><div class="pk-name">«Оптимизация» — для города</div><p>Только чат-бот в ваших городских пунктах. Приём заказов, оплата и статусы — в Telegram. Один пункт — 5% от выручки через бот; со 2-го пункта бот дешевле — 4,3% за каждый.</p></div>
     <div class="pk"><div class="pk-name">«Расширение» — районные пункты</div><p>Пункт приёма под вашим брендом в райцентре, где у вас нет приёма. Бот обязателен, к нему — продвижение, а на выбор — наш приёмщик и помещение.</p></div>
-    <div class="pk"><div class="pk-name">«Комбо» — город + район</div><p>Бот в ваших городских пунктах и районный пункт. Районный пункт дешевле, с 3-го городского пункта дешевле и бот.</p></div>
+    <div class="pk"><div class="pk-name">«Комбо» — город + район</div><p>Бот в ваших городских пунктах и районный пункт. Районный пункт дешевле, а бот с 3-го городского пункта — ещё дешевле: 3,8% вместо 4,3%.</p></div>
   </section>
 
   <section class="card intro" aria-label="Чат-бот">
@@ -182,7 +182,7 @@ section.card .frame { margin-top: 14px; }
         <input id="b-check" type="text" value="40" inputmode="decimal" autocomplete="off">
       </div>
     </div>
-    <label class="bcombo"><input type="checkbox" id="b-combo"> «Комбо» — у вас есть и районный пункт BelCleanBot (с 3-го городского пункта бот дешевле)</label>
+    <label class="bcombo"><input type="checkbox" id="b-combo"> «Комбо» — у вас есть и районный пункт BelCleanBot (с 3-го городского пункта бот ещё дешевле: 3,8% вместо 4,3%)</label>
     <div class="calc-row"><button type="button" id="b-calc" class="calc-btn">Рассчитать</button> <span class="calc-hint" id="b-hint" hidden>Есть изменения — нажмите «Рассчитать»</span></div>
     <div class="frame"><table class="btable"><thead><tr><th>Пункт</th><th>Цена бота</th><th>Выручка через бот</th><th>Плата в месяц</th><th>С одного заказа</th></tr></thead><tbody id="b-body"></tbody></table></div>
     <p class="note">Процент — от выручки по заказам, оформленным через бот. Поддержка входит. Разово — простое внедрение на всю сеть: $350 (в «Комбо» — $170). Подключение оплаты на ваш счёт, кассы и принтера, интеграция с программой учёта — отдельно, по обследованию.</p>
@@ -414,7 +414,7 @@ section.card .frame { margin-top: 14px; }
       price = 'бот ' + bp + '%, не менее $' + PRICE.botMin + ' + пакет ' + fmt2(p) + '%, не менее $' + m;
       if (c.fee === 'combo') {
         const t = cities() >= 3 ? PRICE.city3 : PRICE.city;
-        price += '<br><br>Бот в ваших городских пунктах: ' + fmt2(PRICE.city.pct) + '%, $' + PRICE.city.min + '–' + PRICE.city.max + ' за пункт' +
+        price += '<br><br>Бот в ваших городских пунктах: ' + fmt2(PRICE.city.pct) + '%, $' + PRICE.city.min + '–' + PRICE.city.max + ' за пункт (уже со 2-го пункта, вместо 5%)' +
           (cities() >= 3 ? '; с 3-го — <b>' + fmt2(PRICE.city3.pct) + '%, $' + PRICE.city3.min + '–' + PRICE.city3.max + '</b>' : '') +
           '<br>' + (comboOk() ? 'Скидка «Комбо» на пакет района: −' + fmt2(PRICE.comboPct) + '% и −$' + PRICE.comboMin + ' к минимуму' : 'Скидка «Комбо» — от ' + PRICE.comboCities + ' городских пунктов с ботом');
       }
