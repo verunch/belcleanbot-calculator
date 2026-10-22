@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Калькулятор районного пункта</title>
+<title>Калькулятор BelCleanBot</title>
 <meta name="description" content="BelCleanBot: доходы и расходы районного пункта приёма химчистки — только бот, пакеты «Минимальный», «Средний», «Полный» и «Комбо».">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;600;700&family=Unbounded:wght@600&display=swap" rel="stylesheet">
@@ -105,14 +105,85 @@ details summary { cursor: pointer; font-weight: 700; }
 .sets { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 12px; }
 .set { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
 .set input { font-size: 15px; padding: 6px 8px; }
+.packs3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.pk { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; }
+.pk-name { font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+.pk p { margin: 0; font-size: 15px; }
+.intro h2, section.card h2 { margin: 0 0 12px; font-size: 20px; }
+.intro h3 { margin: 0 0 6px; font-size: 16px; }
+.intro ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; font-size: 15px; }
+.cols2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+h2.part { font-family: 'Unbounded', Arial, sans-serif; font-size: clamp(20px, 3vw, 26px); margin: 16px 0 0; }
+.bcombo { display: inline-flex; gap: 8px; align-items: center; margin-top: 12px; font-size: 15px; cursor: pointer; }
+table.btable { min-width: 560px; }
+section.card .frame { margin-top: 14px; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header style="display:flex;flex-direction:column;gap:10px">
-    <h1>Районный пункт приёма химчистки: доходы и расходы</h1>
-    <p class="lead">Введите, сколько вещей в месяц принимает пункт и среднюю цену чистки. Калькулятор покажет, сколько остаётся вам при каждом варианте работы с BelCleanBot. В таблице — примерные расходы: подставьте свои аренду, зарплату приёмщика и стоимость рейса.</p>
+    <h1>BelCleanBot: калькулятор для химчистки</h1>
+    <p class="lead">Мы предлагаем три пакета. Ниже — сколько стоит бот и сколько остаётся вам с районного пункта.</p>
   </header>
+
+  <section class="packs3" aria-label="Пакеты">
+    <div class="pk"><div class="pk-name">«Оптимизация» — для города</div><p>Только чат-бот в ваших городских пунктах. Приём заказов, оплата и статусы — в Telegram.</p></div>
+    <div class="pk"><div class="pk-name">«Расширение» — районные пункты</div><p>Пункт приёма под вашим брендом в райцентре, где у вас нет приёма. Бот обязателен, к нему — продвижение, а на выбор — наш приёмщик и помещение.</p></div>
+    <div class="pk"><div class="pk-name">«Комбо» — город + район</div><p>Бот в ваших городских пунктах и районный пункт. Районный пункт дешевле, с 3-го городского пункта дешевле и бот.</p></div>
+  </section>
+
+  <section class="card intro" aria-label="Чат-бот">
+    <h2>Чат-бот: зачем он нужен</h2>
+    <div class="cols2">
+      <div>
+        <h3>Что умеет</h3>
+        <ul>
+          <li>Клиент сам оформляет заказ с фото и видит предварительную цену.</li>
+          <li>Оплата заранее — через ЕРИП или в пункте (наличные, терминал).</li>
+          <li>Клиент выбирает день, когда принесёт вещь, и получает статусы: принята, у мастера, готова.</li>
+          <li>Сдать и забрать вещь может родственник или курьер — по коду.</li>
+          <li>Приёмщик сверяет вещь, фотографирует дефекты, печатает квитанцию и бирку с QR.</li>
+          <li>Мастер называет итоговую цену — не выше цены после приёмки +20%, клиент согласен заранее.</li>
+          <li>Статистика по пунктам, выгрузка в Excel или обмен с вашей программой учёта.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Какие проблемы решает</h3>
+        <ul>
+          <li>Бланки от руки и очереди на приёмке.</li>
+          <li>Споры о дефектах при выдаче — всё сфотографировано и подтверждено клиентом.</li>
+          <li>Звонки «готово ли?» — клиент видит статус в боте.</li>
+          <li>Клиент без смартфона — приёмщик оформляет заказ за него.</li>
+          <li>Нет приёма в райцентрах — бот работает в районном пункте и собирает заказы к рейсу.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-label="Стоимость бота">
+    <h2>Сколько стоит бот в ваших городских пунктах</h2>
+    <div class="row inputs">
+      <div class="field">
+        <label for="b-points">Городских пунктов с ботом</label>
+        <input id="b-points" type="text" value="2" inputmode="numeric" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="b-orders">Заказов в месяц через бот в одном пункте</label>
+        <input id="b-orders" type="text" value="100" inputmode="numeric" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="b-check">Средний чек, BYN</label>
+        <input id="b-check" type="text" value="40" inputmode="decimal" autocomplete="off">
+      </div>
+    </div>
+    <label class="bcombo"><input type="checkbox" id="b-combo"> «Комбо» — у вас есть и районный пункт BelCleanBot (с 3-го городского пункта бот дешевле)</label>
+    <div class="calc-row"><button type="button" id="b-calc" class="calc-btn">Рассчитать</button> <span class="calc-hint" id="b-hint" hidden>Есть изменения — нажмите «Рассчитать»</span></div>
+    <div class="frame"><table class="btable"><thead><tr><th>Пункт</th><th>Цена бота</th><th>Выручка через бот</th><th>Плата в месяц</th><th>С одного заказа</th></tr></thead><tbody id="b-body"></tbody></table></div>
+    <p class="note">Процент — от выручки по заказам, оформленным через бот. Поддержка входит. Разово — простое внедрение на всю сеть: $350 (в «Комбо» — $170). Подключение оплаты на ваш счёт, кассы и принтера, интеграция с программой учёта — отдельно, по обследованию.</p>
+  </section>
+
+  <h2 class="part">Районный пункт приёма: доходы и расходы</h2>
+  <p class="lead">Введите, сколько вещей в месяц принимает пункт и среднюю цену чистки. Калькулятор покажет вашу выгоду при каждом варианте. В таблице — примерные расходы: подставьте свои аренду, зарплату приёмщика и стоимость рейса.</p>
 
   <div class="row">
     <div class="seg" role="group" aria-label="Чей расчёт">
@@ -381,7 +452,8 @@ details summary { cursor: pointer; font-weight: 700; }
         '<div class="rc-sub">' + (d.be === null ? 'не окупается до 2 000 вещей' : d.be === 0 ? 'в плюсе при любом числе вещей' : 'в плюсе с ' + d.be + ' вещей в месяц') + '</div></div>';
     }).join('');
 
-    $('head0').innerHTML = '<th colspan="2" class="blank"></th><th colspan="' + COLS.length + '" scope="colgroup" class="tarifs">ТАРИФЫ</th>';
+    // Шапка: над четырьмя колонками — пакет районного пункта, над «Комбо» — пусто
+    $('head0').innerHTML = '<th colspan="2" class="blank"></th><th colspan="' + (COLS.length - 1) + '" scope="colgroup" class="tarifs">Пакет «Расширение» — районный пункт</th><th class="blank"></th>';
     $('head').innerHTML = '<th scope="col" class="lbl">' + who + ' с одного районного пункта · ' + items + ' вещей × ' + fmt(check) + ' BYN</th><th scope="col">Ваше значение</th>' + COLS.map(header).join('');
 
     const rows = LAYOUT[state.mode].filter(([key]) => data.some((d) => d.r && d.r.lines[key] !== null && d.r.lines[key] !== undefined)).map(([key, label, param]) => {
@@ -502,6 +574,31 @@ details summary { cursor: pointer; font-weight: 700; }
     const again = $('settings-body').querySelector('[data-set="' + k + '"]');
     if (again) { again.value = text; again.focus(); again.setSelectionRange(pos, pos); }
   });
+  // ---------- Стоимость бота в городских пунктах («Оптимизация», D-33/D-34) ----------
+  function botCalc() {
+    const n = Math.max(1, Math.floor(num('b-points')));
+    const rev = num('b-orders') * num('b-check');
+    const combo = $('b-combo').checked;
+    const rows = [];
+    let total = 0;
+    for (let i = 0; i < n; i++) {
+      // Один пункт у химчистки — 5%, $70–280; 2+ — 4,3%, $60–253; в «Комбо» с 3-го — 3,8%, $50–230
+      const t = n === 1 && !combo ? { pct: 5, min: 70, max: 280 } : combo && i >= 2 ? PRICE.city3 : PRICE.city;
+      const fee = clamp(rev * t.pct / 100, t.min * RATE, t.max * RATE);
+      total += fee;
+      const orders = num('b-orders');
+      rows.push('<tr><td>Пункт ' + (i + 1) + '</td><td>' + fmt2(t.pct) + '%, $' + t.min + '–' + t.max + '</td><td>' + byn(rev) + '</td><td>' + money(fee) + '</td><td>' + (orders ? fmt2(fee / orders) + ' BYN' : '—') + '</td></tr>');
+    }
+    const orders = num('b-orders') * n;
+    rows.push('<tr class="income"><td>Всего</td><td></td><td>' + byn(rev * n) + '</td><td>' + money(total) + '</td><td>' + (orders ? fmt2(total / orders) + ' BYN' : '—') + '</td></tr>');
+    $('b-body').innerHTML = rows.join('');
+    $('b-calc').classList.remove('dirty'); $('b-hint').hidden = true;
+  }
+  ['b-points', 'b-orders', 'b-check'].forEach((id) => $(id).addEventListener('input', () => { $('b-calc').classList.add('dirty'); $('b-hint').hidden = false; }));
+  $('b-combo').addEventListener('input', botCalc);
+  $('b-calc').addEventListener('click', botCalc);
+  ['b-points', 'b-orders', 'b-check'].forEach((id) => $(id).addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); botCalc(); } }));
+  botCalc();
   render();
 })();
 </script>
