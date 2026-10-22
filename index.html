@@ -121,7 +121,6 @@ details summary { cursor: pointer; font-weight: 700; }
 .cols2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
 h2.part { font-family: 'Unbounded', Arial, sans-serif; font-size: clamp(20px, 3vw, 26px); margin: 16px 0 0; }
 .bcombo { display: inline-flex; gap: 8px; align-items: center; margin-top: 12px; font-size: 15px; cursor: pointer; }
-table.btable { min-width: 560px; }
 section.card .frame { margin-top: 14px; }
 .intro h3 { margin: 18px 0 10px; font-size: 16px; }
 .intro h3:first-of-type { margin-top: 0; }
@@ -139,6 +138,12 @@ section.card .frame { margin-top: 14px; }
 .pc-p, .pc-s { font-size: 16px; font-weight: 700; line-height: 1.3; }
 .pc-p { color: var(--bad); }
 .pc-s { color: var(--ok); }
+.big-note { margin: 0 0 14px; font-size: 19px; line-height: 1.35; padding: 12px 16px; border-left: 4px solid var(--accent); background: var(--accent-soft); border-radius: 8px; }
+table.ptable { min-width: 560px; }
+table.ptable td.pv { font-size: 18px; font-weight: 700; }
+.pnote { display: block; font-size: 12px; font-weight: 400; color: var(--muted); margin-top: 4px; }
+h3.sub { margin: 20px 0 10px; font-size: 16px; }
+table.btable { min-width: 0; }
 </style>
 </head>
 <body>
@@ -178,6 +183,16 @@ section.card .frame { margin-top: 14px; }
 
   <section class="card" aria-label="Стоимость бота">
     <h2>Сколько стоит бот в ваших городских пунктах</h2>
+    <p class="big-note">Процент считается <b>только с заказов, оформленных через бот</b> — не со всей выручки пункта.</p>
+    <div class="frame"><table class="ptable">
+      <thead><tr><th>Плата за бот в месяц, за каждый пункт</th><th>1 пункт</th><th>2 пункта</th><th>3 пункта и больше</th></tr></thead>
+      <tbody>
+        <tr><td>Процент от заказов через бот</td><td class="pv">5%</td><td class="pv">4,3%</td><td class="pv">4,3%<span class="pnote">в «Комбо» с 3-го пункта — <b>3,8%</b></span></td></tr>
+        <tr><td>Минимум</td><td class="pv">$70 <span class="usd">≈211 BYN</span></td><td class="pv">$60 <span class="usd">≈181 BYN</span></td><td class="pv">$60 <span class="usd">≈181 BYN</span><span class="pnote">в «Комбо» с 3-го — <b>$50</b></span></td></tr>
+        <tr><td>Максимум</td><td class="pv">$280 <span class="usd">≈843 BYN</span></td><td class="pv">$253 <span class="usd">≈762 BYN</span></td><td class="pv">$253 <span class="usd">≈762 BYN</span><span class="pnote">в «Комбо» с 3-го — <b>$230</b></span></td></tr>
+      </tbody>
+    </table></div>
+    <h3 class="sub">Посчитать плату за бот</h3>
     <div class="row inputs">
       <div class="field">
         <label for="b-points">Городских пунктов с ботом</label>
@@ -192,10 +207,10 @@ section.card .frame { margin-top: 14px; }
         <input id="b-check" type="text" value="40" inputmode="decimal" autocomplete="off">
       </div>
     </div>
-    <label class="bcombo"><input type="checkbox" id="b-combo"> «Комбо» — у вас есть и районный пункт BelCleanBot (с 3-го городского пункта бот ещё дешевле: 3,8% вместо 4,3%)</label>
+    <label class="bcombo"><input type="checkbox" id="b-combo"> «Комбо» — у вас есть и районный пункт BelCleanBot</label>
     <div class="calc-row"><button type="button" id="b-calc" class="calc-btn">Рассчитать</button> <span class="calc-hint" id="b-hint" hidden>Есть изменения — нажмите «Рассчитать»</span></div>
-    <div class="frame"><table class="btable"><thead><tr><th>Пункт</th><th>Цена бота</th><th>Выручка через бот</th><th>Плата в месяц</th><th>С одного заказа</th></tr></thead><tbody id="b-body"></tbody></table></div>
-    <p class="note">Процент — от выручки по заказам, оформленным через бот. Поддержка входит. Разово — простое внедрение на всю сеть: $350 (в «Комбо» — $170). Подключение оплаты на ваш счёт, кассы и принтера, интеграция с программой учёта — отдельно, по обследованию.</p>
+    <div class="frame"><table class="btable"><thead><tr><th>Пункт</th><th>Плата за бот в месяц</th></tr></thead><tbody id="b-body"></tbody></table></div>
+    <p class="note">Поддержка бота входит в плату. Разово — простое внедрение на всю сеть: $350 (в «Комбо» — $170). Подключение оплаты на ваш счёт, кассы и принтера, интеграция с программой учёта — отдельно, по обследованию.</p>
   </section>
 
   <h2 class="part">Районный пункт приёма: доходы и расходы</h2>
@@ -602,11 +617,9 @@ section.card .frame { margin-top: 14px; }
       const t = n === 1 && !combo ? { pct: 5, min: 70, max: 280 } : combo && i >= 2 ? PRICE.city3 : PRICE.city;
       const fee = clamp(rev * t.pct / 100, t.min * RATE, t.max * RATE);
       total += fee;
-      const orders = num('b-orders');
-      rows.push('<tr><td>Пункт ' + (i + 1) + '</td><td>' + fmt2(t.pct) + '%, $' + t.min + '–' + t.max + '</td><td>' + byn(rev) + '</td><td>' + money(fee) + '</td><td>' + (orders ? fmt2(fee / orders) + ' BYN' : '—') + '</td></tr>');
+      rows.push('<tr><td>Пункт ' + (i + 1) + ' <span class="usd" style="display:inline">· ' + fmt2(t.pct) + '%, $' + t.min + '–' + t.max + '</span></td><td>' + money(fee) + '</td></tr>');
     }
-    const orders = num('b-orders') * n;
-    rows.push('<tr class="income"><td>Всего</td><td></td><td>' + byn(rev * n) + '</td><td>' + money(total) + '</td><td>' + (orders ? fmt2(total / orders) + ' BYN' : '—') + '</td></tr>');
+    rows.push('<tr class="income"><td>Всего в месяц</td><td>' + money(total) + '</td></tr>');
     $('b-body').innerHTML = rows.join('');
     $('b-calc').classList.remove('dirty'); $('b-hint').hidden = true;
   }
