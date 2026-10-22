@@ -75,16 +75,16 @@ footer { font-size: 13px; color: var(--muted); }
 .sumh { margin: 0 0 10px; font-size: 18px; }
 .costnote { margin: 0; padding: 10px 14px; border-radius: 10px; background: var(--accent-soft); font-size: 15px; }
 .calc-row { margin-top: 16px; }
-.calc-btn { font: inherit; font-weight: 700; font-size: 17px; padding: 12px 28px; border: 2px solid var(--accent); border-radius: 999px; background: var(--card); color: var(--accent); cursor: pointer; transition: background .15s, color .15s, transform .08s, box-shadow .15s; }
-.calc-btn:hover { background: var(--accent); color: #fff; }
-.calc-btn:active { transform: scale(0.96); }
-.calc-btn:focus-visible { outline: 3px solid var(--text); outline-offset: 3px; }
-/* есть изменения — ярко и с пульсом */
-.calc-btn.dirty { background: #e8590c; border-color: #e8590c; color: #fff; animation: pulse 1.4s ease-in-out infinite; }
-.calc-btn.dirty:hover { background: #c2410c; border-color: #c2410c; }
-@keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(232, 89, 12, .55); } 50% { box-shadow: 0 0 0 10px rgba(232, 89, 12, 0); } }
-@media (prefers-reduced-motion: reduce) { .calc-btn.dirty { animation: none; box-shadow: 0 0 0 4px rgba(232, 89, 12, .35); } }
-.calc-hint { margin-left: 12px; font-size: 14px; font-weight: 600; color: var(--bad); }
+.calc-btn { font: inherit; font-weight: 700; font-size: 17px; padding: 12px 28px; border: 0; border-radius: 999px; background: #0e6e86; color: #fff; cursor: pointer; transition: background .15s, transform .08s, box-shadow .15s; }
+.calc-btn:hover { background: #0a5568; }
+.calc-btn:active { background: #073f4d; transform: scale(0.96); }
+.calc-btn:focus-visible { outline: 3px solid #12a6c9; outline-offset: 3px; }
+/* есть изменения — ярче, тот же цвет, с мягким пульсом */
+.calc-btn.dirty { background: #12a6c9; animation: pulse 1.4s ease-in-out infinite; }
+.calc-btn.dirty:hover { background: #0e8fae; }
+@keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(18, 166, 201, .55); } 50% { box-shadow: 0 0 0 10px rgba(18, 166, 201, 0); } }
+@media (prefers-reduced-motion: reduce) { .calc-btn.dirty { animation: none; box-shadow: 0 0 0 4px rgba(18, 166, 201, .35); } }
+.calc-hint { margin-left: 12px; font-size: 14px; font-weight: 600; color: #0e8fae; }
 .calc-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .flash { animation: flash 0.9s ease-out; }
 @keyframes flash { from { box-shadow: 0 0 0 4px var(--accent); } to { box-shadow: 0 0 0 0 transparent; } }
@@ -199,8 +199,9 @@ section.card h2, .intro h2 { font-weight: 600; letter-spacing: -0.005em; }
 .pc-top, .pc-bot { justify-content: flex-start; }
 .brow { align-items: flex-end; margin-bottom: 8px; }
 .brow .bbtn { flex: 0 0 auto; min-width: 0; justify-content: flex-end; }
-table.ptable th.calc-col, table.ptable td.calc-col { background: #fff8ec; }
-table.ptable tr.combo-row td.calc-col { background: #fdf0da; }
+table.ptable th.calc-col, table.ptable td.calc-col { background: var(--sel); color: var(--text); }
+table.ptable td.calc-col .pnote { color: var(--muted); }
+table.ptable tr.combo-row td.calc-col { background: var(--sel); }
 table.ptable .cv { font-size: 20px; font-weight: 700; }
 </style>
 </head>
