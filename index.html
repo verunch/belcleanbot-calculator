@@ -123,8 +123,9 @@ footer { font-size: 13px; color: var(--muted); }
 (function () {
   'use strict';
   const RATE = 3.01; // BYN за $1
-  // Тарифы (D-34): бот в каждом пункте + уровень района сверх бота; «Комбо» — −1,5% и −$65 минимума
-  const BOT = { multi: { pct: 0.043, min: 60, max: 253 }, single: { pct: 0.05, min: 70, max: 280 } };
+  // Тарифы (D-34): бот в каждом пункте + уровень района сверх бота; «Комбо» — −1,5% и −$65 минимума.
+  // Бот в районном пункте — не менее $80 (D-40)
+  const BOT = { multi: { pct: 0.043, min: 80, max: 253 }, single: { pct: 0.05, min: 80, max: 280 } };
   const TARIFFS = [
     { id: 'min', name: 'Минимальный', what: 'бот + продвижение', pct: 0.03, min: 90, ourStaff: false, ourRent: false },
     { id: 'mid', name: 'Средний', what: '+ наш приёмщик', pct: 0.06, min: 210, ourStaff: true, ourRent: false },
