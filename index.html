@@ -173,7 +173,7 @@ table.btable { min-width: 0; }
 .pk-opt .pk-name { color: #1b6fa0; } .pk-ext .pk-name { color: #1f7a4d; } .pk-combo .pk-name { color: #b5650d; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .pk-opt { background: #17303d; border-color: #24485a; } :root:not([data-theme="light"]) .pk-ext { background: #173326; border-color: #24503a; } :root:not([data-theme="light"]) .pk-combo { background: #3a2c17; border-color: #5a4424; } }
 /* тарифы «Расширения» — свой цвет у каждого: заголовок и полоса сверху */
-.tc.t-bot { border-top: 4px solid #6b7c85; } .tc.t-bot .tc-name { color: #4f6069; }
+.tc.t-bot { border-top: 4px solid #0e8fae; } .tc.t-bot .tc-name { color: var(--text); }
 .tc.t-min { border-top: 4px solid #1b6fa0; } .tc.t-min .tc-name { color: #1b6fa0; }
 .tc.t-mid { border-top: 4px solid #1f7a4d; } .tc.t-mid .tc-name { color: #1f7a4d; }
 .tc.t-full { border-top: 4px solid #8a3fb0; } .tc.t-full .tc-name { color: #8a3fb0; }
@@ -203,6 +203,8 @@ table.ptable th.calc-col, table.ptable td.calc-col { background: var(--sel); col
 table.ptable td.calc-col .pnote { color: var(--muted); }
 table.ptable tr.combo-row td.calc-col { background: var(--sel); }
 table.ptable .cv { font-size: 20px; font-weight: 700; }
+/* тёмная тема — яркие варианты цветов тарифов */
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tc.t-min .tc-name { color: #6cb8e6; } :root:not([data-theme="light"]) .tc.t-mid .tc-name { color: #5cc28e; } :root:not([data-theme="light"]) .tc.t-full .tc-name { color: #c792ea; } :root:not([data-theme="light"]) .tc.t-bot .tc-name { color: #ffffff; } }
 </style>
 </head>
 <body>
