@@ -344,13 +344,12 @@ details summary { cursor: pointer; font-weight: 700; }
     const who = state.mode === 'cleaner' ? 'Остаётся химчистке' : 'Остаётся BelCleanBot';
     const missText = missing.map((k) => ({ rent: 'аренду', staff: 'зарплату приёмщика', trip: 'рейс' }[k])).join(', ');
 
-    $('warn').hidden = ready;
-    $('warn').textContent = 'Впишите в таблице ' + missText + ' — без этого доход химчистки не посчитать.';
+    $('warn').hidden = true;
 
     $('cards').innerHTML = data.map((d) => {
       const head = '<div class="rc"><div class="rc-name">' + nameOf(d.c) + '</div>';
       if (!d.r) return head + '<div class="rc-big na">—</div><div class="rc-sub">нужен бот минимум в ' + PRICE.comboCities + ' городских пунктах</div></div>';
-      if (!ready) return head + '<div class="rc-big na">—</div><div class="rc-sub">впишите ' + missText + '</div></div>';
+      if (!ready) return head + '<div class="rc-big na">—</div></div>';
       const v = show(d);
       return head + '<div class="rc-big ' + (v < 0 ? 'neg' : 'pos') + '">' + byn(v) + '</div>' +
         '<div class="rc-sub">' + usd(v) + ' ' + unit + '</div>' +
