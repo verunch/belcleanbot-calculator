@@ -79,6 +79,10 @@ table { min-width: 980px; }
 select { font: inherit; font-size: 18px; font-weight: 600; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--text); width: 100%; }
 .counts { margin-top: 14px; }
 .counts .seg button { padding: 8px 22px; }
+th.combo { background: var(--accent-soft); min-width: 190px; }
+.hctl { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; margin: 6px 0; font-size: 12px; font-weight: 400; color: var(--muted); }
+.seg.mini button { padding: 4px 10px; font-size: 13px; }
+.hctl select { font-size: 13px; padding: 4px 6px; width: auto; }
 details summary { cursor: pointer; font-weight: 700; }
 .sets { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 12px; }
 .set { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
@@ -124,18 +128,6 @@ details summary { cursor: pointer; font-weight: 700; }
           <button type="button" data-nd="1" aria-pressed="true">1</button>
           <button type="button" data-nd="2" aria-pressed="false">2</button>
         </div>
-      </div>
-      <div class="field">
-        <label for="nc">Ваших городских пунктов с ботом</label>
-        <input id="nc" type="number" min="0" step="1" value="0" inputmode="numeric">
-      </div>
-      <div class="field">
-        <label for="cl">Пакет в «Комбо»</label>
-        <select id="cl">
-          <option value="min">Минимальный</option>
-          <option value="mid">Средний</option>
-          <option value="full">Полный</option>
-        </select>
       </div>
       <div class="field">
         <label for="crev">Выручка через бот в одном городском пункте, BYN в месяц</label>
@@ -207,7 +199,7 @@ details summary { cursor: pointer; font-weight: 700; }
     ourRent: { label: 'Аренда нашего помещения', unit: 'BYN в месяц', value: 236.58 },
   };
   const NEED = ['rent', 'staff', 'trip'];
-  const state = { mode: 'cleaner', per: 'month', nd: 1, unlocked: false };
+  const state = { mode: 'cleaner', per: 'month', nd: 1, nc: 2, cl: 'min', unlocked: false };
   // Режим «Для BelCleanBot» — по паролю владельца. Хранится только хеш SHA-256.
   const AGENT_HASH = '967206673847d5ecbb2438bc5cae776c805839af8bd9ef573156b7859d0fd48f';
   const $ = (id) => document.getElementById(id);
@@ -221,10 +213,12 @@ details summary { cursor: pointer; font-weight: 700; }
   const P = (k) => params[k].value || 0;
   const clamp = (v, lo, hi) => Math.min(Math.max(v, lo), hi);
 
-  const cities = () => Math.floor(num('nc'));
+  const cities = () => state.nc;
+  // Скидка «Комбо» — при боте минимум в 2 городских пунктах (D-34); с 1 городским пунктом — без скидки
   const comboOk = () => cities() >= PRICE.comboCities;
-  const single = () => state.nd + cities() === 1;
-  const levelOf = (c) => LEVELS[c.fee === 'combo' ? $('cl').value : c.level];
+  // Бот 5% — только если у химчистки всего один пункт (столбцы без «Комбо» — один районный пункт без городских)
+  const single = (c) => state.nd === 1 && c.fee !== 'combo';
+  const levelOf = (c) => LEVELS[c.fee === 'combo' ? state.cl : c.level];
   const nameOf = (c) => (c.fee === 'combo' ? '«Комбо»' : c.fee === 'pack' ? levelOf(c).name : c.name);
   const ownOf = (c) => (c.fee === 'bot' ? c.own : levelOf(c).own);
 
@@ -241,20 +235,19 @@ details summary { cursor: pointer; font-weight: 700; }
 
   // Сколько платит химчистка нам за один районный пункт в месяц
   function fees(c, revenue) {
-    const pct = (single() ? PRICE.botPctSingle : PRICE.botPct) / 100;
+    const pct = (single(c) ? PRICE.botPctSingle : PRICE.botPct) / 100;
     const raw = revenue * pct;
     if (c.fee === 'bot') return { bot: Math.max(raw, PRICE.botOnlyMin * RATE), pack: 0, city: null };
-    const bot = Math.min(Math.max(raw, PRICE.botMin * RATE), (single() ? PRICE.botMaxSingle : PRICE.botMax) * RATE);
+    const bot = Math.min(Math.max(raw, PRICE.botMin * RATE), (single(c) ? PRICE.botMaxSingle : PRICE.botMax) * RATE);
     const l = levelOf(c);
-    const combo = c.fee === 'combo';
+    const combo = c.fee === 'combo' && comboOk(); // скидка — только при боте минимум в 2 городских пунктах
     const p = Math.max(l.pct - (combo ? PRICE.comboPct : 0), 0) / 100;
     const m = Math.max(l.min - (combo ? PRICE.comboMin : 0), 0);
     // В «Комбо» плата за бот в городских пунктах делится между районными пунктами
-    return { bot, pack: Math.max(revenue * p, m * RATE), city: combo ? cityBotTotal() / state.nd : null };
+    return { bot, pack: Math.max(revenue * p, m * RATE), city: c.fee === 'combo' ? cityBotTotal() / state.nd : null };
   }
 
   function calc(c, items, check) {
-    if (c.fee === 'combo' && !comboOk()) return null;
     const revenue = items * check;
     const f = fees(c, revenue);
     const own = ownOf(c);
@@ -318,19 +311,26 @@ details summary { cursor: pointer; font-weight: 700; }
   };
 
   function header(c) {
-    const bp = fmt2(single() ? PRICE.botPctSingle : PRICE.botPct);
+    const bp = fmt2(single(c) ? PRICE.botPctSingle : PRICE.botPct);
     let what = '', price = '';
     if (c.fee === 'bot') { what = c.what; price = 'бот ' + bp + '%, не менее $' + PRICE.botOnlyMin; }
     else {
       const l = levelOf(c);
-      const combo = c.fee === 'combo';
+      const combo = c.fee === 'combo' && comboOk();
       const p = l.pct - (combo ? PRICE.comboPct : 0);
       const m = l.min - (combo ? PRICE.comboMin : 0);
-      what = combo ? 'пакет «' + l.name + '» со скидкой + бот в ' + cities() + ' городских пунктах' : l.what;
+      what = c.fee === 'combo' ? 'пакет «' + l.name + '»' + (combo ? ' со скидкой' : '') + ' + бот в ' + (cities() >= 3 ? '3 и больше' : cities()) + ' городск' + (cities() === 1 ? 'ом пункте' : 'их пунктах') : l.what;
       price = 'бот ' + bp + '%, не менее $' + PRICE.botMin + ' + пакет ' + fmt2(p) + '%, не менее $' + m;
-      if (combo && !comboOk()) price = 'нужен бот минимум в ' + PRICE.comboCities + ' городских пунктах';
+      if (c.fee === 'combo' && !comboOk()) price += ' · скидка «Комбо» — от ' + PRICE.comboCities + ' городских пунктов'
     }
-    return '<th scope="col">' + nameOf(c) + '<small>' + what + '</small><small class="price">' + price + '</small></th>';
+    let ctrl = '';
+    if (c.fee === 'combo') {
+      const btn = (n, t) => '<button type="button" data-nc="' + n + '" aria-pressed="' + (state.nc === n) + '">' + t + '</button>';
+      const opt = (v) => '<option value="' + v + '"' + (state.cl === v ? ' selected' : '') + '>' + LEVELS[v].name + '</option>';
+      ctrl = '<div class="hctl"><span>бот в городских пунктах:</span><div class="seg mini" role="group" aria-label="Бот в городских пунктах">' + btn(1, 'в 1') + btn(2, 'в 2') + btn(3, 'в 3+') + '</div>' +
+        '<span>пакет:</span><select id="cl" aria-label="Пакет в «Комбо»">' + opt('min') + opt('mid') + opt('full') + '</select></div>';
+    }
+    return '<th scope="col"' + (c.fee === 'combo' ? ' class="combo"' : '') + '>' + nameOf(c) + ctrl + '<small>' + what + '</small><small class="price">' + price + '</small></th>';
   }
 
   function render() {
@@ -379,7 +379,7 @@ details summary { cursor: pointer; font-weight: 700; }
     rows.push('<tr><td>В плюсе с какого числа вещей</td><td></td>' + data.map((d) => '<td>' + (!d.r ? '—' : d.be === undefined ? '—' : d.be === null ? 'не окупается' : d.be === 0 ? 'с любого' : 'с ' + d.be) + '</td>').join('') + '</tr>');
     $('body').innerHTML = rows.join('');
 
-    const cityNote = 'В «Комбо» плата за бот в ' + (cities() || 'N') + ' городских пунктах делится между районными пунктами (' + state.nd + '); ' +
+    const cityNote = 'В «Комбо» плата за бот в ' + (cities() >= 3 ? '3' : cities()) + ' городск' + (cities() === 1 ? 'ом пункте' : 'их пунктах') + ' делится между районными пунктами (' + state.nd + '); ' +
       (num('crev') ? 'считаем по вашей выручке через бот.' : 'считаем по минимуму ($60 за пункт, с 3-го — $50).') +
       ' Новые заказы, которые бот даёт городским пунктам, здесь не учтены.';
     $('note').textContent = state.mode === 'cleaner'
@@ -432,7 +432,15 @@ details summary { cursor: pointer; font-weight: 700; }
     document.querySelectorAll('[data-nd]').forEach((x) => x.setAttribute('aria-pressed', x === b));
     render();
   }));
-  ['items', 'check', 'nc', 'cl', 'crev', 'self'].forEach((id) => $(id).addEventListener('input', render));
+  $('head').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-nc]'); if (!b) return;
+    state.nc = Number(b.dataset.nc); render();
+  });
+  $('head').addEventListener('change', (e) => {
+    if (e.target.id !== 'cl') return;
+    state.cl = e.target.value; render();
+  });
+  ['items', 'check', 'crev', 'self'].forEach((id) => $(id).addEventListener('input', render));
   $('body').addEventListener('input', (e) => {
     const el = e.target; const key = el.dataset && el.dataset.param; if (!key) return;
     const raw = Number(el.value); params[key].value = el.value === '' ? null : Number.isFinite(raw) && raw >= 0 ? raw : 0;
