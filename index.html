@@ -94,7 +94,7 @@ thead th { vertical-align: top; }
 thead th small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; margin-top: 10px; line-height: 1.35; }
 thead th.tarifs { text-align: center; font-family: 'Unbounded', Arial, sans-serif; font-size: 15px; letter-spacing: 0.08em; color: var(--accent); border-bottom: 2px solid var(--accent); padding: 12px; }
 thead th.blank { background: var(--bg); border-bottom: 0; }
-thead th.combo-g { background: var(--accent-soft); border-left: 8px solid var(--card); }
+thead th.combo-g { background: var(--accent-soft); border-left: 8px solid var(--card); color: #c26a10; border-bottom-color: #c26a10; }
 #head th { padding-top: 14px; padding-bottom: 14px; }
 th:first-child, td:first-child { min-width: 190px; }
 #head th:nth-child(n+3) { font-size: 15px; color: var(--text); }
@@ -175,6 +175,10 @@ table.btable { min-width: 0; }
 .tc.t-min { border-top: 4px solid #1b6fa0; } .tc.t-min .tc-name { color: #1b6fa0; }
 .tc.t-mid { border-top: 4px solid #1f7a4d; } .tc.t-mid .tc-name { color: #1f7a4d; }
 .tc.t-full { border-top: 4px solid #8a3fb0; } .tc.t-full .tc-name { color: #8a3fb0; }
+/* цвет пакета — как у его карточки наверху: «Оптимизация» синий, «Расширение» зелёный, «Комбо» оранжевый */
+.pkg-opt { background: #1b6fa0; } .pkg-ext { background: #1f7a4d; } .pkg-combo { background: #c26a10; }
+.pkg + .pkg { margin-left: 6px; }
+thead th.ext-g { color: #1f7a4d; border-bottom-color: #1f7a4d; }
 </style>
 </head>
 <body>
@@ -213,7 +217,7 @@ table.btable { min-width: 0; }
   </section>
 
   <section class="card" aria-label="Стоимость бота">
-    <h2>Сколько стоит бот в ваших городских пунктах <span class="pkg">пакет «Оптимизация»</span></h2>
+    <h2>Сколько стоит бот в ваших городских пунктах <span class="pkg pkg-opt">пакет «Оптимизация»</span></h2>
     <p class="big-note">Процент считается ТОЛЬКО с заказов, ОФОРМЛЕННЫХ ЧЕРЕЗ БОТ — не со всей выручки пункта.</p>
     <div class="frame"><table class="ptable">
       <thead><tr><th>Количество пунктов</th><th>Плата за бот в месяц — за каждый пункт</th></tr></thead>
@@ -245,11 +249,11 @@ table.btable { min-width: 0; }
     <p class="note">Поддержка бота входит в плату. Разово — простое внедрение на всю сеть: $350 (в «Комбо» — $170). Подключение оплаты на ваш счёт, кассы и принтера, интеграция с программой учёта — отдельно, по обследованию.</p>
   </section>
 
-  <h2 class="part">Районный пункт приёма <span class="pkg">пакет «Расширение»</span></h2>
+  <h2 class="part">Районный пункт приёма <span class="pkg pkg-ext">пакет «Расширение»</span></h2>
   <p class="intro-p">Мы открываем пункт приёма под вашим брендом в райцентре, где у вас сейчас нет приёма. В пункте всегда работает чат-бот, а дальше — на ваш выбор: <b>«Минимальный»</b> — продвигаем пункт в местных каналах, <b>«Средний»</b> — ещё и даём своего приёмщика, <b>«Полный»</b> — пункт под ключ, с нашим помещением. Вам остаются чистка и еженедельный рейс.</p>
   <section class="tcards" id="tcards" aria-label="Тарифы пакета «Расширение»"></section>
 
-  <h2 class="part">Город + район <span class="pkg">пакет «Комбо»</span></h2>
+  <h2 class="part">Город + район <span class="pkg pkg-combo">пакет «Комбо»</span></h2>
   <p class="intro-p">«Комбо» — это наш бот в ваших городских пунктах и районный пункт («Расширение») вместе. Условие — бот минимум в 2 городских пунктах. Все заказы, из города и из района, — в одном боте и одной статистике.</p>
   <section class="tcards combo-cards" aria-label="Условия «Комбо»">
     <div class="tc"><div class="tc-name">Районный пункт дешевле</div><p class="tc-text">Пакет района — на 1,5% ниже и минимум на $65 меньше.</p><ul><li class="y">Минимальный: 1,5%, не менее $25</li><li class="y">Средний: 4,5%, не менее $145</li><li class="y">Полный: 8,5%, не менее $370</li></ul></div>
@@ -257,7 +261,7 @@ table.btable { min-width: 0; }
     <div class="tc"><div class="tc-name">Внедрение дешевле</div><p class="tc-text">Простое внедрение на всю сеть — разово.</p><ul><li class="y"><b>$170</b> вместо $350</li></ul></div>
   </section>
 
-  <h2 class="part">Расчёт: доходы и расходы районного пункта <span class="pkg">«Расширение» и «Комбо»</span></h2>
+  <h2 class="part">Расчёт: доходы и расходы районного пункта <span class="pkg pkg-ext">«Расширение»</span><span class="pkg pkg-combo">«Комбо»</span></h2>
   <p class="lead">Введите, сколько вещей в месяц принимает пункт и среднюю цену чистки, и нажмите «Рассчитать». Калькулятор покажет вашу выгоду при каждом тарифе и в «Комбо». В таблице — примерные расходы: подставьте свои аренду, зарплату приёмщика и стоимость рейса.</p>
 
   <div class="row">
@@ -537,7 +541,7 @@ table.btable { min-width: 0; }
     }).join('');
 
     // Шапка: над четырьмя колонками — пакет районного пункта, над «Комбо» — пусто
-    $('head0').innerHTML = '<th colspan="2" class="blank"></th><th colspan="' + (COLS.length - 1) + '" scope="colgroup" class="tarifs">Пакет «Расширение» — районный пункт</th><th scope="col" class="tarifs combo-g">Пакет «Комбо»</th>';
+    $('head0').innerHTML = '<th colspan="2" class="blank"></th><th colspan="' + (COLS.length - 1) + '" scope="colgroup" class="tarifs ext-g">Пакет «Расширение» — районный пункт</th><th scope="col" class="tarifs combo-g">Пакет «Комбо»</th>';
     $('head').innerHTML = '<th scope="col" class="lbl">' + who + ' на районный пункт · ' + items + ' вещей × ' + fmt(check) + ' BYN</th><th scope="col">Ваше значение</th>' + COLS.map(header).join('');
 
     const rows = LAYOUT[state.mode].filter(([key]) => data.some((d) => d.r && d.r.lines[key] !== null && d.r.lines[key] !== undefined)).map(([key, label, param]) => {
