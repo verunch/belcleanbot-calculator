@@ -6,7 +6,7 @@
 <title>BelCleanBot: предложение-калькулятор</title>
 <meta name="description" content="BelCleanBot: доходы и расходы районного пункта приёма химчистки — только бот, пакеты «Минимальный», «Средний», «Полный» и «Комбо».">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;600;700&family=Unbounded:wght@600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Unbounded:wght@600&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #f5f7f8; --card: #ffffff; --text: #14232b; --muted: #5b6b73; --line: #d9e1e4;
@@ -190,6 +190,9 @@ thead th.ext-g { color: #1f7a4d; border-bottom-color: #1f7a4d; }
 .sw span.on { color: #fff; }
 .sw span.on.bad { background: #d64535; }
 .sw span.on.ok { background: #1f7a4d; }
+/* заголовки внутри разделов — легче: 600 у разделов, 500 у подзаголовков */
+section.card h2, .intro h2 { font-weight: 600; letter-spacing: -0.005em; }
+.intro h3, h3.sub { font-weight: 500; }
 </style>
 </head>
 <body>
