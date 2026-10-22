@@ -146,7 +146,8 @@ section.card .frame { margin-top: 14px; }
 .big-note { margin: 0 0 14px; font-size: 19px; line-height: 1.35; padding: 12px 16px; border-left: 4px solid var(--accent); background: var(--accent-soft); border-radius: 8px; }
 table.ptable { min-width: 0; }
 table.ptable td, table.ptable th { text-align: left; }
-table.ptable td.pn { font-size: 20px; font-weight: 700; width: 34%; }
+table.ptable td.pn { font-size: 20px; font-weight: 700; width: 22%; }
+table.ptable td.calc-col { width: 26%; }
 table.ptable .pv { font-size: 20px; font-weight: 700; color: var(--accent); }
 table.ptable tr.combo-row td { background: var(--accent-soft); }
 table.ptable .pfix { display: block; margin-top: 4px; font-size: 15px; color: var(--text); }
@@ -196,6 +197,11 @@ section.card h2, .intro h2 { font-weight: 600; letter-spacing: -0.005em; }
 /* «Было / Стало»: все карточки одной высоты, верх и низ — одной высоты во всём ряду (subgrid) */
 .pc { display: grid; grid-template-rows: subgrid; grid-row: span 2; gap: 0; }
 .pc-top, .pc-bot { justify-content: flex-start; }
+.brow { align-items: flex-end; margin-bottom: 8px; }
+.brow .bbtn { flex: 0 0 auto; min-width: 0; justify-content: flex-end; }
+table.ptable th.calc-col, table.ptable td.calc-col { background: #fff8ec; }
+table.ptable tr.combo-row td.calc-col { background: #fdf0da; }
+table.ptable .cv { font-size: 20px; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -235,22 +241,7 @@ section.card h2, .intro h2 { font-weight: 600; letter-spacing: -0.005em; }
 
   <section class="card" aria-label="Стоимость бота">
     <h2>Сколько стоит бот в ваших городских пунктах <span class="pkg pkg-opt">пакет «Оптимизация»</span></h2>
-    <p class="big-note">Процент считается ТОЛЬКО с заказов, ОФОРМЛЕННЫХ ЧЕРЕЗ БОТ — не со всей выручки пункта.</p>
-    <div class="frame"><table class="ptable">
-      <thead><tr><th>Количество пунктов</th><th>Ваша абонентская плата за бот в месяц — за каждый пункт</th></tr></thead>
-      <tbody>
-        <tr><td class="pn">1</td><td><span class="pv">5%</span> от заказов через бот<span class="pfix">но не менее <b>$70 (≈211 BYN)</b> и не более <b>$280 (≈843 BYN)</b> в месяц</span></td></tr>
-        <tr><td class="pn">2</td><td><span class="pv">4,3%</span> от заказов через бот<span class="pfix">но не менее <b>$60 (≈181 BYN)</b> и не более <b>$253 (≈762 BYN)</b> в месяц</span></td></tr>
-        <tr><td class="pn">3+</td><td><span class="pv">4,0%</span> от заказов через бот<span class="pfix">но не менее <b>$60 (≈181 BYN)</b> и не более <b>$253 (≈762 BYN)</b> в месяц</span></td></tr>
-        <tr class="combo-row"><td class="pn">3+ в «Комбо»<span class="pnote">бот в 3 и больше городских пунктах + наш районный пункт</span></td><td><span class="pv">3,7%</span> от заказов через бот<span class="pfix">но не менее <b>$50 (≈151 BYN)</b> и не более <b>$230 (≈692 BYN)</b> в месяц</span></td></tr>
-      </tbody>
-    </table></div>
-    <h3 class="sub">Посчитать абонентскую плату за бот</h3>
-    <div class="row inputs">
-      <div class="field">
-        <label for="b-points">Городских пунктов с ботом</label>
-        <input id="b-points" type="text" value="2" inputmode="numeric" autocomplete="off">
-      </div>
+    <div class="row inputs brow">
       <div class="field">
         <label for="b-orders">Заказов в месяц через бот в одном пункте</label>
         <input id="b-orders" type="text" value="100" inputmode="numeric" autocomplete="off">
@@ -259,10 +250,16 @@ section.card h2, .intro h2 { font-weight: 600; letter-spacing: -0.005em; }
         <label for="b-check">Средний чек, BYN</label>
         <input id="b-check" type="text" value="40" inputmode="decimal" autocomplete="off">
       </div>
+      <div class="field bbtn">
+        <button type="button" id="b-calc" class="calc-btn">Рассчитать</button>
+      </div>
     </div>
-    <label class="bcombo"><input type="checkbox" id="b-combo"> «Комбо» — у вас есть и районный пункт BelCleanBot</label>
-    <div class="calc-row"><button type="button" id="b-calc" class="calc-btn">Рассчитать</button> <span class="calc-hint" id="b-hint" hidden>Есть изменения — нажмите «Рассчитать»</span></div>
-    <div class="frame"><table class="btable"><thead><tr><th>Пункт</th><th>Ваша абонентская плата за бот в месяц</th></tr></thead><tbody id="b-body"></tbody></table></div>
+    <p class="calc-hint" id="b-hint" hidden>Есть изменения — нажмите «Рассчитать»</p>
+    <p class="big-note">Процент считается ТОЛЬКО с заказов, ОФОРМЛЕННЫХ ЧЕРЕЗ БОТ — не со всей выручки пункта.</p>
+    <div class="frame"><table class="ptable">
+      <thead><tr><th>Количество пунктов</th><th>Ваша абонентская плата за бот в месяц — за каждый пункт</th><th class="calc-col">Расчёт для ваших цифр</th></tr></thead>
+      <tbody id="b-body"></tbody>
+    </table></div>
     <p class="note">Поддержка бота входит в плату. Разово — простое внедрение на всю сеть: $350 (в «Комбо» — $170). Подключение оплаты на ваш счёт, кассы и принтера, интеграция с программой учёта — отдельно, по обследованию.</p>
   </section>
 
@@ -699,26 +696,24 @@ section.card h2, .intro h2 { font-weight: 600; letter-spacing: -0.005em; }
   });
   // ---------- Стоимость бота в городских пунктах («Оптимизация», D-41) ----------
   function botCalc() {
-    const n = Math.max(1, Math.floor(num('b-points')));
     const rev = num('b-orders') * num('b-check');
-    const combo = $('b-combo').checked;
-    const rows = [];
-    let total = 0;
-    for (let i = 0; i < n; i++) {
-      // D-41: 1 пункт — 5%; 2 — 4,3%; 3+ — 4,0% каждый; «Комбо» при 3+ городских — 3,7% каждый
-      const t = cityTierCalc(n, combo ? 1 : 0, combo && n >= 2);
-      const fee = clamp(rev * t.pct / 100, t.min * RATE, t.max * RATE);
-      total += fee;
-      rows.push('<tr><td>Пункт ' + (i + 1) + ' <span class="usd" style="display:inline">· ' + fmtPct(t.pct) + '%, $' + t.min + '–' + t.max + '</span></td><td>' + money(fee) + '</td></tr>');
-    }
-    rows.push('<tr class="income"><td>Всего в месяц</td><td>' + money(total) + '</td></tr>');
-    $('b-body').innerHTML = rows.join('');
+    const fee = (t) => clamp(rev * t.pct / 100, t.min * RATE, t.max * RATE);
+    const row = (cnt, label, t, n, sub, cls) => {
+      const f = fee(t);
+      return '<tr' + (cls ? ' class="' + cls + '"' : '') + '><td class="pn">' + label + (sub ? '<span class="pnote">' + sub + '</span>' : '') + '</td>' +
+        '<td><span class="pv">' + fmtPct(t.pct) + '%</span> от заказов через бот<span class="pfix">но не менее <b>$' + t.min + ' (≈' + fmt(t.min * RATE) + ' BYN)</b> и не более <b>$' + t.max + ' (≈' + fmt(t.max * RATE) + ' BYN)</b> в месяц</span></td>' +
+        '<td class="calc-col"><span class="cv">' + byn(f) + '</span> за пункт<span class="pnote">' + usd(f) + (n > 1 ? ' · за ' + n + ' пункта: <b>' + byn(f * n) + '</b>' : '') + '</span></td></tr>';
+    };
+    $('b-body').innerHTML =
+      row(1, '1', PRICE.single, 1) +
+      row(2, '2', PRICE.city, 2) +
+      row(3, '3+', PRICE.many, 3) +
+      row(3, '3+ в «Комбо»', PRICE.comboMany, 3, 'бот в 3 и больше городских пунктах + наш районный пункт', 'combo-row');
     $('b-calc').classList.remove('dirty'); $('b-hint').hidden = true;
   }
-  ['b-points', 'b-orders', 'b-check'].forEach((id) => $(id).addEventListener('input', () => { $('b-calc').classList.add('dirty'); $('b-hint').hidden = false; }));
-  $('b-combo').addEventListener('input', botCalc);
+  ['b-orders', 'b-check'].forEach((id) => $(id).addEventListener('input', () => { $('b-calc').classList.add('dirty'); $('b-hint').hidden = false; }));
   $('b-calc').addEventListener('click', botCalc);
-  ['b-points', 'b-orders', 'b-check'].forEach((id) => $(id).addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); botCalc(); } }));
+  ['b-orders', 'b-check'].forEach((id) => $(id).addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); botCalc(); } }));
   botCalc();
   // «Было / Стало»: верх и низ у всех карточек одной высоты — по самой высокой
   function equalizeCards() {
