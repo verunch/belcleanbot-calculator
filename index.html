@@ -61,7 +61,9 @@ tr.income td { font-weight: 700; font-size: 18px; }
 .hint { font-size: 13px; color: var(--muted); }
 footer { font-size: 13px; color: var(--muted); }
 [hidden] { display: none !important; }
-.inputs { align-items: flex-start; }
+.inputs { align-items: stretch; }
+.inputs .field { justify-content: space-between; }
+.field .seg { align-self: flex-start; } /* лейблы — по верхнему краю, поля — по нижнему */
 .field .flabel, .field label { min-height: 20px; }
 .flabel { font-size: 14px; color: var(--muted); font-weight: 600; }
 .card .checks { margin-top: 14px; }
