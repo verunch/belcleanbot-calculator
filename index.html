@@ -94,6 +94,7 @@ thead th { vertical-align: top; }
 thead th small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; margin-top: 10px; line-height: 1.35; }
 thead th.tarifs { text-align: center; font-family: 'Unbounded', Arial, sans-serif; font-size: 15px; letter-spacing: 0.08em; color: var(--accent); border-bottom: 2px solid var(--accent); padding: 12px; }
 thead th.blank { background: var(--bg); border-bottom: 0; }
+thead th.combo-g { background: var(--accent-soft); border-left: 8px solid var(--card); }
 #head th { padding-top: 14px; padding-bottom: 14px; }
 th:first-child, td:first-child { min-width: 190px; }
 #head th:nth-child(n+3) { font-size: 15px; color: var(--text); }
@@ -351,6 +352,7 @@ table.btable { min-width: 0; }
   const single = (c) => state.nd === 1 && c.fee !== 'combo';
   const levelOf = (c) => LEVELS[c.fee === 'combo' ? state.cl : c.level];
   const nameOf = (c) => (c.fee === 'combo' ? '«Комбо»' : c.fee === 'pack' ? levelOf(c).name : c.name);
+  const headName = (c) => (c.fee === 'combo' ? 'Город + район' : nameOf(c));
   const ownOf = (c) => (c.fee === 'bot' ? c.own : levelOf(c).own);
 
   // Бот в городских пунктах — вся сумма в месяц (1-й и 2-й — 4,3%, с 3-го — 3,8%)
@@ -454,7 +456,7 @@ table.btable { min-width: 0; }
       ctrl = '<div class="hctl"><span>бот в городских пунктах:</span><div class="seg mini" role="group" aria-label="Бот в городских пунктах">' + btn(1, 'в 1') + btn(2, 'в 2') + btn(3, 'в 3+') + '</div>' +
         '<span>пакет:</span><select id="cl" aria-label="Пакет в «Комбо»">' + opt('min') + opt('mid') + opt('full') + '</select></div>';
     }
-    return '<th scope="col"' + (c.fee === 'combo' ? ' class="combo"' : '') + '>' + nameOf(c) + ctrl + '<small>' + what + '</small><small class="price">' + price + '</small></th>';
+    return '<th scope="col"' + (c.fee === 'combo' ? ' class="combo"' : '') + '>' + headName(c) + ctrl + '<small>' + what + '</small><small class="price">' + price + '</small></th>';
   }
 
   function render() {
@@ -487,7 +489,7 @@ table.btable { min-width: 0; }
     }).join('');
 
     // Шапка: над четырьмя колонками — пакет районного пункта, над «Комбо» — пусто
-    $('head0').innerHTML = '<th colspan="2" class="blank"></th><th colspan="' + (COLS.length - 1) + '" scope="colgroup" class="tarifs">Пакет «Расширение» — районный пункт</th><th class="blank"></th>';
+    $('head0').innerHTML = '<th colspan="2" class="blank"></th><th colspan="' + (COLS.length - 1) + '" scope="colgroup" class="tarifs">Пакет «Расширение» — районный пункт</th><th scope="col" class="tarifs combo-g">Пакет «Комбо»</th>';
     $('head').innerHTML = '<th scope="col" class="lbl">' + who + ' на районный пункт · ' + items + ' вещей × ' + fmt(check) + ' BYN</th><th scope="col">Ваше значение</th>' + COLS.map(header).join('');
 
     const rows = LAYOUT[state.mode].filter(([key]) => data.some((d) => d.r && d.r.lines[key] !== null && d.r.lines[key] !== undefined)).map(([key, label, param]) => {
