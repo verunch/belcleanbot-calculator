@@ -75,9 +75,15 @@ footer { font-size: 13px; color: var(--muted); }
 .sumh { margin: 0 0 10px; font-size: 18px; }
 .costnote { margin: 0; padding: 10px 14px; border-radius: 10px; background: var(--accent-soft); font-size: 15px; }
 .calc-row { margin-top: 16px; }
-.calc-btn { font: inherit; font-weight: 700; font-size: 17px; padding: 12px 28px; border: 0; border-radius: 999px; background: var(--accent); color: #fff; cursor: pointer; }
-.calc-btn:hover { filter: brightness(1.08); }
-.calc-btn.dirty { box-shadow: 0 0 0 4px var(--sel), 0 0 0 6px var(--accent); }
+.calc-btn { font: inherit; font-weight: 700; font-size: 17px; padding: 12px 28px; border: 2px solid var(--accent); border-radius: 999px; background: var(--card); color: var(--accent); cursor: pointer; transition: background .15s, color .15s, transform .08s, box-shadow .15s; }
+.calc-btn:hover { background: var(--accent); color: #fff; }
+.calc-btn:active { transform: scale(0.96); }
+.calc-btn:focus-visible { outline: 3px solid var(--text); outline-offset: 3px; }
+/* есть изменения — ярко и с пульсом */
+.calc-btn.dirty { background: #e8590c; border-color: #e8590c; color: #fff; animation: pulse 1.4s ease-in-out infinite; }
+.calc-btn.dirty:hover { background: #c2410c; border-color: #c2410c; }
+@keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(232, 89, 12, .55); } 50% { box-shadow: 0 0 0 10px rgba(232, 89, 12, 0); } }
+@media (prefers-reduced-motion: reduce) { .calc-btn.dirty { animation: none; box-shadow: 0 0 0 4px rgba(232, 89, 12, .35); } }
 .calc-hint { margin-left: 12px; font-size: 14px; font-weight: 600; color: var(--bad); }
 .calc-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .flash { animation: flash 0.9s ease-out; }
