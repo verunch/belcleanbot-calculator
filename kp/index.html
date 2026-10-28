@@ -182,11 +182,31 @@ a { color: var(--accent); }
 @media (min-width: 761px) and (max-width: 1000px) {
   .packs, .ilists { grid-template-columns: repeat(2, 1fr) !important; }
   .calc { grid-template-columns: 1fr !important; }
+  .table-frame td *, .table-frame th * { font-size: inherit !important; }
 }
 .cta-row { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 10px; }
 .btn { display: inline-block; padding: 12px 22px; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-weight: 700; text-decoration: none; }
 .btn:hover { background: #3e5a52; }
-@media print { .cta-row { display: none; } }
+@media print {
+  @page { size: A4; margin: 14mm 12mm; }
+  body { background: #fff; font-size: 12px; }
+  .wrap { max-width: none; padding: 0; gap: 28px; }
+  .cta-row, .calc input[type="range"] { display: none; }
+  .table-frame { overflow: visible; }
+  table { font-size: 11px; } th, td { padding: 5px 7px; }
+  .pack, .ilists > div, .combo-ex, .steps-ex, .table-frame, tr, .tl-step { break-inside: avoid; }
+  section { break-inside: auto; }
+  h2, h3 { break-after: avoid; }
+  .eyebrow { break-after: avoid; }
+  .table-frame table { min-width: 0 !important; width: 100% !important; font-size: 10.5px !important; }
+  .table-frame th, .table-frame td { min-width: 0 !important; max-width: none !important; white-space: normal !important; }
+  .table-frame tr > :first-child { position: static !important; width: auto !important; min-width: 0 !important; max-width: none !important; box-shadow: none !important; hyphens: manual !important; }
+  .packs { grid-template-columns: repeat(3, 1fr) !important; } .packs .pack { padding: 14px; } .pack h2 { font-size: 16px; min-height: 0; }
+  .ilists { grid-template-columns: 1fr 1fr !important; }
+  .calc { grid-template-columns: 1fr !important; }
+  .best-pack { box-shadow: none; }
+  a { color: inherit; }
+}
 </style>
 </head>
 <body>
