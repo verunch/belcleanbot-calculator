@@ -215,18 +215,17 @@ section.card.intro h2 + h3 { margin-top: 28px; }
   table.ptable.stack td.calc-col { margin-top: 6px; padding: 8px 10px !important; border-radius: 10px; }
   table.ptable.stack td::before { content: attr(data-label); display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 2px; }
   table.ptable.stack td.pn::before { display: none; }
-  /* таблица расчёта: сверху карточки тарифов (с переключателями «Комбо»), ниже строки — карточки со значением по каждому тарифу */
-  table.mtable { min-width: 0 !important; }
-  table.mtable, table.mtable thead, table.mtable tbody, table.mtable tr, table.mtable th, table.mtable td { display: block; width: 100% !important; min-width: 0 !important; }
-  table.mtable #head0, table.mtable #head th:nth-child(1), table.mtable #head th:nth-child(2) { display: none; }
-  table.mtable #head th { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--line); box-shadow: inset 4px 0 0 currentColor; }
-  table.mtable tbody tr { padding: 12px 14px; border-bottom: 1px solid var(--line); }
-  table.mtable td { border: 0 !important; padding: 3px 0 !important; text-align: left !important; background: none !important; }
-  table.mtable td:empty { display: none; }
-  table.mtable td::before { content: attr(data-label); display: block; font-size: 12px; font-weight: 600; color: var(--muted); }
-  table.mtable td:first-child { font-size: 16px; font-weight: 700; padding-bottom: 6px !important; }
-  table.mtable td:first-child::before { display: none; }
-  table.mtable td .usd { text-align: left !important; }
+  /* таблица расчёта: прокрутка вбок, первая колонка с названиями строк закреплена */
+  table.mtable { min-width: 0; width: max-content; }
+  table.mtable #head th:nth-child(n+3), table.mtable tbody td:nth-child(n+3) { min-width: 190px; max-width: 220px; }
+  table.mtable td.param, table.mtable #head th:nth-child(2) { min-width: 130px; }
+  table.mtable td:first-child { font-size: 14px; }
+  table.mtable #head th small { display: none; } /* описания тарифов — в карточках выше */
+  table.mtable #head th { vertical-align: bottom; }
+  table.mtable #head th:first-child { font-size: 13px; }
+  table.mtable tr > :first-child { position: sticky; left: 0; z-index: 2; background: var(--card); min-width: 130px; max-width: 140px; box-shadow: 1px 0 0 var(--line); }
+  table.mtable thead tr > :first-child { background: var(--card); }
+  table.mtable th.blank { position: static; box-shadow: none; }
 }
 #ccards { margin-bottom: 16px; }
 #ccards .tc { background: #fbf8ee; }
@@ -240,19 +239,73 @@ section.card.intro h2 + h3 { margin-top: 28px; }
 @media (min-width: 761px) and (max-width: 1000px) {
   .fgrid, .pgrid, .cards, .tcards { grid-template-columns: repeat(2, 1fr) !important; }
 }
+/* Вёрстка по образцу КП (28.10.2026): карточки пакетов, надзаголовки */
+.eyebrow { display: block; font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin-bottom: 8px; }
+.part-eb { margin-top: 48px; padding-top: 36px; border-top: 2px solid var(--line); margin-bottom: 8px; }
+.part-eb + h2.part { border-top: 0; padding-top: 0; margin-top: 0; }
+.packs { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.pack { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.pack h2 { font-family: 'Manrope', Arial, sans-serif; font-size: 23px; line-height: 1.2; min-height: 2.4em; margin: 0; }
+.pack p { margin: 0; }
+.pack .price { font-family: 'Manrope', Arial, sans-serif; font-size: 22px; font-weight: 700; color: var(--accent); }
+.pack .small { font-size: 14px; } .pack .muted { color: var(--muted); }
+.pack-list { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+.packs .pack:nth-child(1) { background: #f5ecee; border-color: #ead9dc; }
+.packs .pack:nth-child(2) { background: var(--accent-soft); border-color: #cfe0d9; }
+.best-pack { background: #2b3135 !important; border-color: #2b3135 !important; color: #fff; box-shadow: 0 16px 40px -18px #2b3135; }
+.best-pack .eyebrow, .best-pack .price, .best-pack .small, .best-pack .pack-list { color: #fff; }
+@media (max-width: 760px) { .packs { grid-template-columns: 1fr; } .pack h2 { min-height: 0; } }
+@media (min-width: 761px) and (max-width: 1000px) { .packs { grid-template-columns: repeat(2, 1fr); } }
+.scroll-hint { display: none; margin: 0 0 6px; font-size: 13px; color: var(--muted); }
+@media (max-width: 760px) { .scroll-hint { display: block; } }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header style="display:flex;flex-direction:column;gap:10px">
+    <span class="eyebrow">Коммерческое предложение · калькулятор</span>
     <h1>BelCleanBot: предложение-калькулятор для химчистки</h1>
     <p class="lead">Мы предлагаем три пакета. Ниже — расчёт прибыли и расходов.</p>
   </header>
 
-  <section class="packs3" aria-label="Пакеты">
-    <div class="pk pk-opt"><div class="pk-name">«Оптимизация» — для города</div><p>Только чат-бот в ваших городских пунктах. Приём заказов, оплата и статусы — в Telegram. Один пункт — 5% от заказов через бот; 2 пункта — 4,3% за каждый; 3 и больше — 4,0% за каждый.</p></div>
-    <div class="pk pk-ext"><div class="pk-name">«Расширение» — районные пункты</div><p>Пункт приёма под вашим брендом в райцентре, где у вас нет приёма. Бот обязателен, к нему — продвижение, а на выбор — наш приёмщик и помещение.</p></div>
-    <div class="pk pk-combo"><div class="pk-name">«Комбо» — город + район</div><p>Бот в ваших городских пунктах и районный пункт. Пакет района дешевле: «Средний» — 12% вместо 13%, «Полный» — 15% вместо 17%; а при боте в 3+ городских пунктах бот — 3,7% вместо 4,0%.</p></div>
+  <section aria-label="Пакеты">
+    <div class="packs">
+      <article class="pack">
+        <span class="eyebrow">Пакет 1</span>
+        <h2>«Оптимизация» — для города</h2>
+        <p>Только чат-бот в ваших городских пунктах. Приём заказов, оплата и статусы — в Telegram.</p>
+        <div class="price">от 4% <span class="small muted">от заказов через бот</span></div>
+        <ul class="pack-list">
+          <li>1 пункт — 5%, $70–280 в месяц</li>
+          <li>2 пункта — 4,3%, $60–253 за каждый</li>
+          <li>3 и больше — 4,0%, $60–253 за каждый</li>
+        </ul>
+      </article>
+      <article class="pack">
+        <span class="eyebrow">Пакет 2</span>
+        <h2>«Расширение» — районные пункты</h2>
+        <p>Пункт приёма под вашим брендом в райцентре, где у вас нет приёма. Бот обязателен, к нему — продвижение, а на выбор — наш приёмщик и помещение.</p>
+        <div class="price">от $120 <span class="small muted">в месяц за пункт</span></div>
+        <ul class="pack-list">
+          <li><b>Минимальный:</b> бот 4,3%, не менее $120, без максимума</li>
+          <li><b>Средний:</b> бот 4,3%, не менее $80 + пакет 13% от оборота, не менее $210</li>
+          <li><b>Полный:</b> бот 4,3%, не менее $80 + пакет 17% от оборота, не менее $300</li>
+        </ul>
+      </article>
+      <article class="pack best-pack">
+        <span class="eyebrow">Выгоднее всего</span>
+        <h2>«Комбо» — город + район</h2>
+        <p>Бот в ваших городских пунктах и районный пункт. Условие — бот минимум в 2 городских пунктах.</p>
+        <div class="price">дешевле <span class="small">пакет района и бот</span></div>
+        <ul class="pack-list">
+          <li>Средний: 12% вместо 13%, не менее $210</li>
+          <li>Полный: 15% вместо 17%, не менее $300</li>
+          <li>Бот в городе при 3+ пунктах — 3,7% вместо 4,0%</li>
+          <li>Простое внедрение — $280 вместо $350</li>
+        </ul>
+        <p class="small"><a href="#combo-sec" style="color:inherit">Подробнее о «Комбо» →</a></p>
+      </article>
+    </div>
   </section>
 
   <section class="card intro" aria-label="Чат-бот">
@@ -278,7 +331,8 @@ section.card.intro h2 + h3 { margin-top: 28px; }
   </section>
 
   <section class="card" aria-label="Стоимость бота">
-    <h2>Сколько стоит бот в ваших городских пунктах <span class="pkg pkg-opt">пакет «Оптимизация»</span></h2>
+    <span class="eyebrow">Пакет 1 · «Оптимизация» — для города</span>
+    <h2>Сколько стоит бот в ваших городских пунктах</h2>
     <div class="row inputs brow">
       <div class="field">
         <label for="b-orders">Заказов в месяц через бот в одном пункте</label>
@@ -301,12 +355,14 @@ section.card.intro h2 + h3 { margin-top: 28px; }
     <p class="note">Поддержка бота входит в плату. Разово — простое внедрение на всю сеть: $350 (с «Расширением» и в «Комбо» — $280). Подключение оплаты на ваш счёт, кассы и принтера, интеграция с программой учёта — отдельно, по обследованию.</p>
   </section>
 
-  <h2 class="part">Районный пункт приёма <span class="pkg pkg-ext">пакет «Расширение»</span></h2>
+  <span class="eyebrow part-eb">Пакет 2</span>
+  <h2 class="part">«Расширение» — районные пункты</h2>
   <p class="intro-p">Мы открываем пункт приёма под вашим брендом в райцентре, где у вас сейчас нет приёма. В пункте всегда работает чат-бот, а дальше — на ваш выбор: <b>«Минимальный»</b> — продвигаем пункт в местных каналах, <b>«Средний»</b> — ещё и даём своего приёмщика, <b>«Полный»</b> — пункт под ключ, с нашим помещением. Вам остаются чистка, еженедельный рейс и минимальный инвентарь — стойка, вешала и терминал, если в нём есть необходимость.</p>
   <p class="intro-p soft-note">Это наше стартовое предложение. Мы открыты к обсуждению: если у вас другая схема работы или другие объёмы — давайте обсудим на встрече.</p>
   <section class="tcards" id="tcards" aria-label="Тарифы пакета «Расширение»"></section>
 
-  <h2 class="part">Город + район <span class="pkg pkg-combo">пакет «Комбо»</span></h2>
+  <span class="eyebrow part-eb" id="combo-sec">Выгоднее всего</span>
+  <h2 class="part">«Комбо» — город + район</h2>
   <p class="intro-p">«Комбо» — это наш бот в ваших городских пунктах и районный пункт («Расширение») вместе. Условие — бот минимум в 2 городских пунктах. Все заказы, из города и из района, — в одном боте и одной статистике.</p>
   <section class="tcards" id="ccards" aria-label="Тарифы пакета «Комбо»"></section>
   <section class="tcards combo-cards" aria-label="Условия «Комбо»">
@@ -317,7 +373,8 @@ section.card.intro h2 + h3 { margin-top: 28px; }
     <div class="tc"><div class="tc-name">Внедрение дешевле</div><p class="tc-text">Разово, на всю сеть.</p><ul><li class="y">простое: <b>$280</b> вместо $350</li><li class="y">подключение ваших систем: + $475–950 вместо + $500–1 000</li><li class="y">интеграция: + $950–2 375 вместо + $1 000–2 500</li></ul></div>
   </section>
 
-  <h2 class="part">Расчёт: доходы и расходы районного пункта <span class="pkg pkg-ext">«Расширение»</span><span class="pkg pkg-combo">«Комбо»</span></h2>
+  <span class="eyebrow part-eb">Посчитайте сами</span>
+  <h2 class="part">Расчёт: доходы и расходы районного пункта</h2>
   <p class="lead">Введите, сколько вещей в месяц принимает пункт и среднюю цену чистки, и нажмите «Рассчитать». Калькулятор покажет вашу выгоду при каждом тарифе и в «Комбо». В таблице — примерные расходы: подставьте свои аренду, зарплату приёмщика и стоимость рейса.</p>
 
   <div class="row">
@@ -367,6 +424,7 @@ section.card.intro h2 + h3 { margin-top: 28px; }
   </section>
 
   <p class="costnote">Выгода считается <b>до вычета себестоимости чистки</b> (химия, работа мастера). Если хотите её учесть — впишите процент в строку «Себестоимость чистки» и нажмите «Рассчитать».</p>
+  <p class="scroll-hint">Таблицу можно листать вбок →</p>
   <div class="frame">
     <table class="mtable">
       <thead><tr id="head0"></tr><tr id="head"></tr></thead>
