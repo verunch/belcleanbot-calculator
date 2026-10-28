@@ -299,7 +299,7 @@ section.card.intro h2 + h3 { margin-top: 28px; }
   <p class="intro-p">«Комбо» — это наш бот в ваших городских пунктах и районный пункт («Расширение») вместе. Условие — бот минимум в 2 городских пунктах. Все заказы, из города и из района, — в одном боте и одной статистике.</p>
   <section class="tcards" id="ccards" aria-label="Тарифы пакета «Комбо»"></section>
   <section class="tcards combo-cards" aria-label="Условия «Комбо»">
-    <div class="tc"><div class="tc-name">Районный пункт дешевле</div><p class="tc-text">Пакет района — на 1% ниже, минимумы те же.</p><ul><li class="y">Средний: 12%, не менее $210</li><li class="y">Полный: 12%, не менее $210 + аренда $90</li><li class="y">Минимальный: по цене бота, как и без «Комбо»</li></ul></div>
+    <div class="tc"><div class="tc-name">Районный пункт дешевле</div><p class="tc-text">Пакет района — на 1% ниже, минимумы те же.</p><ul><li class="y">Средний: 12%, не менее $210</li><li class="y">Полный: 16%, не менее $300</li><li class="y">Минимальный: по цене бота, как и без «Комбо»</li></ul></div>
     <div class="tc"><div class="tc-name">Бот в городе</div><p class="tc-text">За каждый городской пункт, процент — только с заказов через бот.</p><ul><li class="y">2 пункта: 4,3%, $60–253 каждый</li><li class="y">3 и больше: <b>3,7%, $50–230 каждый</b></li></ul></div>
     <div class="tc"><div class="tc-name">Внедрение дешевле</div><p class="tc-text">Разово, на всю сеть.</p><ul><li class="y">простое: <b>$280</b> вместо $350</li><li class="y">подключение ваших систем: + $475–950 вместо + $500–1 000</li><li class="y">интеграция: + $950–2 375 вместо + $1 000–2 500</li></ul></div>
   </section>
@@ -400,7 +400,7 @@ function stackLabel(t) {
   'use strict';
   const RATE = 3.01; // BYN за $1
   // Цены (D-42): Минимальный — бот + продвижение по цене бота: 4,3%, не менее $120, без максимума;
-  // Средний — бот (не менее $80) + 13% от оборота, не менее $210; Полный = Средний + аренда $90 в месяц.
+  // Средний — бот (не менее $80) + 13% от оборота, не менее $210; Полный — бот + 17% от оборота, не менее $300, аренда внутри процента (D-43); в «Комбо» — 16%.
   // «Комбо» (бот минимум в 2 городских пунктах) — пакет на 1% ниже, минимумы те же; бот в городе — D-41.
   const PRICE = {
     botPct: 4.3, botPctSingle: 5, botMin: 80, botMax: 253, botMaxSingle: 280, botOnlyMin: 120,
@@ -413,7 +413,7 @@ function stackLabel(t) {
   const LEVELS = {
     min: { name: 'Минимальный', what: 'бот + продвижение; приёмщик и помещение ваши', botOnly: true, own: { rent: true, staff: true } },
     mid: { name: 'Средний', what: 'бот + продвижение + наш приёмщик; помещение ваше', pct: 13, min: 210, own: { rent: true, staff: false } },
-    full: { name: 'Полный', what: 'бот + продвижение + наш приёмщик + наше помещение', pct: 13, min: 210, plus: 90, own: { rent: false, staff: false } },
+    full: { name: 'Полный', what: 'бот + продвижение + наш приёмщик + наше помещение', pct: 17, min: 300, own: { rent: false, staff: false } },
   };
   const COLS = [
     { id: 'min', fee: 'pack', level: 'min' },
@@ -650,7 +650,7 @@ function stackLabel(t) {
   function renderSettings() {
     const inp = (key, v, lbl) => '<label class="set"><span>' + lbl + '</span><input type="text" inputmode="decimal" autocomplete="off" data-set="' + key + '" value="' + v + '"></label>';
     const levels = Object.entries(LEVELS).filter(([, l]) => !l.botOnly).map(([id, l]) =>
-      inp(id + '.pct', l.pct, l.name + ': % от оборота') + inp(id + '.min', l.min, l.name + ': минимум, $')).join('') + inp('full.plus', LEVELS.full.plus, 'Полный: аренда, $');
+      inp(id + '.pct', l.pct, l.name + ': % от оборота') + inp(id + '.min', l.min, l.name + ': минимум, $')).join('');
     $('settings-body').innerHTML = '<div class="sets">' +
       inp('botPct', PRICE.botPct, 'Бот: %') + inp('botMin', PRICE.botMin, 'Бот в районном пакете: минимум, $') + inp('botMax', PRICE.botMax, 'Бот в районном пакете: максимум, $') +
       inp('botOnlyMin', PRICE.botOnlyMin, 'Минимальный (бот): минимум, $') + levels +
@@ -667,7 +667,7 @@ function stackLabel(t) {
     const bot = 'бот ' + fmt2(PRICE.botPct) + '%, не менее $' + PRICE.botMin;
     const lv = (id) => LEVELS[id];
     const pack = (id, d) => 'пакет ' + fmt2(lv(id).pct - (d ? PRICE.comboPct : 0)) + '% от оборота, не менее $' + lv(id).min;
-    const full = (d) => 'пакет ' + fmt2(lv('full').pct - (d ? PRICE.comboPct : 0)) + '% от оборота, не менее $' + lv('full').min + ' + аренда $' + lv('full').plus;
+    const full = (d) => pack('full', d); // D-43: аренда — внутри процента
     $('tcards').innerHTML =
       card('Минимальный', [yes('чат-бот'), yes('продвижение в местных каналах'), no('помещение'), no('приёмщик'), always], 'бот ' + fmt2(PRICE.botPct) + '%, не менее $' + PRICE.botOnlyMin + ', без максимума', 'то же; бот в городе дешевле', 't-min') +
       card('Средний', [yes('чат-бот'), yes('продвижение'), yes('наш приёмщик'), no('помещение'), always], bot + '<br>+ ' + pack('mid'), pack('mid', true), 't-mid') +
