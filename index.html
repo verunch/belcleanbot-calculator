@@ -218,14 +218,14 @@ section.card.intro h2 + h3 { margin-top: 28px; }
   /* таблица расчёта: прокрутка вбок, первая колонка с названиями строк закреплена */
   table.mtable { min-width: 0; width: max-content; }
   table.mtable #head th:nth-child(n+3), table.mtable tbody td:nth-child(n+3) { min-width: 190px; max-width: 220px; }
-  table.mtable td.param, table.mtable #head th:nth-child(2) { min-width: 130px; }
-  table.mtable td:first-child { font-size: 14px; }
+  table.mtable td.param, table.mtable #head th:nth-child(2) { min-width: 120px; }
+  table.mtable td:first-child { font-size: 13px; line-height: 1.35; }
   table.mtable #head th small { display: none; } /* описания тарифов — в карточках выше */
   table.mtable #head th { vertical-align: bottom; }
   table.mtable #head th:first-child { font-size: 13px; }
-  table.mtable tr > :first-child { position: sticky; left: 0; z-index: 2; background: var(--card); min-width: 130px; max-width: 140px; box-shadow: 1px 0 0 var(--line); }
+  table.mtable tr > :first-child { position: sticky; left: 0; z-index: 2; background: var(--card); min-width: 118px; max-width: 120px; box-shadow: 2px 0 4px -2px rgba(35,41,45,.25); }
   table.mtable thead tr > :first-child { background: var(--card); }
-  table.mtable th.blank { position: static; box-shadow: none; }
+  table.mtable #head0 { display: none; } /* строка-группа «Пакет …» на телефоне не нужна: сдвигалась при прокрутке */
 }
 #ccards { margin-bottom: 16px; }
 #ccards .tc { background: #fbf8ee; }
