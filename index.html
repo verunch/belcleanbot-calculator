@@ -6,26 +6,18 @@
 <title>BelCleanBot: предложение-калькулятор</title>
 <meta name="description" content="BelCleanBot: доходы и расходы районного пункта приёма химчистки — только бот, пакеты «Минимальный», «Средний», «Полный» и «Комбо».">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Unbounded:wght@600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Manrope:wght@700;800&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #f5f7f8; --card: #ffffff; --text: #14232b; --muted: #5b6b73; --line: #d9e1e4;
-  --accent: #0e6e86; --accent-soft: #e2f0f3; --ok: #1f7a4d; --bad: #b3261e; --sel: #fff7df;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0f1a20; --card: #16252d; --text: #e6eef1; --muted: #9db0b8; --line: #2a3d47;
-    --accent: #4fb6cf; --accent-soft: #1d3039; --ok: #5cc28e; --bad: #f2867d; --sel: #2c2a1c;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #0f1a20; --card: #16252d; --text: #e6eef1; --muted: #9db0b8; --line: #2a3d47;
-  --accent: #4fb6cf; --accent-soft: #1d3039; --ok: #5cc28e; --bad: #f2867d; --sel: #2c2a1c;
+  /* Палитра из референсов 02_references: вода, шалфей, пудра, сливки, тауп, графит (28.10.2026). Тёмной темы нет — фон всегда светлый. */
+  --bg: #f3f6f7; --card: #ffffff; --text: #23292d; --muted: #62676a; --line: #dde3e4;
+  --accent: #4f6f66; --accent-soft: #e4eeea; --ok: #3f7357; --bad: #a3434f; --sel: #f7f1df;
+  color-scheme: light;
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.45 'Golos Text', Arial, sans-serif; }
 .wrap { max-width: 1080px; margin: 0 auto; padding: 32px 16px 48px; display: flex; flex-direction: column; gap: 20px; }
-h1 { font-family: 'Unbounded', Arial, sans-serif; font-size: clamp(22px, 4vw, 32px); line-height: 1.2; margin: 0; }
+h1 { font-family: 'Manrope', Arial, sans-serif; font-size: clamp(22px, 4vw, 32px); line-height: 1.2; margin: 0; }
 .lead { margin: 0; color: var(--muted); max-width: 720px; }
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 18px; }
 .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; background: var(--card); }
@@ -37,7 +29,7 @@ h1 { font-family: 'Unbounded', Arial, sans-serif; font-size: clamp(22px, 4vw, 32
 input[type="number"], input[type="text"] { font: inherit; font-size: 20px; font-weight: 600; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--text); width: 100%; }
 input:focus-visible, button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .result { flex: 1.4; min-width: 240px; background: var(--accent-soft); border-radius: 12px; padding: 12px 14px; }
-.result .big { font-family: 'Unbounded', Arial, sans-serif; font-size: 26px; color: var(--accent); }
+.result .big { font-family: 'Manrope', Arial, sans-serif; font-size: 26px; color: var(--accent); }
 .result .small { font-size: 14px; color: var(--muted); }
 .checks { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 15px; }
 .checks label { display: inline-flex; gap: 8px; align-items: center; cursor: pointer; }
@@ -70,21 +62,21 @@ footer { font-size: 13px; color: var(--muted); }
 .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
 .rc { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
 .rc-name { font-weight: 700; }
-.rc-big { font-family: 'Unbounded', Arial, sans-serif; font-size: 22px; }
+.rc-big { font-family: 'Manrope', Arial, sans-serif; font-size: 22px; }
 .rc-sub { font-size: 13px; color: var(--muted); }
 .sumh { margin: 0 0 10px; font-size: 18px; }
 .costnote { margin: 0; padding: 10px 14px; border-radius: 10px; background: var(--accent-soft); font-size: 15px; }
 .calc-row { margin-top: 16px; }
-.calc-btn { font: inherit; font-weight: 700; font-size: 17px; padding: 12px 28px; border: 0; border-radius: 999px; background: #0e6e86; color: #fff; cursor: pointer; transition: background .15s, transform .08s, box-shadow .15s; }
-.calc-btn:hover { background: #0a5568; }
-.calc-btn:active { background: #073f4d; transform: scale(0.96); }
-.calc-btn:focus-visible { outline: 3px solid #12a6c9; outline-offset: 3px; }
+.calc-btn { font: inherit; font-weight: 700; font-size: 17px; padding: 12px 28px; border: 0; border-radius: 999px; background: #4f6f66; color: #fff; cursor: pointer; transition: background .15s, transform .08s, box-shadow .15s; }
+.calc-btn:hover { background: #3e5a52; }
+.calc-btn:active { background: #2f4640; transform: scale(0.96); }
+.calc-btn:focus-visible { outline: 3px solid #8fb3a8; outline-offset: 3px; }
 /* есть изменения — ярче, тот же цвет, с мягким пульсом */
-.calc-btn.dirty { background: #12a6c9; animation: pulse 1.4s ease-in-out infinite; }
-.calc-btn.dirty:hover { background: #0e8fae; }
-@keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(18, 166, 201, .55); } 50% { box-shadow: 0 0 0 10px rgba(18, 166, 201, 0); } }
-@media (prefers-reduced-motion: reduce) { .calc-btn.dirty { animation: none; box-shadow: 0 0 0 4px rgba(18, 166, 201, .35); } }
-.calc-hint { margin-left: 12px; font-size: 14px; font-weight: 600; color: #0e8fae; }
+.calc-btn.dirty { background: #2b3135; animation: pulse 1.4s ease-in-out infinite; }
+.calc-btn.dirty:hover { background: #3a4146; }
+@keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(43, 49, 53, .55); } 50% { box-shadow: 0 0 0 10px rgba(43, 49, 53, 0); } }
+@media (prefers-reduced-motion: reduce) { .calc-btn.dirty { animation: none; box-shadow: 0 0 0 4px rgba(43, 49, 53, .35); } }
+.calc-hint { margin-left: 12px; font-size: 14px; font-weight: 600; color: #4f6f66; }
 .calc-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .flash { animation: flash 0.9s ease-out; }
 @keyframes flash { from { box-shadow: 0 0 0 4px var(--accent); } to { box-shadow: 0 0 0 0 transparent; } }
@@ -92,9 +84,9 @@ footer { font-size: 13px; color: var(--muted); }
 .warn { margin: 0; padding: 10px 14px; border-radius: 10px; background: var(--sel); font-weight: 600; }
 thead th { vertical-align: top; }
 thead th small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; margin-top: 10px; line-height: 1.35; }
-thead th.tarifs { text-align: center; font-family: 'Unbounded', Arial, sans-serif; font-size: 15px; letter-spacing: 0.08em; color: var(--accent); border-bottom: 2px solid var(--accent); padding: 12px; }
+thead th.tarifs { text-align: center; font-family: 'Manrope', Arial, sans-serif; font-size: 15px; letter-spacing: 0.08em; color: var(--accent); border-bottom: 2px solid var(--accent); padding: 12px; }
 thead th.blank { background: var(--bg); border-bottom: 0; }
-thead th.combo-g { background: var(--accent-soft); border-left: 8px solid var(--card); color: #c26a10; border-bottom-color: #c26a10; }
+thead th.combo-g { background: var(--accent-soft); border-left: 8px solid var(--card); color: #8a7440; border-bottom-color: #8a7440; }
 #head th { padding-top: 14px; padding-bottom: 14px; }
 th:first-child, td:first-child { min-width: 190px; }
 #head th:nth-child(n+3) { font-size: 15px; color: var(--text); }
@@ -121,7 +113,7 @@ section.card.intro, section[aria-label="Стоимость бота"] { padding:
 .intro h3 { margin: 0 0 6px; font-size: 16px; }
 .intro ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; font-size: 15px; }
 .cols2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-h2.part { font-family: 'Unbounded', Arial, sans-serif; font-size: clamp(20px, 3vw, 26px); margin: 48px 0 0; padding-top: 36px; border-top: 2px solid var(--line); }
+h2.part { font-family: 'Manrope', Arial, sans-serif; font-size: clamp(20px, 3vw, 26px); margin: 48px 0 0; padding-top: 36px; border-top: 2px solid var(--line); }
 .bcombo { display: inline-flex; gap: 8px; align-items: center; margin-top: 12px; font-size: 15px; cursor: pointer; }
 section.card .frame { margin-top: 14px; }
 .intro h3 { margin: 36px 0 18px; font-size: 21px; line-height: 1.3; }
@@ -136,13 +128,13 @@ section.card .frame { margin-top: 14px; }
 @media (min-width: 900px) { .pgrid { grid-template-columns: repeat(5, 1fr); } }
 .pc { border-radius: 14px; overflow: hidden; border: 1px solid var(--line); display: flex; flex-direction: column; }
 /* верх — «Было» на тёмном фоне, низ — «Стало» на светлом */
-.pc-top { background: #1d2b33; padding: 14px 14px; display: flex; flex-direction: column; gap: 8px; }
-.pc-bot { background: #f3faf6; padding: 14px 14px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
-.pc-l { align-self: flex-start; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #fff; background: #d64535; padding: 3px 10px; border-radius: 999px; }
-.pc-l.ok { background: #1f7a4d; }
+.pc-top { background: #2b3135; padding: 14px 14px; display: flex; flex-direction: column; gap: 8px; }
+.pc-bot { background: #eef4f1; padding: 14px 14px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+.pc-l { align-self: flex-start; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #fff; background: #a3434f; padding: 3px 10px; border-radius: 999px; }
+.pc-l.ok { background: #3f7357; }
 .pc-p, .pc-s { font-size: 17px; font-weight: 700; line-height: 1.4; }
-.pc-p { color: #ff8f84; }
-.pc-s { color: #1f7a4d; }
+.pc-p { color: #f0b3bb; }
+.pc-s { color: #3f7357; }
 .big-note { margin: 0 0 14px; font-size: 19px; line-height: 1.35; padding: 12px 16px; border-left: 4px solid var(--accent); background: var(--accent-soft); border-radius: 8px; }
 table.ptable { min-width: 0; }
 table.ptable td, table.ptable th { text-align: left; }
@@ -158,7 +150,7 @@ table.btable { min-width: 0; }
 .pkg { display: inline-block; vertical-align: middle; margin-left: 10px; font-family: 'Golos Text', Arial, sans-serif; font-size: 13px; font-weight: 700; color: #fff; background: var(--accent); padding: 4px 12px; border-radius: 999px; letter-spacing: .02em; }
 .tcards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 16px; }
 .tc { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
-.tc-name { font-family: 'Unbounded', Arial, sans-serif; font-size: 17px; color: var(--accent); }
+.tc-name { font-family: 'Manrope', Arial, sans-serif; font-size: 17px; color: var(--accent); }
 .tc ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 14px; flex: 1; }
 .tc li.y::before { content: '✓'; color: var(--ok); font-weight: 700; margin-right: 8px; }
 .tc li.n { color: var(--muted); }
@@ -167,30 +159,29 @@ table.btable { min-width: 0; }
 .tc-combo { font-size: 13px; color: var(--accent); font-weight: 600; }
 .tc-text { margin: 0; font-size: 14px; color: var(--muted); }
 .combo-cards .tc { background: var(--accent-soft); border-color: transparent; }
-.pk-opt { background: #eef6fb; border-color: #cfe3ef; }
-.pk-ext { background: #eaf6ef; border-color: #cbe6d6; }
-.pk-combo { background: #fdf3e6; border-color: #f1dcbc; }
-.pk-opt .pk-name { color: #1b6fa0; } .pk-ext .pk-name { color: #1f7a4d; } .pk-combo .pk-name { color: #b5650d; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .pk-opt { background: #17303d; border-color: #24485a; } :root:not([data-theme="light"]) .pk-ext { background: #173326; border-color: #24503a; } :root:not([data-theme="light"]) .pk-combo { background: #3a2c17; border-color: #5a4424; } }
+.pk-opt { background: #f5ecee; border-color: #ead9dc; }
+.pk-ext { background: #e4eeea; border-color: #cfe0d9; }
+.pk-combo { background: #f7f1df; border-color: #ece2c4; }
+.pk-opt .pk-name { color: #9a6b74; } .pk-ext .pk-name { color: #3f7357; } .pk-combo .pk-name { color: #8a7440; }
 /* тарифы «Расширения» — свой цвет у каждого: заголовок и полоса сверху */
-.tc.t-bot { border-top: 4px solid #0e8fae; } .tc.t-bot .tc-name { color: var(--text); }
-.tc.t-min { border-top: 4px solid #1b6fa0; } .tc.t-min .tc-name { color: #1b6fa0; }
-.tc.t-mid { border-top: 4px solid #1f7a4d; } .tc.t-mid .tc-name { color: #1f7a4d; }
-.tc.t-full { border-top: 4px solid #8a3fb0; } .tc.t-full .tc-name { color: #8a3fb0; }
+.tc.t-bot { border-top: 4px solid #4f6f66; } .tc.t-bot .tc-name { color: var(--text); }
+.tc.t-min { border-top: 4px solid #5a7080; } .tc.t-min .tc-name { color: #5a7080; }
+.tc.t-mid { border-top: 4px solid #3f7357; } .tc.t-mid .tc-name { color: #3f7357; }
+.tc.t-full { border-top: 4px solid #615649; } .tc.t-full .tc-name { color: #615649; }
 /* цвет пакета — как у его карточки наверху: «Оптимизация» синий, «Расширение» зелёный, «Комбо» оранжевый */
-.pkg-opt { background: #1b6fa0; } .pkg-ext { background: #1f7a4d; } .pkg-combo { background: #c26a10; }
+.pkg-opt { background: #9a6b74; } .pkg-ext { background: #3f7357; } .pkg-combo { background: #8a7440; }
 .pkg + .pkg { margin-left: 6px; }
-thead th.ext-g { color: #1f7a4d; border-bottom-color: #1f7a4d; }
+thead th.ext-g { color: #3f7357; border-bottom-color: #3f7357; }
 /* «Было / Стало» — переключатель: вверху активно «Было», внизу — «Стало» */
 .sw { align-self: flex-start; display: inline-flex; border-radius: 999px; padding: 2px; gap: 2px; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .pc-top .sw { background: rgba(255,255,255,.12); }
-.pc-bot .sw { background: rgba(20,35,43,.08); }
+.pc-bot .sw { background: rgba(35,41,45,.08); }
 .sw span { padding: 3px 8px; border-radius: 999px; }
 .pc-top .sw span { color: rgba(255,255,255,.45); }
-.pc-bot .sw span { color: #8a9aa1; }
+.pc-bot .sw span { color: #8d9396; }
 .sw span.on { color: #fff; }
-.sw span.on.bad { background: #d64535; }
-.sw span.on.ok { background: #1f7a4d; }
+.sw span.on.bad { background: #a3434f; }
+.sw span.on.ok { background: #3f7357; }
 /* заголовки внутри разделов — легче: 600 у разделов, 500 у подзаголовков */
 section.card h2, .intro h2 { font-weight: 600; letter-spacing: -0.005em; }
 .intro h3, h3.sub { font-weight: 500; }
@@ -204,13 +195,11 @@ table.ptable td.calc-col .pnote { color: var(--muted); }
 table.ptable tr.combo-row td.calc-col { background: var(--sel); }
 table.ptable .cv { font-size: 20px; font-weight: 700; }
 /* тёмная тема — яркие варианты цветов тарифов */
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tc.t-min .tc-name { color: #6cb8e6; } :root:not([data-theme="light"]) .tc.t-mid .tc-name { color: #5cc28e; } :root:not([data-theme="light"]) .tc.t-full .tc-name { color: #c792ea; } :root:not([data-theme="light"]) .tc.t-bot .tc-name { color: #ffffff; } }
 /* колонки тарифов в таблице расчёта — цвет тарифа */
-td.c-min, th.c-min { background: rgba(27, 111, 160, .07); } th.c-min { color: #1b6fa0; box-shadow: inset 0 4px 0 #1b6fa0; }
-td.c-mid, th.c-mid { background: rgba(31, 122, 77, .07); } th.c-mid { color: #1f7a4d; box-shadow: inset 0 4px 0 #1f7a4d; }
-td.c-full, th.c-full { background: rgba(138, 63, 176, .07); } th.c-full { color: #8a3fb0; box-shadow: inset 0 4px 0 #8a3fb0; }
-td.c-combo { background: rgba(194, 106, 16, .07); } th.c-combo { color: #c26a10; box-shadow: inset 0 4px 0 #c26a10; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) th.c-min { color: #6cb8e6; } :root:not([data-theme="light"]) th.c-mid { color: #5cc28e; } :root:not([data-theme="light"]) th.c-full { color: #c792ea; } :root:not([data-theme="light"]) th.c-combo { color: #f0a050; } }
+td.c-min, th.c-min { background: rgba(90, 112, 128, .07); } th.c-min { color: #5a7080; box-shadow: inset 0 4px 0 #5a7080; }
+td.c-mid, th.c-mid { background: rgba(63, 115, 87, .07); } th.c-mid { color: #3f7357; box-shadow: inset 0 4px 0 #3f7357; }
+td.c-full, th.c-full { background: rgba(97, 86, 73, .07); } th.c-full { color: #615649; box-shadow: inset 0 4px 0 #615649; }
+td.c-combo { background: rgba(138, 116, 64, .07); } th.c-combo { color: #8a7440; box-shadow: inset 0 4px 0 #8a7440; }
 </style>
 </head>
 <body>
