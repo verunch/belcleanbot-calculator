@@ -219,6 +219,9 @@ section.card.intro h2 + h3 { margin-top: 28px; }
   .frame .hctl button, .frame .hctl select { padding: 3px 6px !important; }
   .frame thead th { font-size: 10px; }
   table.mtable { min-width: 760px; }
+  /* все таблицы: первый столбец закреплён, остальные листаются */
+  .frame table tr > :first-child { position: sticky; left: 0; z-index: 3; background: var(--card); width: 110px !important; min-width: 110px; max-width: 110px; hyphens: auto; -webkit-hyphens: auto; overflow-wrap: anywhere; box-shadow: 2px 0 4px -2px rgba(35,41,45,.25); }
+  table.ptable tr.combo-row > :first-child { background: var(--accent-soft); }
   /* «Выгода химчистки»: первый столбец закреплён, остальные листаются (как в КП «Открыть районный пункт») */
   table.mtable #head > :first-child, table.mtable tbody tr > :first-child { position: sticky; left: 0; z-index: 3; background: var(--card); width: 132px !important; min-width: 132px; max-width: 132px; hyphens: auto; -webkit-hyphens: auto; overflow-wrap: anywhere; box-shadow: 2px 0 4px -2px rgba(35,41,45,.25); }
   table.mtable tbody tr.total > :first-child, table.mtable tbody tr.income > :first-child { background: var(--card); }
