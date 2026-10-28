@@ -1,0 +1,600 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BelCleanBot для химчистки</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap">
+<style>
+/* Layout: one reading column for the offer, wide tables scroll inside their own frames; calculator as a two-pane tool */
+:root {
+  /* Палитра из референсов 02_references: вода, шалфей, пудра, сливки, тауп, графит (28.10.2026) */
+  --bg: #f3f6f7;
+  --surface: #ffffff;
+  --ink: #23292d;
+  --muted: #62676a;
+  --line: #dde3e4;
+  --accent: #4f6f66;
+  --accent-soft: #e4eeea;
+  --graphite: #2b3135;
+  --blush: #9a6b74;
+  --blush-soft: #f5ecee;
+  --cream: #8a7440;
+  --cream-soft: #f7f1df;
+  --taupe: #615649;
+  --mark: #9a6b74;
+  --ok: #3f7357;
+  --ok-soft: #e5f0e9;
+  --on-accent: #ffffff;
+  --display: "Manrope", "Golos Text", system-ui, sans-serif;
+  --body: "Golos Text", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --radius: 10px;
+  color-scheme: light;
+}
+/* Тёмной темы нет — по просьбе владельца фон всегда светлый */
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.55; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-inline: 20px; padding-block: 32px 64px; display: flex; flex-direction: column; gap: 48px; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; line-height: 1.2; margin: 0; }
+h1 { font-size: clamp(28px, 5vw, 44px); font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: clamp(21px, 3vw, 28px); font-weight: 700; }
+h3 { font-size: 17px; font-weight: 500; }
+p { margin: 0; }
+.eyebrow { font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); font-weight: 600; }
+.muted { color: var(--muted); }
+.small { font-size: 14px; }
+section { display: flex; flex-direction: column; gap: 18px; }
+
+header.hero { display: flex; flex-direction: column; gap: 16px; padding-block: 8px 0; }
+.hero .meta { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 14px; color: var(--muted); }
+.hero .lead { font-size: 19px; max-width: 60ch; }
+
+.packs { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.pack { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.pack h2 { font-size: 23px; line-height: 1.2; min-height: 2.4em; }
+.pack .price { font-family: var(--display); font-size: 22px; color: var(--accent); }
+.pack ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+.bonus { background: var(--accent-soft); border-radius: var(--radius); padding: 14px 18px; }
+.best-pack { background: var(--graphite); border-color: var(--graphite); color: var(--on-accent); box-shadow: 0 16px 40px -18px var(--graphite); }
+.best-pack .eyebrow, .best-pack .price, .best-pack .small { color: var(--on-accent); }
+
+.table-frame { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 15px; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+thead th { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); font-weight: 600; background: var(--bg); }
+tbody tr:last-child td { border-bottom: 0; }
+td.num, th.num { text-align: right; white-space: nowrap; }
+.who-us { color: var(--accent); font-weight: 600; }
+.who-them { color: var(--muted); }
+.always td:first-child { font-weight: 600; }
+.bars { display: flex; flex-direction: column; gap: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }
+.bar-row { display: grid; grid-template-columns: minmax(110px, 160px) 1fr; gap: 12px; align-items: center; }
+.bar-label { font-size: 14px; font-weight: 600; }
+.bar { display: flex; height: 40px; border-radius: 8px; overflow: hidden; min-width: 0; }
+.seg { display: flex; align-items: center; padding: 0 10px; font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; }
+.seg-promo { background: var(--line); color: var(--ink); }
+.seg-promo-c { background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent); }
+.seg-bot { background: var(--accent); color: var(--on-accent); }
+.seg-gift { background: repeating-linear-gradient(45deg, var(--ok-soft), var(--ok-soft) 6px, transparent 6px, transparent 12px); color: var(--ok); }
+.scheme { display: flex; flex-wrap: wrap; align-items: stretch; gap: 10px; }
+.scheme .node { flex: 1 1 180px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; display: flex; flex-direction: column; gap: 4px; }
+.scheme .node.hl { border-color: var(--accent); background: var(--accent-soft); }
+.scheme .op { align-self: center; font-family: var(--display); font-size: 22px; color: var(--accent); }
+.pill { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--ok-soft); color: var(--ok); font-weight: 600; white-space: nowrap; }
+
+/* calculator */
+.calc { display: grid; grid-template-columns: minmax(240px, 300px) 1fr; gap: 20px; align-items: start; }
+@media (max-width: 760px) { .calc { grid-template-columns: 1fr; } }
+.controls { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; display: flex; flex-direction: column; gap: 18px; }
+.control { display: flex; flex-direction: column; gap: 6px; }
+.control label { font-size: 14px; color: var(--muted); }
+.control output { font-family: var(--display); font-size: 20px; color: var(--ink); }
+input[type="range"] { width: 100%; accent-color: var(--accent); }
+.results { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.calc-note { font-size: 13px; color: var(--muted); }
+
+.steps { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; }
+.footnote { font-size: 14px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 16px; }
+.contact { display: flex; flex-wrap: wrap; gap: 8px 24px; font-size: 16px; }
+.contact b { font-family: var(--display); font-weight: 500; }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* «Как это работает» — таймлайн со значками */
+.timeline { list-style: none; margin: 14px 0 28px; padding: 0; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 14px; position: relative; }
+.timeline.single { grid-auto-flow: row; }
+.tl-step { position: relative; display: flex; flex-direction: column; gap: 10px; }
+.timeline:not(.single) .tl-step:not(:last-child)::after { content: ""; position: absolute; left: 52px; right: -14px; top: 25px; height: 2px; background: var(--line); }
+.tl-dot { width: 52px; height: 52px; border-radius: 50%; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; position: relative; z-index: 1; box-shadow: 0 0 0 5px var(--bg); }
+.timeline.single .tl-step { flex-direction: row; align-items: flex-start; background: var(--accent-soft); border-radius: 12px; padding: 14px 16px; }
+.timeline.single .tl-dot { flex: 0 0 auto; box-shadow: none; }
+.tl-body b { display: block; font-size: 16px; }
+.tl-body p { margin: 4px 0 0; font-size: 14px; line-height: 1.45; color: var(--muted); }
+@media (max-width: 720px) {
+  .timeline { grid-auto-flow: row; gap: 0; }
+  .timeline:not(.single) .tl-step:not(:last-child)::after { left: 25px; right: auto; top: 52px; bottom: 0; width: 2px; height: auto; }
+  .tl-step { flex-direction: row; align-items: flex-start; gap: 14px; padding-bottom: 16px; }
+  .tl-dot { flex: 0 0 auto; }
+}
+.lim { text-align: center !important; } .lim span { display: block; font-size: 12px; color: var(--muted); }
+
+/* «Оптимизация городской сети» — два списка со значками */
+.ilists { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 8px 0 20px; }
+.ilists > div { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; }
+.ilists h3 { margin: 0 0 14px; font-size: 17px; }
+.ilist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.ilist li { display: flex; gap: 12px; align-items: flex-start; }
+.ilist .ic { flex: 0 0 40px; height: 40px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; }
+.ilist b { display: block; font-size: 15px; }
+.ilist li span:not(.ic) { display: block; font-size: 14px; line-height: 1.45; color: var(--muted); }
+.botfee td:nth-child(n+3), .botfee th:nth-child(n+3) { text-align: center !important; }
+.lv-t { table-layout: fixed; width: 100%; } .lv-t th:nth-child(1){width:20%} .lv-t th:nth-child(2){width:22%} .lv-t th:nth-child(3){width:30%} .lv-t th:nth-child(4){width:28%}
+.lv-t th, .lv-t td { white-space: normal !important; }
+.cb-t { table-layout: fixed; width: 100%; } .cb-t th, .cb-t td { white-space: normal !important; width: 25%; }
+
+.steps-ex { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; margin: 16px 0; }
+.steps-ex p { margin: 0 0 10px; } .steps-ex p:last-child { margin: 10px 0 0; }
+.steps-ex ol { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; }
+.own-t { table-layout: fixed; width: 100%; } .own-t th:first-child { width: 31%; }
+.own-t th:not(:first-child), .own-t td:not(:first-child) { text-align: center !important; white-space: normal !important; vertical-align: middle; }
+
+.ph-t th:nth-child(3), .ph-t th:nth-child(4) { white-space: normal !important; }
+.packs .pack:nth-child(3n+1):not(.best-pack) { background: var(--blush-soft); border-color: #ead9dc; }
+.packs .pack:nth-child(3n+2):not(.best-pack) { background: var(--accent-soft); border-color: #cfe0d9; }
+.packs .pack:nth-child(3n):not(.best-pack) { background: var(--cream-soft); border-color: #ece2c4; }
+.ilists > div:first-child .ic { background: #fff; }
+.ilists > div:first-child { background: var(--accent-soft); border-color: #cfe0d9; }
+.ilists > div:last-child { background: var(--cream-soft); border-color: #ece2c4; }
+.ilists > div:last-child .ic { background: #fff; color: var(--cream); }
+/* Телефон: та же таблица, что на компьютере, — мельче шрифт и отступы; блок с таблицей листается вбок, полоса прокрутки видна */
+@media (max-width: 720px) {
+  .table-frame { overflow-x: scroll; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: var(--accent) var(--line); }
+  .table-frame::-webkit-scrollbar { height: 6px; }
+  .table-frame::-webkit-scrollbar-track { background: var(--line); border-radius: 3px; }
+  .table-frame::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+  .table-frame table { font-size: 12px; min-width: 560px; }
+  .table-frame th, .table-frame td { padding: 6px 8px; }
+  .table-frame thead th { font-size: 10px; }
+  .table-frame .lim span { font-size: 10px; }
+  .table-frame table.lv-t, .table-frame table.cb-t, .table-frame table.own-t { table-layout: auto; min-width: 600px; }
+  .table-frame .pill { font-size: 10px; display: inline-block; margin-top: 4px; white-space: nowrap; }
+  /* «Открыть районный пункт самим или доверить нам»: первый столбец закреплён, остальные листаются */
+  .table-frame tr > :first-child { position: sticky; left: 0; z-index: 2; background: var(--surface); width: 132px !important; min-width: 132px; max-width: 132px; hyphens: auto; -webkit-hyphens: auto; overflow-wrap: anywhere; box-shadow: 2px 0 4px -2px rgba(35,41,45,.25); }
+  .table-frame td:not(:first-child), .table-frame th:not(:first-child) { min-width: 110px; }
+  .table-frame thead tr > :first-child { background: var(--bg); }
+}
+.soft-note { margin: 12px 0 0; padding: 12px 16px; border-radius: 10px; background: var(--accent-soft); color: var(--ink); font-size: 15px; }
+.tbl-title { margin: 20px 0 10px; font-size: 18px; }
+.combo-lead { font-size: 17px; margin: 8px 0 14px; }
+.cw-t td.num, .cw-t th.num { text-align: center; }
+.combo-ex { margin: 16px 0; padding: 18px 20px; border-radius: var(--radius); background: var(--ok-soft); border: 1px solid #cfe3d6; }
+.combo-ex p { margin: 0 0 8px; } .combo-ex ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
+.combo-res { margin: 12px 0 0 !important; font-weight: 700; color: var(--ok); font-size: 17px; }
+.pack-list { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+.best-pack .pack-list { color: var(--on-accent); }
+/* Телефон и узкий планшет: карточки друг под другом; планшет — не больше двух в ряд */
+@media (max-width: 760px) {
+  .packs, .ilists, .scheme, .calc, .controls { grid-template-columns: 1fr !important; }
+  .pack h2 { min-height: 0; }
+}
+@media (min-width: 761px) and (max-width: 1000px) {
+  .packs, .ilists { grid-template-columns: repeat(2, 1fr) !important; }
+  .calc { grid-template-columns: 1fr !important; }
+}
+.cta-row { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 10px; }
+.btn { display: inline-block; padding: 12px 22px; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-weight: 700; text-decoration: none; }
+.btn:hover { background: #3e5a52; }
+@media print { .cta-row { display: none; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">Коммерческое предложение</span>
+    <h1>Чат-бот BelCleanBot для вашей химчистки + новые пункты в регионах</h1>
+    <p class="lead">Клиент оформляет заказ в Telegram, видит предварительную цену по фото, платит с телефона и следит за заказом. Приёмщик сверяет вещь и печатает готовую квитанцию. На основе бота — два пакета.</p>
+    <div class="meta"><span>Вера Бакерова, BelCleanBot</span><span>Суммы в BYN и долларах, курс 3,01 BYN за $1</span></div>
+    <div class="cta-row"><a class="btn" href="https://verunch.github.io/belcleanbot-calculator/" target="_blank" rel="noopener">Калькулятор: доходы и расходы на ваших цифрах →</a></div>
+  </header>
+
+  <section>
+    <div class="packs">
+      <article class="pack">
+        <span class="eyebrow">Пакет 1</span>
+        <h2>«Оптимизация» — для города</h2>
+        <p>Только чат-бот в ваших городских пунктах. Приём заказов, оплата и статусы — в Telegram.</p>
+        <div class="price">от 4% <span class="small muted">от заказов через бот</span></div>
+        <ul class="pack-list">
+          <li>1 пункт — 5%, $70–280 в месяц</li>
+          <li>2 пункта — 4,3%, $60–253 за каждый</li>
+          <li>3 и больше — 4,0%, $60–253 за каждый</li>
+        </ul>
+      </article>
+      <article class="pack">
+        <span class="eyebrow">Пакет 2</span>
+        <h2>«Расширение» — районные пункты</h2>
+        <p>Пункт приёма под вашим брендом в райцентре, где у вас нет приёма. Бот обязателен, к нему — продвижение, а на выбор — наш приёмщик и помещение.</p>
+        <div class="price">от $120 <span class="small muted">в месяц за пункт</span></div>
+        <ul class="pack-list">
+          <li><b>Минимальный:</b> бот 4,3%, не менее $120, без максимума</li>
+          <li><b>Средний:</b> бот 4,3%, не менее $80 + пакет 13% от оборота, не менее $210</li>
+          <li><b>Полный:</b> бот 4,3%, не менее $80 + пакет 17% от оборота, не менее $300</li>
+        </ul>
+      </article>
+      <article class="pack best-pack">
+        <span class="eyebrow">Выгоднее всего</span>
+        <h2>«Комбо» — город + район</h2>
+        <p>Бот в ваших городских пунктах и районный пункт. Условие — бот минимум в 2 городских пунктах.</p>
+        <div class="price">дешевле <span class="small">пакет района и бот</span></div>
+        <ul class="pack-list">
+          <li>Средний: 12% вместо 13%, не менее $210</li>
+          <li>Полный: 15% вместо 17%, не менее $300</li>
+          <li>Бот в городе при 3+ пунктах — 3,7% вместо 4,0%</li>
+          <li>Простое внедрение — $280 вместо $350</li>
+        </ul>
+        <p class="small"><a href="#combo" style="color:inherit">Почему выгодно →</a></p>
+      </article>
+    </div>
+
+  </section>
+
+  <section>
+    <span class="eyebrow">Ваша выгода</span>
+    <h2>Новые клиенты без открытия своей химчистки</h2>
+    <div class="packs">
+      <article class="pack"><h3>Без своего цеха</h3><p>Пункт приёма в небольшом арендованном помещении вместо цеха: минимальный инвентарь (стойка, вешала, платёжный терминал) и наш готовый бот.</p></article>
+      <article class="pack"><h3>Активные и занятые</h3><p>Работающие, мамы с детьми: платят с телефона и передают вещь курьеру или родственнику по коду, не отрываясь от дел.</p></article>
+      <article class="pack"><h3>Клиенты из регионов</h3><p>Один рейс в неделю обслуживает районный пункт в ~140 км от Минска (~15:00), около 280 км туда и обратно. Второй пункт — на том же маршруте, в проработке. Вещи приезжают уже оплаченными.</p></article>
+      <article class="pack"><h3>Приёмщик — только в часы приёма</h3><p>Клиенты знают часы приёма и выдачи и подстраиваются: химчистка — не ежедневное дело. Около 450 BYN в месяц (предположительно) вместо ~1 155 BYN за полную ставку. С уровнями «Средний» и «Полный» своего сотрудника нет вовсе.</p></article>
+    </div>
+    <div class="bonus"><b>Новая выручка с одного районного пункта:</b> 7 500 BYN в месяц при 100 вещах и 15 000 BYN при 200 вещах (чек 75 BYN). Сколько остаётся вам при каждом уровне — в калькуляторе ниже.</div>
+  </section>
+
+  <section>
+    <span class="eyebrow">Как это работает</span>
+    <h2>В городе</h2>
+    <ol class="timeline"><li class="tl-step"><div class="tl-dot"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></div><div class="tl-body"><b>Заказ в боте</b><p>Фото, примерная цена, оплата заранее через ЕРИП.</p></div></li><li class="tl-step"><div class="tl-dot"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l1.5-5h15L21 9"/><path d="M4 9v11h16V9"/><path d="M9 20v-6h6v6"/><path d="M3 9h18"/></svg></div><div class="tl-body"><b>Сдать в пункт</b><p>Сам — по коду, сверка и фото дефектов. Или курьер / родственник: клиент отмечает это в боте и сам передаёт ему номер заказа и код.</p></div></li><li class="tl-step"><div class="tl-dot"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4a2 2 0 1 1 2 2c-1 0-2 .8-2 2v1"/><path d="M12 9L3 16h18z"/></svg></div><div class="tl-body"><b>Мастер и чистка</b><p>Итоговая цена — не выше цены после приёмки +20%, клиент согласился заранее. Сразу в работу.</p></div></li><li class="tl-step"><div class="tl-dot"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><path d="M9.5 14l2 2 3.5-4"/></svg></div><div class="tl-body"><b>Готово — забрать</b><p>Бот сообщает «готово» и присылает счёт на доплату. Забрать в пункте по коду — сам, курьер или родственник.</p></div></li></ol>
+    <h2>В регионе</h2>
+    <ol class="timeline"><li class="tl-step"><div class="tl-dot"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></div><div class="tl-body"><b>Заказ в боте</b><p>Фото, примерная цена, предоплата, выбор дня приёма из предложенных пунктом.</p></div></li><li class="tl-step"><div class="tl-dot"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l1.5-5h15L21 9"/><path d="M4 9v11h16V9"/><path d="M9 20v-6h6v6"/><path d="M3 9h18"/></svg></div><div class="tl-body"><b>Пункт приёма</b><p>Ср или сб: код, сверка, дефекты с фото при клиенте, бирка.</p></div></li><li class="tl-step"><div class="tl-dot"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 6h11v10H2z"/><path d="M13 9h4l4 4v3h-8"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg></div><div class="tl-body"><b>Рейс в четверг</b><p>Партия едет в химчистку по акту.</p></div></li><li class="tl-step"><div class="tl-dot"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4a2 2 0 1 1 2 2c-1 0-2 .8-2 2v1"/><path d="M12 9L3 16h18z"/></svg></div><div class="tl-body"><b>Мастер</b><p>Итоговая цена — не выше цены после приёмки +20%, сразу в работу.</p></div></li><li class="tl-step"><div class="tl-dot"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 6H11v10h11z"/><path d="M11 9H7l-4 4v3h8"/><circle cx="18" cy="17.5" r="1.8"/><circle cx="7" cy="17.5" r="1.8"/></svg></div><div class="tl-body"><b>Рейс обратно</b><p>Чистые вещи — тем же четверговым рейсом.</p></div></li><li class="tl-step"><div class="tl-dot"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/><path d="M9.5 14l2 2 3.5-4"/></svg></div><div class="tl-body"><b>Выдача</b><p>Бот сообщает «готово» и присылает счёт на доплату; после оплаты — выдача по коду.</p></div></li></ol>
+    <ol class="timeline single"><li class="tl-step"><div class="tl-dot"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg></div><div class="tl-body"><b>Клиент без смартфона</b><p>Приёмщик оформляет заказ за клиента — клиент подписывает согласие на обработку данных. Оплата: ЕРИП с помощью оператора или квитанция ЕРИП, оплаченная заранее по номеру заказа; если иначе никак — терминал или наличные с квитанцией.</p></div></li></ol>
+  </section>
+
+  <section>
+    <div class="bonus"><b>Цена для клиента.</b> Цена по фото — предварительная. Окончательную называет мастер, но не выше цены после приёмки +20%: если работа стоит дороже, мастер применяет скидку. Клиент осознанно соглашается с этим при оформлении заказа. Доплата выставляется вместе с уведомлением о готовности; без окончательного расчёта вещь не выдаётся.</div>
+  </section>
+
+  <section>
+    <span class="eyebrow">Кто что обеспечивает</span>
+    <h2>Во всех пакетах</h2>
+    <div class="table-frame">
+      <table>
+        <thead><tr><th>Услуга</th><th>Кто</th></tr></thead>
+        <tbody class="always">
+          <tr><td>Чат-бот: заказ, фото, цена, оплата, статусы, квитанции и бирки, статистика, поддержка</td><td class="who-us">всегда мы</td></tr>
+          <tr><td>Продвижение в местных каналах, информирование жителей</td><td class="who-us">мы — в пакете «Расширение»</td></tr>
+          <tr><td>Транспорт — рейс в райцентры и обратно</td><td class="who-them">всегда Химчистка</td></tr>
+          <tr><td>Инвентарь — стойка, вешала, платёжный терминал (оплата картой в пункте) и касса для наличных</td><td class="who-them">всегда Химчистка</td></tr>
+          <tr><td>Чистка, оценка вещей мастером, прайс</td><td class="who-them">всегда Химчистка</td></tr>
+          <tr><td>Аренда помещения и коммунальные платежи</td><td>химчистка или мы — в зависимости от пакета</td></tr>
+          <tr><td>Приёмщик в районном пункте</td><td>химчистка или мы — в зависимости от пакета</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <span class="eyebrow">Пакет 1</span>
+    <h2>«Оптимизация» — для города</h2>
+    <div class="ilists"><div><h3>Клиентам — удобнее, клиентов — больше</h3><ul class="ilist"><li><span class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg></span><div><b>Оплата с телефона</b><span>через ЕРИП, без очереди на кассе</span></div></li><li><span class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2c2.9.3 5 2.6 5 5.8"/></svg></span><div><b>Курьер или родственник</b><span>сдаёт и забирает вещь по номеру заказа и коду</span></div></li><li><span class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/></svg></span><div><b>Клиенты без смартфона</b><span>приёмщик оформляет в том же боте; оплата — ЕРИП, при невозможности — терминал или наличные</span></div></li><li><span class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span><div><b>Примерная цена по фото</b><span>предел итоговой цены известен заранее</span></div></li><li><span class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg></span><div><b>Статус и «готово» в мессенджере</b><span>не нужно звонить и спрашивать</span></div></li></ul></div><div><h3>Персоналу — проще</h3><ul class="ilist"><li><span class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg></span><div><b>Без бумажной рутины</b><span>готовая квитанция и бирка с QR</span></div></li><li><span class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4"/><path d="M9 13h6M9 17h4"/></svg></span><div><b>Электронный документооборот</b><span>версии квитанции, акты, выгрузка в учёт</span></div></li><li><span class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/></svg></span><div><b>Меньше наличных</b><span>и меньше операций на кассе</span></div></li><li><span class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg></span><div><b>Меньше споров при выдаче</b><span>дефекты сфотографированы, цена согласована, выдача по коду</span></div></li></ul></div></div>
+    <div class="table-frame">
+      <table>
+        <thead><tr><th>Ежемесячно за каждый пункт</th><th>Один пункт*</th><th>2 пункта</th><th>3 и больше</th><th style="color:var(--accent)">«Комбо», 3+ городских</th></tr></thead>
+        <tbody>
+          <tr><td>Процент от выручки через бот</td><td>5%</td><td>4,3%</td><td>4,0%</td><td><b>3,7%</b></td></tr>
+          <tr><td>Минимум</td><td>$70</td><td>$60</td><td>$60</td><td><b>$50</b></td></tr>
+          <tr><td>Максимум</td><td>$280</td><td>$253</td><td>$253</td><td><b>$230</b></td></tr>
+          <tr><td>Поддержка бота в часы работы пунктов</td><td>входит</td><td>входит</td><td>входит</td><td>входит</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small muted"><b>В районном пункте минимум бота выше:</b> не менее $80 в месяц на уровнях «Средний» и «Полный»; на уровне «Минимальный» — не менее $120, без максимума.</p>
+    <div class="table-frame">
+      <table class="botfee">
+        <thead><tr><th>Заказов через бот в месяц</th><th class="num">Выручка через бот</th><th class="num">1 пункт</th><th class="num">2 пункта</th><th class="num">3+ пунктов</th><th class="num">«Комбо», 3+ городских</th></tr></thead>
+        <tbody>
+          <tr><td>100</td><td class="num">4 000 BYN</td><td class="num lim"><span>минимум:</span>$70</td><td class="num lim"><span>минимум:</span>$60</td><td class="num lim"><span>минимум:</span>$60</td><td class="num lim"><span>минимум:</span><b>$50</b></td></tr>
+          <tr><td>200</td><td class="num">8 000 BYN</td><td class="num">$133</td><td class="num">$114</td><td class="num">$106</td><td class="num"><b>$98</b></td></tr>
+          <tr><td>300</td><td class="num">12 000 BYN</td><td class="num">$199</td><td class="num">$171</td><td class="num">$159</td><td class="num"><b>$148</b></td></tr>
+          <tr><td>500</td><td class="num">20 000 BYN</td><td class="num lim"><span>максимум:</span>$280</td><td class="num lim"><span>максимум:</span>$253</td><td class="num lim"><span>максимум:</span>$253</td><td class="num lim"><span>максимум:</span><b>$230</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small muted">Пример: средний чек 40 BYN. Вы платите только с заказов, прошедших через бот, и не больше максимума. * Цена за один пункт — для химчистки с одним пунктом приёма.</p>
+    <p><b>Пунктов несколько — начните с двух, в разных районах.</b> Один пункт не покажет, как бот работает у разных клиентов; два — покажут. Подойдёт — остальные пункты подключаются по 4,0%, в «Комбо» — по 3,7%, без новой платы за внедрение.</p>
+    <div class="bonus"><b>Опция: курьер по городу.</b> Если у вас есть или будет своя или наёмная служба доставки: клиент выбирает «забрать», «привезти» или «туда и обратно» и пишет адрес; курьер получает заявки, предлагает клиенту время и видит маршрут на день; вещь передаётся по коду. Когда заказ готов, курьер узнаёт первым. Стоимость доставки — ваш тариф.</div>
+  </section>
+
+  <section>
+    <span class="eyebrow">Пакет 2</span>
+    <h2>«Расширение» — районные пункты</h2>
+    <p>Один или два районных пункта на одном маршруте: пункт 1 — райцентр в ~140 км от Минска (ср 15:00–19:30, сб 11:00–17:30), второй пункт на том же маршруте — в проработке. В пункте 1 по нашему опросу 498 из 601 ответивших (83%) сказали, что пункт химчистки нужен. Один рейс по четвергам. Вещи приходят оплаченными и с фото дефектов, подтверждёнными клиентом. Названия и адреса — на встрече.</p>
+    <h3 class="tbl-title">Расчёт расходов за услугу в месяц</h3>
+    <div class="table-frame">
+      <table class="lv-t">
+        <thead><tr><th>Уровень</th><th class="lv-what">Что даём мы</th><th>Плата нам за пункт в месяц</th><th class="num">Пример: 2 пункта по 100 вещей, выручка пункта 7 500 BYN</th></tr></thead>
+        <tbody>
+          <tr><td><b>Минимальный</b></td><td>чат-бот, продвижение</td><td>только бот: 4,3% от выручки пункта, не менее $120 (361 BYN), без максимума</td><td class="num"><b>361 BYN</b><br><span class="small muted">4,3% = 323 — меньше минимума</span><br><span class="small" style="color:var(--accent)">в «Комбо» — так же</span></td></tr>
+          <tr><td><b>Средний</b> <span class="pill">без забот о персонале</span></td><td>чат-бот, продвижение, приёмщик</td><td>бот: 4,3% от выручки, от $80 до $253<br>+ пакет: 13% от выручки, не менее $210 (632 BYN)</td><td class="num">323 + 975 = <b>1 298 BYN</b><br><span class="small" style="color:var(--accent)">в «Комбо»: 300 + 900 = 1 200 BYN</span></td></tr>
+          <tr><td><b>Полный (под ключ)</b></td><td>чат-бот, продвижение, приёмщик, помещение с арендой и коммунальными</td><td>бот: 4,3% от выручки, от $80 до $253<br>+ пакет: 17% от выручки, не менее $300 (903 BYN); аренда и коммунальные — наши</td><td class="num">323 + 1 275 = <b>1 598 BYN</b><br><span class="small" style="color:var(--accent)">в «Комбо»: 300 + 1 125 = 1 425 BYN</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small muted">Выручка пункта — все вещи, принятые в районном пункте (все оформляются через бот). Бот — 5%, если пункт у вас один; 4,3%, если 2 пункта; 4,0%, если 3 и больше (в «Комбо» их всегда 3 и больше). В «Комбо» пакет дешевле: «Средний» — 12% вместо 13%, «Полный» — 15% вместо 17%, минимумы те же. Транспорт и инвентарь (стойка, вешала, терминал, касса) — всегда химчистка. Наш приёмщик обучен работе с ботом: вам не нужно искать, обучать и подменять человека.</p>
+    <p class="soft-note">Это наше стартовое предложение. Мы открыты к обсуждению: если у вас другая схема работы или другие объёмы — давайте обсудим на встрече.</p>
+  </section>
+
+  <section id="combo">
+    <span class="eyebrow">Выгоднее всего</span>
+    <h2>Почему «Комбо» выгодно</h2>
+    <p class="combo-lead"><b>Суть «Комбо»:</b> В «Комбо» дешевле обходятся и бот в ваших городских пунктах, и подключение нового районного пункта. Услуга внедрения тоже стоит дешевле.</p>
+    <div class="table-frame">
+      <table class="cw-t">
+        <thead><tr><th>Что дешевле</th><th class="num">Без «Комбо»</th><th class="num">В «Комбо»</th></tr></thead>
+        <tbody>
+          <tr><td>Районный пункт, пакет «Средний»</td><td class="num">13%</td><td class="num"><b>12%</b></td></tr>
+          <tr><td>Районный пункт, пакет «Полный»</td><td class="num">17%</td><td class="num"><b>15%</b></td></tr>
+          <tr><td>Бот в районном пункте</td><td class="num">4,3%</td><td class="num"><b>4,0%</b></td></tr>
+          <tr><td>Бот в городском пункте, от 3 пунктов</td><td class="num">4,0%</td><td class="num"><b>3,7%</b></td></tr>
+          <tr><td>Простое внедрение, разово</td><td class="num">$350</td><td class="num"><b>$280</b></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="combo-ex">
+      <p><b>Пример: 2 районных пункта «Полный» по 100 вещей в месяц.</b></p>
+      <ul>
+        <li>Без «Комбо» вы платите нам: <b>3 195 BYN</b> в месяц (по 1 597,50 за пункт).</li>
+        <li>В «Комбо»: 2 × 1 425 = <b>2 850 BYN</b> — на <b>345 BYN</b> меньше.</li>
+        <li>Бот в 2 городских пунктах стоит <b>361 BYN</b> в месяц (по минимуму).</li>
+      </ul>
+      <p class="combo-res">Скидка покрывает 96% платы за бот в городе: бот в 2 городских пунктах обходится вам всего в 16 BYN в месяц.</p>
+    </div>
+    <h3 style="margin-top:24px">Ещё пример — уровень «Средний»</h3>
+    <div class="steps-ex">
+      <p><b>Пример.</b> 2 районных пункта («Средний») по 100 вещей в месяц, чек 75 BYN. 2 ваших городских пункта по 100 заказов через бот, чек 40 BYN.</p>
+      <ol>
+        <li><b>Только районные пункты:</b> бот 4,3% + пакет 13% = 1 298 BYN за пункт × 2 = <b>2 595 BYN</b> в месяц.</li>
+        <li><b>Добавили бот в 2 городских пунктах — это «Комбо».</b> Районные пункты дешевле: бот 4,0% + пакет 12% = 1 200 BYN × 2 = <b>2 400 BYN</b>.</li>
+        <li><b>Бот в городе:</b> минимум $60 = 181 BYN за пункт × 2 = <b>361 BYN</b>.</li>
+        <li><b>Итого в «Комбо»:</b> 2 400 + 361 = <b>2 761 BYN</b> — всего на 166 BYN больше, чем без города.</li>
+      </ol>
+      <p style="color:var(--ok)"><b>Бот в 2 городских пунктах обходится вам в 166 BYN вместо 361 BYN в месяц.</b></p>
+    </div>
+    <div class="table-frame">
+      <table class="cb-t">
+        <thead><tr><th class="num">Вещей в районном / заказов в городском пункте</th><th class="num">Только 2 районных пункта</th><th class="num">«Комбо»: 2 районных + бот в 2 городских</th><th class="num">Бот в городе обходится вам</th></tr></thead>
+        <tbody><tr><td class="num">50 / 100</td><td class="num">Вы платите нам: <b>1 746 BYN</b><br>Ваша прибыль: <b style="color:var(--ok)">4 819 BYN</b></td><td class="num">Вы платите нам: <b>2 107 BYN</b><br><span class="small muted">район 1 746 + город 361</span><br>Ваша прибыль: <b style="color:var(--ok)">4 458 BYN</b></td><td class="num">361 BYN<br><span class="small muted">как отдельно — пока минимумы</span></td></tr><tr><td class="num">100 / 100</td><td class="num">Вы платите нам: <b>2 595 BYN</b><br>Ваша прибыль: <b style="color:var(--ok)">11 470 BYN</b></td><td class="num">Вы платите нам: <b>2 761 BYN</b><br><span class="small muted">район 2 400 + город 361</span><br>Ваша прибыль: <b style="color:var(--ok)">11 304 BYN</b></td><td class="num" style="color:var(--ok)"><b>166 BYN</b><br><span class="small">вместо 361</span></td></tr><tr><td class="num">200 / 200</td><td class="num">Вы платите нам: <b>5 190 BYN</b><br>Ваша прибыль: <b style="color:var(--ok)">23 875 BYN</b></td><td class="num">Вы платите нам: <b>5 440 BYN</b><br><span class="small muted">район 4 800 + город 640</span><br>Ваша прибыль: <b style="color:var(--ok)">23 625 BYN</b></td><td class="num" style="color:var(--ok)"><b>250 BYN</b><br><span class="small">вместо 688</span></td></tr></tbody>
+      </table>
+    </div>
+    <p class="small muted">Уровень «Средний». Ваша прибыль — выручка районных пунктов (75 BYN за вещь) минус плата нам, ваша аренда (предположительно 250 BYN за пункт) и рейс (предположительно 435 BYN на оба пункта); до себестоимости чистки. Выручка городских пунктов у вас есть и без бота, поэтому в прибыль не входит. Чек в городе — 40 BYN. Пока заказов мало, действуют минимумы: бот в городе стоит как отдельно. Когда заказов больше, скидка на пакет района («Средний» −1%, «Полный» −2%) и бот 4,0% вместо 4,3% окупают большую часть платы за бот в городе. С 3 городских пунктов бот в городе — 3,7% за каждый.</p>
+    <h3 style="margin-top:28px">Кроме цены</h3>
+    <div class="ilists"><div><ul class="ilist"><li><span class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg></span><div><b>Имидж</b><span>Один современный сервис под вашим брендом — и в Минске, и в райцентрах: заказ с фото, оплата с телефона, статусы в мессенджере. Для клиентов вы — сеть, которая сама идёт к ним, а не ждёт у приёмки.</span></div></li></ul></div><div><ul class="ilist"><li><span class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></span><div><b>Оптимизация работы</b><span>Одна система на все пункты: единые квитанции и бирки с QR, статистика по каждому пункту, выгрузка в учёт. Меньше бумаг, звонков «готово ли?» и споров при выдаче — в городе и в районе одинаково.</span></div></li></ul></div></div>
+    <h3>Открыть районный пункт самим или доверить нам</h3>
+    <p class="small muted">Один районный пункт, 50 вещей в месяц. Бот при одном пункте — 5%.</p>
+    <div class="table-frame">
+      <table class="own-t">
+        <thead><tr><th>Что нужно районному пункту</th><th>Делаете сами, у нас — бот и продвижение («Минимальный»)</th><th>Наш приёмщик, помещение ваше («Средний»)</th><th>Всё делаем мы («Полный»)</th></tr></thead>
+        <tbody>
+          <tr><td>Плата нам в месяц</td><td class="num">361 BYN</td><td class="num">873 BYN</td><td class="num">1 144 BYN</td></tr>
+          <tr><td>Зарплата вашему приёмщику (предположительно)</td><td class="num">450 BYN</td><td class="num">—</td><td class="num">—</td></tr>
+          <tr><td>Ваша аренда с коммунальными (предположительно)</td><td class="num">250 BYN</td><td class="num">250 BYN</td><td class="num">—</td></tr>
+          <tr><td>Рейс — ваша машина (предположительно)</td><td class="num">435 BYN</td><td class="num">435 BYN</td><td class="num">435 BYN</td></tr>
+          <tr><td><b>Всего расходов на пункт в месяц</b></td><td class="num"><b>1 496 BYN</b></td><td class="num"><b>1 558 BYN</b></td><td class="num"><b>1 579 BYN</b></td></tr>
+          <tr><td>Найти, нанять, обучить, подменить приёмщика; зарплата и отчёты</td><td>вы</td><td>мы</td><td>мы</td></tr>
+          <tr><td>Найти помещение, договор и платежи арендодателю</td><td>вы</td><td>вы</td><td>мы</td></tr>
+          <tr><td>Сколько времени до открытия</td><td>недели на поиск человека и помещения</td><td>недели на поиск помещения</td><td>пункт готов к первому рейсу</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small muted">При 100 вещах всего расходов: 1 510 / 2 035 / 2 085 BYN; при 200 вещах: 1 885 / 3 385 / 3 735 BYN. Бот при одном пункте — 5%.</p>
+    <ul class="small" style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px">
+      <li><b>«Полный» дороже «Среднего»</b> — помещение ищем, снимаем и оплачиваем мы (аренда и коммунальные — в нашей плате).</li>
+      <li><b>«Средний» и «Полный» дороже «Минимального»</b> — это плата за то, что вам не нужно искать, нанимать, обучать и подменять человека: вы привозите и увозите вещи и платите один счёт.</li>
+      <li><b>Открытие быстрее:</b> пункт открывается к первому рейсу, без недель на поиск человека и помещения.</li>
+    </ul>
+  </section>
+
+  <section id="phases">
+    <span class="eyebrow">Без риска</span>
+    <h2>Один или два пункта на одном рейсе — второй через 3–6 месяцев</h2>
+    <div class="table-frame">
+      <table>
+        <thead><tr><th>Пункт</th><th>Где</th><th class="num">Жителей в населённом пункте</th><th class="num">Жителей в зоне пункта (район)</th><th class="num">От Минска по дороге</th></tr></thead>
+        <tbody>
+          <tr><td><b>Пункт 1</b></td><td>райцентр</td><td class="num">~11 тыс.</td><td class="num">~19 тыс.</td><td class="num">~140 км; туда и обратно ~280 км</td></tr>
+          <tr><td><b>Пункт 2</b></td><td>на том же маршруте — в проработке</td><td class="num">—</td><td class="num">—</td><td class="num">по пути</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><b>Спрос в пункте 1.</b> Мы провели опрос в местном Telegram-канале города: из <b>601</b> ответивших <b>498 (83%)</b> сказали, что пункт приёма химчистки в городе действительно нужен; 103 (17%) не видят необходимости. Опрос шёл неделю, 20–27 октября 2026 года.</p>
+    <p class="small muted">Сейчас мы можем предложить открытие одного или двух пунктов. Можно начать с одного и остановиться на нём — или подключить оба по очереди. При возможности предложим больше вариантов: другие райцентры и маршруты под ваш транспорт. Население — официальная статистика (2019–2026), расстояния — OpenStreetMap. Названия и адреса — на встрече.</p>
+    <div class="table-frame">
+      <table class="ph-t">
+        <thead><tr><th>Когда</th><th>Что подключаем</th><th class="num">Вы платите нам в месяц</th><th class="num">Ваша прибыль в месяц</th></tr></thead>
+        <tbody>
+          <tr><td><b>Месяц 1</b></td><td>Районный пункт 1 (~140 км, по опросу 83% — за пункт) + бот в 2 ваших городских пунктах («Комбо»). Внедрение $280<br><span class="small muted">Дальше — когда пункт принимает вещи и рейс работает</span></td><td class="num">361 + 361 = <b>722 BYN</b></td><td class="num" style="color:var(--ok)"><b>1 893 BYN</b><br><span class="small">~$629</span></td></tr>
+          <tr><td><b>Месяцы 3–6</b></td><td>Второй пункт (в проработке), тот же рейс<br><span class="small muted">Дальше — когда оба пункта набирают заказы</span></td><td class="num">+ 361 = <b>1 084 BYN</b></td><td class="num" style="color:var(--ok)"><b>4 581 BYN</b><br><span class="small">~$1 522</span></td></tr>
+          <tr><td><b>Дальше</b></td><td>Бот во всех городских пунктах, новые райцентры, интеграция с учётом<br><span class="small muted">По итогам двух пунктов</span></td><td class="num">+ от 150 BYN за городской пункт</td><td class="num" style="color:var(--ok)">растёт с каждым районным пунктом</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="small muted">Уровень «Минимальный», до 50 вещей в районном пункте и до 100 заказов в городском. Ваша прибыль — выручка районных пунктов (50 вещей × 75 BYN = 3 750 BYN за пункт) минус плата нам, зарплата вашего приёмщика (предположительно 450 BYN), ваша аренда (предположительно 250 BYN) и рейс (предположительно 435 BYN на весь маршрут); до себестоимости чистки. При 100 вещах в каждом пункте прибыль — 5 643 BYN с одним пунктом и 12 081 BYN с двумя. «Средний» — от 873 BYN, «Полный» — от 1 144 BYN за районный пункт. Если заказов больше, плата растёт вместе с вашей выручкой.</p>
+  </section>
+
+  <section aria-labelledby="calc-title">
+    <span class="eyebrow">Посчитайте сами</span>
+    <h2 id="calc-title">Что остаётся вам с одного районного пункта</h2>
+    <p class="small muted" style="margin:6px 0 14px">Здесь — короткий расчёт. Подробно, по каждой статье доходов и расходов и для «Комбо», — в <a href="https://verunch.github.io/belcleanbot-calculator/" target="_blank" rel="noopener">калькуляторе</a>.</p>
+    <div class="calc">
+      <div class="controls">
+        <div class="control">
+          <label for="items">Вещей в месяц</label>
+          <output id="items-out" for="items">100</output>
+          <input id="items" type="range" min="20" max="400" step="10" value="100">
+        </div>
+        <div class="control">
+          <label for="check">Средний чек, BYN</label>
+          <output id="check-out" for="check">75</output>
+          <input id="check" type="range" min="30" max="150" step="5" value="75">
+        </div>
+        <div class="control">
+          <label for="rent">Аренда и коммунальные, BYN в месяц</label>
+          <output id="rent-out" for="rent">250</output>
+          <input id="rent" type="range" min="0" max="1200" step="5" value="250">
+        </div>
+        <div class="control">
+          <label for="staff">Зарплата вашего приёмщика, BYN в месяц</label>
+          <output id="staff-out" for="staff">450</output>
+          <input id="staff" type="range" min="0" max="1500" step="5" value="450">
+        </div>
+        <div class="control">
+          <label for="trip">Рейс — ваша машина, BYN в месяц</label>
+          <output id="trip-out" for="trip">435</output>
+          <input id="trip" type="range" min="0" max="1500" step="5" value="435">
+        </div>
+      </div>
+      <div class="results">
+        <div class="table-frame">
+          <table>
+            <thead><tr><th>Уровень</th><th class="num">Наша плата<br>(бот + уровень)</th><th class="num">Аренда</th><th class="num">Ваш приёмщик</th><th class="num">Рейс</th><th class="num">Остаётся вам</th></tr></thead>
+            <tbody id="calc-body"></tbody>
+          </table>
+        </div>
+        <p class="calc-note" id="calc-turnover"></p>
+        <p class="calc-note"><b>Аренда (250 BYN), зарплата приёмщика (450 BYN) и рейс (435 BYN) — предположительные, приблизительные суммы.</b> Подставьте свои — передвиньте ползунки. Аренду вы платите сами в уровнях «Минимальный» и «Средний», зарплату приёмщика — в «Минимальном». Расчёт — для одного районного пункта (бот 5%), как в калькуляторе. «Остаётся вам» — после рейса, до себестоимости чистки. В строках «Комбо» плата за бот в городских пунктах не учтена — см. «Почему «Комбо» выгодно».</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <span class="eyebrow">Разово на всю сеть</span>
+    <h2>Внедрение</h2>
+    <div class="table-frame">
+      <table>
+        <thead>
+          <tr><th></th><th></th><th class="num" colspan="2">Без «Расширения»</th><th class="num" colspan="2" style="color:var(--accent)">С «Расширением» и в «Комбо»</th></tr>
+          <tr><th>Вариант</th><th>Что входит</th><th class="num">Мы делаем<br>всё</th><th class="num">С вашим<br>специалистом</th><th class="num">Мы делаем<br>всё</th><th class="num">С вашим<br>специалистом</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><b>1. Простое</b></td><td>Вносим ваш прайс, пункты, график и тексты; обучаем приёмщиков; тестовый запуск на 2–3 пунктах; выгрузка в Excel</td><td class="num">$350</td><td class="num"></td><td class="num"><b>$280</b></td><td class="num"></td></tr>
+          <tr><td><b>2. С подключением ваших систем</b></td><td>Вариант 1 + оплата на ваш счёт (ваш банк, ЕРИП) и ваше оборудование (касса, принтер квитанций и бирок)</td><td class="num">+ $500–1 000</td><td class="num">+ $110–350</td><td class="num"><b>+ $475–950</b></td><td class="num"><b>+ $105–333</b></td></tr>
+          <tr><td><b>3. Интеграция и поддержка</b></td><td>Вариант 2 + бот сам передаёт заказы в вашу программу учёта (1С, Агбис и другие), статусы приходят клиенту</td><td class="num">+ $1 000–2 500</td><td class="num">+ $110–350</td><td class="num"><b>+ $950–2 375</b></td><td class="num"><b>+ $105–333</b></td></tr>
+          <tr><td>Поддержка интеграции</td><td>Исправления и доработки обмена данными после гарантии</td><td class="num">от $100 в месяц<br><span class="small">сверх 3 часов — $35/ч</span></td><td class="num">ваш специалист</td><td class="num">от $100 в месяц</td><td class="num">ваш специалист</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul class="small muted" style="margin:12px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:6px">
+      <li><b>Новые пункты</b> к работающему боту — без новой платы за внедрение.</li>
+      <li>Если у пункта своя касса или отдельная база учёта — её подключение по вариантам 2–3.</li>
+      <li>Мы отвечаем за бот и обмен данными, вы — за свою программу учёта, кассу и данные в них.</li>
+      <li>Подключение — сначала на тестовой копии, затем на рабочей после вашего письменного согласия.</li>
+      <li>Приёмка — по акту.</li>
+    </ul>
+  </section>
+
+  <section>
+    <span class="eyebrow">Как начать</span>
+    <h2>Шаги</h2>
+    <ol class="steps">
+      <li>Встреча и демонстрация бота — 30–60 минут.</li>
+      <li>Выбор пакета, уровня и варианта внедрения.</li>
+      <li>Согласование пилота: рейс по четвергам, прайс, правила изменения цены мастером, акт приёма-передачи.</li>
+      <li>Пилот на 3 месяца: районные пункты и/или 2 городских пункта в разных районах.</li>
+      <li>Ежемесячный отчёт по пунктам: заказы, отказы, выручка.</li>
+      <li>По итогам пилота — решение о подключении остальных пунктов и об интеграции.</li>
+    </ol>
+    <p class="small muted">Для старта нужны: прайс, контактное лицо по логистике, согласие на рейс по четвергам.</p>
+  </section>
+
+  <section>
+    <p class="footnote">* Viber-бот создаём отдельно, по вашему запросу, если при вашем потоке заказов это окажется рентабельно: Viber берёт плату за каждого бота и за уведомления клиентам. Стоимость рассчитаем отдельно.</p>
+    <div class="contact">
+      <b>Вера Бакерова</b>
+      <span>+375 29 574 58 70</span>
+      <span>Telegram: @verabakea</span>
+      <span>verbapho@gmail.com</span>
+    </div>
+  </section>
+</div>
+
+<script>
+// Мобильный вид таблиц: строка — карточка, у каждой ячейки подпись из шапки (28.10.2026)
+function stackLabel(t) {
+  const hr = [...t.querySelectorAll('thead tr')];
+  if (!hr.length) return;
+  const labels = [];
+  hr.forEach((tr) => {
+    let c = 0;
+    [...tr.children].forEach((th) => {
+      const span = th.colSpan || 1, txt = th.innerHTML.replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+      for (let k = 0; k < span; k++) { if (txt) labels[c + k] = labels[c + k] ? labels[c + k] + ' · ' + txt : txt; }
+      c += span;
+    });
+  });
+  t.querySelectorAll('tbody tr').forEach((tr) => {
+    let c = 0;
+    [...tr.children].forEach((td) => { td.dataset.label = labels[c] || ''; c += td.colSpan || 1; });
+  });
+  t.classList.add('stack');
+}
+
+(function () {
+  const RATE = 3.01; // BYN за $1
+  // D-42: Минимальный — бот и продвижение по цене бота (4,3%, не менее $120, без максимума);
+  // Средний — бот (не менее $80) + 13%, не менее $210; Полный — бот + 17%, не менее $300 (D-43); «Комбо» — Средний −1%, Полный −2% (D-45), бот 4,0%
+  const BOT = { pct: 0.05, minUsd: 80, maxUsd: 280 }; // один районный пункт — как в калькуляторе
+  const LEVELS = [
+    { name: 'Минимальный', botOnly: true, ownStaff: true, ownRent: true },
+    { name: 'Средний', pct: 0.13, minUsd: 210, ownStaff: false, ownRent: true },
+    { name: 'Средний в «Комбо»', pct: 0.12, minUsd: 210, botPct: 0.04, botMax: 253, ownStaff: false, ownRent: true },
+    { name: 'Полный (под ключ)', pct: 0.17, minUsd: 300, ownStaff: false, ownRent: false },
+    { name: 'Полный в «Комбо»', pct: 0.15, minUsd: 300, botPct: 0.04, botMax: 253, ownStaff: false, ownRent: false },
+  ];
+  const fmt = (n) => Math.round(n).toLocaleString('ru-RU').replace(/ /g, ' ');
+  const byn = (n) => fmt(n) + ' BYN';
+  const usd = (n) => '~$' + fmt(n / RATE);
+  const ids = ['items', 'check', 'rent', 'staff', 'trip'];
+  const el = (id) => document.getElementById(id);
+
+  function render() {
+    const v = Object.fromEntries(ids.map((id) => [id, Number(el(id).value)]));
+    ids.forEach((id) => { el(id + '-out').textContent = fmt(v[id]); });
+    const turnover = v.items * v.check;
+    const rows = LEVELS.map((l) => {
+      const fee = l.botOnly ? Math.max(turnover * BOT.pct, 120 * RATE)
+        : Math.min(Math.max(turnover * (l.botPct || BOT.pct), BOT.minUsd * RATE), (l.botMax || BOT.maxUsd) * RATE)
+          + Math.max(turnover * l.pct, l.minUsd * RATE) + (l.plusUsd || 0) * RATE;
+      const staff = l.ownStaff ? v.staff : 0;
+      const rent = l.ownRent ? v.rent : 0;
+      return { ...l, fee, staff, rent, trip: v.trip, rest: turnover - fee - rent - staff - v.trip };
+    });
+    el('calc-body').innerHTML = rows.map((r) =>
+      '<tr>' +
+      '<td><b>' + r.name + '</b></td>' +
+      '<td class="num">' + byn(r.fee) + '</td>' +
+      '<td class="num">' + (r.rent ? byn(r.rent) : '—') + '</td>' +
+      '<td class="num">' + (r.staff ? byn(r.staff) : '—') + '</td>' +
+      '<td class="num">' + (r.trip ? byn(r.trip) : '—') + '</td>' +
+      '<td class="num"><b>' + byn(r.rest) + '</b><br><span class="small muted">' + usd(r.rest) + '</span></td></tr>'
+    ).join('');
+    stackLabel(el('calc-body').closest('table'));
+    el('calc-turnover').textContent = 'Оборот пункта: ' + byn(turnover) + ' (' + usd(turnover) + ') в месяц.';
+  }
+  ids.forEach((id) => el(id).addEventListener('input', render));
+  render();
+})();
+</script>
+</body>
+</html>
