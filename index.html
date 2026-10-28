@@ -206,26 +206,20 @@ section.card.intro h2::after { content: ""; display: block; width: 48px; height:
 section.card.intro h3 { font-family: 'Golos Text', Arial, sans-serif; font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 44px 0 16px; }
 section.card.intro h2 + h3 { margin-top: 28px; }
 @media (max-width: 600px) { .wrap { padding-top: 40px; } }
-/* Телефон (28.10.2026): таблица цен бота — карточки; таблица расчёта — прокрутка вбок с закреплённой первой колонкой */
+/* Телефон: те же таблицы, что на компьютере, — мельче шрифт и отступы; блок с таблицей листается вбок, полоса прокрутки видна (как в КП) */
 @media (max-width: 720px) {
-  table.ptable.stack thead { display: none; }
-  table.ptable.stack, table.ptable.stack tbody, table.ptable.stack tr, table.ptable.stack td { display: block; width: 100% !important; }
-  table.ptable.stack tr { padding: 12px 14px; border-bottom: 1px solid var(--line); }
-  table.ptable.stack td { border: 0 !important; padding: 4px 0 !important; }
-  table.ptable.stack td.calc-col { margin-top: 6px; padding: 8px 10px !important; border-radius: 10px; }
-  table.ptable.stack td::before { content: attr(data-label); display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 2px; }
-  table.ptable.stack td.pn::before { display: none; }
-  /* таблица расчёта: прокрутка вбок, первая колонка с названиями строк закреплена */
-  table.mtable { min-width: 0; width: max-content; }
-  table.mtable #head th:nth-child(n+3), table.mtable tbody td:nth-child(n+3) { min-width: 190px; max-width: 220px; }
-  table.mtable td.param, table.mtable #head th:nth-child(2) { min-width: 120px; }
-  table.mtable td:first-child { font-size: 13px; line-height: 1.35; }
-  table.mtable #head th small { display: none; } /* описания тарифов — в карточках выше */
-  table.mtable #head th { vertical-align: bottom; }
-  table.mtable #head th:first-child { font-size: 13px; }
-  table.mtable tr > :first-child { position: sticky; left: 0; z-index: 2; background: var(--card); min-width: 118px; max-width: 120px; box-shadow: 2px 0 4px -2px rgba(35,41,45,.25); }
-  table.mtable thead tr > :first-child { background: var(--card); }
-  table.mtable #head0 { display: none; } /* строка-группа «Пакет …» на телефоне не нужна: сдвигалась при прокрутке */
+  .frame { overflow-x: scroll; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: var(--accent) var(--line); }
+  .frame::-webkit-scrollbar { height: 6px; }
+  .frame::-webkit-scrollbar-track { background: var(--line); border-radius: 3px; }
+  .frame::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+  .frame table { font-size: 12px; min-width: 600px; }
+  .frame th, .frame td { padding: 6px 8px !important; }
+  .frame th, .frame td, .frame th *, .frame td * { font-size: 12px !important; line-height: 1.35; }
+  .frame th small, .frame th small *, .frame .usd, .frame .pnote, .frame .pfix { font-size: 10px !important; }
+  .frame .hctl button, .frame .hctl select { padding: 3px 6px !important; }
+  .frame thead th { font-size: 10px; }
+  table.mtable { min-width: 760px; }
+  .frame input[type="text"] { font-size: 14px; padding: 6px 8px; }
 }
 #ccards { margin-bottom: 16px; }
 #ccards .tc { background: #fbf8ee; }
@@ -424,7 +418,6 @@ section.card.intro h2 + h3 { margin-top: 28px; }
   </section>
 
   <p class="costnote">Выгода считается <b>до вычета себестоимости чистки</b> (химия, работа мастера). Если хотите её учесть — впишите процент в строку «Себестоимость чистки» и нажмите «Рассчитать».</p>
-  <p class="scroll-hint">Таблицу можно листать вбок →</p>
   <div class="frame">
     <table class="mtable">
       <thead><tr id="head0"></tr><tr id="head"></tr></thead>
@@ -851,7 +844,6 @@ function stackLabel(t) {
       row(2, '2', PRICE.city, 2) +
       row(3, '3+', PRICE.many, 3) +
       row(3, '3+ в «Комбо»', PRICE.comboMany, 3, 'бот в 3 и больше городских пунктах + наш районный пункт', 'combo-row');
-    stackLabel(document.querySelector('table.ptable'));
     $('b-calc').classList.remove('dirty'); $('b-hint').hidden = true;
   }
   ['b-orders', 'b-check'].forEach((id) => $(id).addEventListener('input', () => { $('b-calc').classList.add('dirty'); $('b-hint').hidden = false; }));
