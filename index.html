@@ -228,6 +228,8 @@ section.card.intro h2 + h3 { margin-top: 28px; }
   table.mtable td:first-child::before { display: none; }
   table.mtable td .usd { text-align: left !important; }
 }
+#ccards { margin-bottom: 16px; }
+#ccards .tc { background: #fbf8ee; }
 </style>
 </head>
 <body>
@@ -295,6 +297,7 @@ section.card.intro h2 + h3 { margin-top: 28px; }
 
   <h2 class="part">Город + район <span class="pkg pkg-combo">пакет «Комбо»</span></h2>
   <p class="intro-p">«Комбо» — это наш бот в ваших городских пунктах и районный пункт («Расширение») вместе. Условие — бот минимум в 2 городских пунктах. Все заказы, из города и из района, — в одном боте и одной статистике.</p>
+  <section class="tcards" id="ccards" aria-label="Тарифы пакета «Комбо»"></section>
   <section class="tcards combo-cards" aria-label="Условия «Комбо»">
     <div class="tc"><div class="tc-name">Районный пункт дешевле</div><p class="tc-text">Пакет района — на 1% ниже, минимумы те же.</p><ul><li class="y">Средний: 12%, не менее $210</li><li class="y">Полный: 12%, не менее $210 + аренда $90</li><li class="y">Минимальный: по цене бота, как и без «Комбо»</li></ul></div>
     <div class="tc"><div class="tc-name">Бот в городе</div><p class="tc-text">За каждый городской пункт, процент — только с заказов через бот.</p><ul><li class="y">2 пункта: 4,3%, $60–253 каждый</li><li class="y">3 и больше: <b>3,7%, $50–230 каждый</b></li></ul></div>
@@ -660,7 +663,7 @@ function stackLabel(t) {
     const no = (t) => '<li class="n">' + t + ' — ваш' + (t === 'приёмщик' ? '' : 'е') + '</li>';
     // Во всех тарифах за химчисткой — транспорт и инвентарь
     const always = '<li class="n">транспорт (рейс) — ваш</li><li class="n">вешала, стойка, терминал (при необходимости) — ваши</li>';
-    const card = (name, items, price, combo, cls) => '<div class="tc ' + cls + '"><div class="tc-name">' + name + '</div><ul>' + items.join('') + '</ul><div class="tc-price">' + price + '</div>' + (combo ? '<div class="tc-combo">в «Комбо»: ' + combo + '</div>' : '') + '</div>';
+    const card = (name, items, price, combo, cls) => '<div class="tc ' + cls + '"><div class="tc-name">' + name + '</div><ul>' + items.join('') + '</ul><div class="tc-price">' + price + '</div>' + (combo ? '<div class="tc-combo">' + (name.includes('«Комбо»') ? '' : 'в «Комбо»: ') + combo + '</div>' : '') + '</div>';
     const bot = 'бот ' + fmt2(PRICE.botPct) + '%, не менее $' + PRICE.botMin;
     const lv = (id) => LEVELS[id];
     const pack = (id, d) => 'пакет ' + fmt2(lv(id).pct - (d ? PRICE.comboPct : 0)) + '% от оборота, не менее $' + lv(id).min;
@@ -669,6 +672,14 @@ function stackLabel(t) {
       card('Минимальный', [yes('чат-бот'), yes('продвижение в местных каналах'), no('помещение'), no('приёмщик'), always], 'бот ' + fmt2(PRICE.botPct) + '%, не менее $' + PRICE.botOnlyMin + ', без максимума', 'то же; бот в городе дешевле', 't-min') +
       card('Средний', [yes('чат-бот'), yes('продвижение'), yes('наш приёмщик'), no('помещение'), always], bot + '<br>+ ' + pack('mid'), pack('mid', true), 't-mid') +
       card('Полный', [yes('чат-бот'), yes('продвижение'), yes('наш приёмщик'), yes('наше помещение, аренда и коммунальные'), always], bot + '<br>+ ' + full(), full(true), 't-full');
+    // Те же тарифы в «Комбо»: пакет на 1% дешевле, бот в районе — по ставке 3+ пунктов, плюс бот в городских пунктах
+    const cbot = 'бот ' + fmt2(PRICE.many.pct) + '%, не менее $' + PRICE.botMin;
+    const city = 'бот в городских пунктах: 2 — ' + fmt2(PRICE.city.pct) + '%, $' + PRICE.city.min + '–' + PRICE.city.max + '; 3 и больше — ' + fmt2(PRICE.comboMany.pct) + '%, $' + PRICE.comboMany.min + '–' + PRICE.comboMany.max + ' каждый';
+    const yc = yes('бот в ваших городских пунктах');
+    $('ccards').innerHTML =
+      card('Минимальный в «Комбо»', [yes('чат-бот'), yes('продвижение в местных каналах'), yc, no('помещение'), no('приёмщик'), always], 'бот ' + fmt2(PRICE.botPct) + '%, не менее $' + PRICE.botOnlyMin + ', без максимума', city, 't-min') +
+      card('Средний в «Комбо»', [yes('чат-бот'), yes('продвижение'), yes('наш приёмщик'), yc, no('помещение'), always], cbot + '<br>+ ' + pack('mid', true), city, 't-mid') +
+      card('Полный в «Комбо»', [yes('чат-бот'), yes('продвижение'), yes('наш приёмщик'), yes('наше помещение, аренда и коммунальные'), yc, always], cbot + '<br>+ ' + full(true), city, 't-full');
   }
 
   function setMode(m) {
