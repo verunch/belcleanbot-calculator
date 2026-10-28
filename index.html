@@ -206,6 +206,28 @@ section.card.intro h2::after { content: ""; display: block; width: 48px; height:
 section.card.intro h3 { font-family: 'Golos Text', Arial, sans-serif; font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 44px 0 16px; }
 section.card.intro h2 + h3 { margin-top: 28px; }
 @media (max-width: 600px) { .wrap { padding-top: 40px; } }
+/* Телефон (28.10.2026): таблица цен бота — карточки; таблица расчёта — прокрутка вбок с закреплённой первой колонкой */
+@media (max-width: 720px) {
+  table.ptable.stack thead { display: none; }
+  table.ptable.stack, table.ptable.stack tbody, table.ptable.stack tr, table.ptable.stack td { display: block; width: 100% !important; }
+  table.ptable.stack tr { padding: 12px 14px; border-bottom: 1px solid var(--line); }
+  table.ptable.stack td { border: 0 !important; padding: 4px 0 !important; }
+  table.ptable.stack td.calc-col { margin-top: 6px; padding: 8px 10px !important; border-radius: 10px; }
+  table.ptable.stack td::before { content: attr(data-label); display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 2px; }
+  table.ptable.stack td.pn::before { display: none; }
+  /* таблица расчёта: сверху карточки тарифов (с переключателями «Комбо»), ниже строки — карточки со значением по каждому тарифу */
+  table.mtable { min-width: 0 !important; }
+  table.mtable, table.mtable thead, table.mtable tbody, table.mtable tr, table.mtable th, table.mtable td { display: block; width: 100% !important; min-width: 0 !important; }
+  table.mtable #head0, table.mtable #head th:nth-child(1), table.mtable #head th:nth-child(2) { display: none; }
+  table.mtable #head th { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--line); box-shadow: inset 4px 0 0 currentColor; }
+  table.mtable tbody tr { padding: 12px 14px; border-bottom: 1px solid var(--line); }
+  table.mtable td { border: 0 !important; padding: 3px 0 !important; text-align: left !important; background: none !important; }
+  table.mtable td:empty { display: none; }
+  table.mtable td::before { content: attr(data-label); display: block; font-size: 12px; font-weight: 600; color: var(--muted); }
+  table.mtable td:first-child { font-size: 16px; font-weight: 700; padding-bottom: 6px !important; }
+  table.mtable td:first-child::before { display: none; }
+  table.mtable td .usd { text-align: left !important; }
+}
 </style>
 </head>
 <body>
@@ -330,7 +352,7 @@ section.card.intro h2 + h3 { margin-top: 28px; }
 
   <p class="costnote">Выгода считается <b>до вычета себестоимости чистки</b> (химия, работа мастера). Если хотите её учесть — впишите процент в строку «Себестоимость чистки» и нажмите «Рассчитать».</p>
   <div class="frame">
-    <table>
+    <table class="mtable">
       <thead><tr id="head0"></tr><tr id="head"></tr></thead>
       <tbody id="body"></tbody>
     </table>
@@ -351,6 +373,26 @@ section.card.intro h2 + h3 { margin-top: 28px; }
 </div>
 
 <script>
+// Мобильный вид таблиц: строка — карточка, у каждой ячейки подпись из шапки (28.10.2026)
+function stackLabel(t) {
+  const hr = [...t.querySelectorAll('thead tr')];
+  if (!hr.length) return;
+  const labels = [];
+  hr.forEach((tr) => {
+    let c = 0;
+    [...tr.children].forEach((th) => {
+      const span = th.colSpan || 1, txt = th.innerHTML.replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+      for (let k = 0; k < span; k++) { if (txt) labels[c + k] = labels[c + k] ? labels[c + k] + ' · ' + txt : txt; }
+      c += span;
+    });
+  });
+  t.querySelectorAll('tbody tr').forEach((tr) => {
+    let c = 0;
+    [...tr.children].forEach((td) => { td.dataset.label = labels[c] || ''; c += td.colSpan || 1; });
+  });
+  t.classList.add('stack');
+}
+
 (function () {
   'use strict';
   const RATE = 3.01; // BYN за $1
@@ -585,6 +627,10 @@ section.card.intro h2 + h3 { margin-top: 28px; }
       (items ? ' · ' + byn(d.r.income / items) + ' с вещи' : '') + '</span>' + (ready ? '' : '<span class="usd miss">' + without + '</span>') + '</td>').join('') + '</tr>');
     rows.push('<tr><td>В плюсе с какого числа вещей</td><td></td>' + data.map((d) => '<td>' + (!d.r ? '—' : d.be === undefined ? '—' : d.be === null ? 'не окупается' : d.be === 0 ? 'с любого' : 'с ' + d.be) + '</td>').join('') + '</tr>');
     $('body').innerHTML = rows.join('');
+    // Подписи ячеек для телефона: строка таблицы — карточка
+    document.querySelectorAll('#body tr').forEach((tr) => {
+      [...tr.children].forEach((td, i) => { td.dataset.label = i === 1 ? 'Ваше значение' : i > 1 && COLS[i - 2] ? nameOf(COLS[i - 2]) : ''; });
+    });
     // Колонка каждого тарифа — своего цвета (как карточки тарифов)
     ['#head', '#body tr'].forEach((sel) => document.querySelectorAll(sel).forEach((tr) => {
       [...tr.children].slice(2).forEach((td, i) => { if (COLS[i]) td.classList.add('c-' + COLS[i].id); });
@@ -721,6 +767,7 @@ section.card.intro h2 + h3 { margin-top: 28px; }
       row(2, '2', PRICE.city, 2) +
       row(3, '3+', PRICE.many, 3) +
       row(3, '3+ в «Комбо»', PRICE.comboMany, 3, 'бот в 3 и больше городских пунктах + наш районный пункт', 'combo-row');
+    stackLabel(document.querySelector('table.ptable'));
     $('b-calc').classList.remove('dirty'); $('b-hint').hidden = true;
   }
   ['b-orders', 'b-check'].forEach((id) => $(id).addEventListener('input', () => { $('b-calc').classList.add('dirty'); $('b-hint').hidden = false; }));
