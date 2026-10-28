@@ -219,6 +219,10 @@ section.card.intro h2 + h3 { margin-top: 28px; }
   .frame .hctl button, .frame .hctl select { padding: 3px 6px !important; }
   .frame thead th { font-size: 10px; }
   table.mtable { min-width: 760px; }
+  /* «Выгода химчистки»: первый столбец закреплён, остальные листаются (как в КП «Открыть районный пункт») */
+  table.mtable #head > :first-child, table.mtable tbody tr > :first-child { position: sticky; left: 0; z-index: 3; background: var(--card); width: 132px !important; min-width: 132px; max-width: 132px; hyphens: auto; -webkit-hyphens: auto; overflow-wrap: anywhere; box-shadow: 2px 0 4px -2px rgba(35,41,45,.25); }
+  table.mtable tbody tr.total > :first-child, table.mtable tbody tr.income > :first-child { background: var(--card); }
+  table.mtable #head0 th.blank:first-child { position: sticky; left: 0; z-index: 3; background: var(--card); width: 132px; min-width: 132px; max-width: 132px; box-shadow: 2px 0 4px -2px rgba(35,41,45,.25); }
   .frame input[type="text"] { font-size: 14px; padding: 6px 8px; }
 }
 #ccards { margin-bottom: 16px; }
@@ -674,7 +678,7 @@ function stackLabel(t) {
     }).join('');
 
     // Шапка: над четырьмя колонками — пакет районного пункта, над «Комбо» — пусто
-    $('head0').innerHTML = '<th colspan="2" class="blank"></th><th colspan="' + (COLS.length - 1) + '" scope="colgroup" class="tarifs ext-g">Пакет «Расширение» — районный пункт</th><th scope="col" class="tarifs combo-g">Пакет «Комбо»</th>';
+    $('head0').innerHTML = '<th class="blank"></th><th class="blank"></th><th colspan="' + (COLS.length - 1) + '" scope="colgroup" class="tarifs ext-g">Пакет «Расширение» — районный пункт</th><th scope="col" class="tarifs combo-g">Пакет «Комбо»</th>';
     $('head').innerHTML = '<th scope="col" class="lbl">' + who + ' на районный пункт · ' + items + ' вещей × ' + fmt(check) + ' BYN</th><th scope="col">Ваше значение</th>' + COLS.map(header).join('');
 
     const rows = LAYOUT[state.mode].filter(([key]) => data.some((d) => d.r && d.r.lines[key] !== null && d.r.lines[key] !== undefined)).map(([key, label, param]) => {
