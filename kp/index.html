@@ -207,6 +207,8 @@ a { color: var(--accent); }
   .best-pack { box-shadow: none; }
   a { color: inherit; }
 }
+.print-only { display: none; }
+@media print { .print-only { display: block; } .print-links { margin: 12px 0; padding: 10px 14px; border: 1px solid var(--accent); border-radius: 10px; background: var(--accent-soft); font-size: 12px; line-height: 1.6; } .print-links a { color: var(--accent); font-weight: 700; text-decoration: underline; } }
 </style>
 </head>
 <body>
@@ -217,6 +219,7 @@ a { color: var(--accent); }
     <h1>Чат-бот BelCleanBot для вашей химчистки + новые пункты в регионах</h1>
     <p class="lead">Клиент оформляет заказ в Telegram, видит предварительную цену по фото, платит с телефона и следит за заказом. Приёмщик сверяет вещь и печатает готовую квитанцию. На основе бота — два пакета.</p>
     <div class="meta"><span>Вера Бакерова, BelCleanBot</span><span>Суммы в BYN и долларах, курс 3,01 BYN за $1</span></div>
+        <div class="print-only print-links"><b>Калькулятор онлайн</b> — доходы и расходы пункта на ваших цифрах: <a href="https://verunch.github.io/belcleanbot-calculator/">verunch.github.io/belcleanbot-calculator/</a><br><b>Это предложение онлайн</b>, в удобном виде: <a href="https://verunch.github.io/belcleanbot-calculator/kp/">verunch.github.io/belcleanbot-calculator/kp/</a></div>
     <div class="cta-row"><a class="btn" href="https://verunch.github.io/belcleanbot-calculator/" target="_blank" rel="noopener">Калькулятор: доходы и расходы на ваших цифрах →</a></div>
   </header>
 
@@ -456,6 +459,7 @@ a { color: var(--accent); }
   <section aria-labelledby="calc-title">
     <span class="eyebrow">Посчитайте сами</span>
     <h2 id="calc-title">Что остаётся вам с одного районного пункта</h2>
+    <div class="print-only print-links">Подробный расчёт по каждой статье доходов и расходов, с «Комбо» и вашими цифрами — в калькуляторе онлайн: <a href="https://verunch.github.io/belcleanbot-calculator/">verunch.github.io/belcleanbot-calculator/</a></div>
     <p class="small muted" style="margin:6px 0 14px">Здесь — короткий расчёт. Подробно, по каждой статье доходов и расходов и для «Комбо», — в <a href="https://verunch.github.io/belcleanbot-calculator/" target="_blank" rel="noopener">калькуляторе</a>.</p>
     <div class="calc">
       <div class="controls">
@@ -540,6 +544,7 @@ a { color: var(--accent); }
 
   <section>
     <p class="footnote">* Viber-бот создаём отдельно, по вашему запросу, если при вашем потоке заказов это окажется рентабельно: Viber берёт плату за каждого бота и за уведомления клиентам. Стоимость рассчитаем отдельно.</p>
+    <div class="print-only print-links"><b>Калькулятор онлайн</b> — доходы и расходы пункта на ваших цифрах: <a href="https://verunch.github.io/belcleanbot-calculator/">verunch.github.io/belcleanbot-calculator/</a><br><b>Это предложение онлайн</b>, в удобном виде: <a href="https://verunch.github.io/belcleanbot-calculator/kp/">verunch.github.io/belcleanbot-calculator/kp/</a></div>
     <div class="contact">
       <b>Вера Бакерова</b>
       <span>+375 29 574 58 70</span>
